@@ -1,20 +1,22 @@
+// 当前企业 ID
+let focusNodeId = 22822;
+
+// 企业关系 API
 const APIS = [
     'data/baidu.json',
     'data/tencent.json',
     'data/alibaba.json',
     'data/huawei.json'
 ];
-const RELATIONS_MAP = APIS[1];
+const RELATIONS_MAP = APIS[0];
 
+// 企业信息 API
 const NODE_INFO = 'data/nodeInfo.json';
 
 const width = Math.max(window.innerWidth, 1366);
 const height = window.innerHeight;
 
 const initScale = .7;
-const focusNodeId = 8;
-let hoverNodeId = 0;
-
 
 const nodeConf = {
     fillColor: {
@@ -337,7 +339,7 @@ function initialize(resp) {
     const focusNode = nodeCircle.filter(({
         ntype,
         id
-    }) => ntype === 'Company' && id === focusNodeId);
+    }) => ntype === 'Company' && +id === +focusNodeId);
 
     focusNode.append('circle')
         .attr('r', node => nodeConf.radius[node.ntype] + 8)

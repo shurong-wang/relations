@@ -6,7 +6,7 @@ const APIS = [
 ];
 const RELATIONS_MAP = APIS[1];
 
-const NODE_INFO = 'data/v5.node-info.simple.json';
+const NODE_INFO = 'data/nodeInfo.json';
 
 const width = Math.max(window.innerWidth, 1366);
 const height = window.innerHeight;

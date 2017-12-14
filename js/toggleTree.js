@@ -1,10 +1,12 @@
-const API = "./data/tree/toggle_tree_r.json";
+const API1 = "./data/tree/toggle_tree_r.json";
+const API2 = "./data/tree/toggle_tree_l.json";
 
 var m = [20, 120, 20, 20],
     w = 1280 - m[1] - m[3],
     h = 800 - m[0] - m[2],
     i = 0,
-    root;
+    root,
+    rootLeft;
 
 var tree = d3.layout.tree()
     .size([h, w]);
@@ -19,38 +21,42 @@ var vis = d3.select("#main").append("svg:svg")
     // .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
     .attr("transform", "translate(" + w / 2 + "," + -m[0] * 3 + ")");
 
-d3.json(API, function (json) {
-    root = json;
-    root.x0 = h / 2;
-    root.y0 = 0;
+// // 树右侧
+// d3.json(API1, function (json) {
+//     root = json;
+//     root.x0 = h / 2;
+//     root.y0 = 0;
 
-    function toggleAll(d) {
-        if (d.children) {
-            d.children.forEach(toggleAll);
-            toggle(d);
-        }
-    }
+//     // Initialize the display to show a few nodes.
+//     // root.children.forEach(toggleAll);
+//     // toggle(root.children[1]);
+//     // toggle(root.children[1].children[2]);
+
+//     update(root, 1);
+// });
+
+// 树左侧
+d3.json(API2, function (json) {
+    rootLeft = json;
+    rootLeft.x0 = h / 2;
+    rootLeft.y0 = 0;
 
     // Initialize the display to show a few nodes.
-    // root.children.forEach(toggleAll);
-    // toggle(root.children[1]);
-    // toggle(root.children[1].children[2]);
     // toggle(root.children[9]);
     // toggle(root.children[9].children[0]);
 
-    update(root);
+    update(rootLeft, -1);
 });
 
-function update(source) {
-    var duration = d3.event && d3.event.altKey ? 5000 : 500;
+function update(source, direction = 1) {
+    var _root = direction === -1 ? rootLeft : root;
 
     // Compute the new tree layout.
-    var nodes = tree.nodes(root).reverse();
+    var nodes = tree.nodes(_root).reverse();
 
     // Normalize for fixed-depth.
     nodes.forEach(function (d) {
-        var direction = -1;
-        d.y = d.depth * 180 * direction; 
+        d.y = d.depth * 180 * direction;
     });
 
     // Update the nodes…
@@ -62,9 +68,8 @@ function update(source) {
         .attr("class", "node")
         .attr("transform", function (d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
         .on("click", function (d) {
-            console.log('ON/OFF');
             toggle(d);
-            update(d);
+            update(d, direction);
         });
 
     nodeEnter.append("svg:circle")
@@ -91,6 +96,8 @@ function update(source) {
         });
 
     // Transition nodes to their new position.
+    var duration = d3.event && d3.event.altKey ? 5000 : 500;
+
     var nodeUpdate = node.transition()
         .duration(duration)
         .attr("transform", function (d) { return "translate(" + d.y + "," + d.x + ")"; });
@@ -148,6 +155,14 @@ function update(source) {
         d.x0 = d.x;
         d.y0 = d.y;
     });
+}
+
+// Toggle all children.
+function toggleAll(d) {
+    if (d.children) {
+        d.children.forEach(toggleAll);
+        toggle(d);
+    }
 }
 
 // Toggle children.

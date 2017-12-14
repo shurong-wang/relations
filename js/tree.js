@@ -2,6 +2,7 @@ function initialize() {
     // 当前企业 ID
     const MID_NODE_NAME = '上海携程商务有限公司';
     const TREE_MAP = '../data/tree/tree2.json';
+    const aim = '#main';
 
     // 请求数据，绘制图表 模拟分别请求左右分支的情况
     d3.json(TREE_MAP, (error, lResp) => {
@@ -22,25 +23,17 @@ function initialize() {
                 rResp = JSON.parse(rResp);
             }
     
-            const resp = {
-                l: lResp.l,
-                r: rResp.r
-            };
+            var treeRight = rResp.r;
+            var treeLeft = rResp.l;
 
             // 初始化
-            render(resp, MID_NODE_NAME);
+            renderTree(treeRight, treeLeft, aim, MID_NODE_NAME);
         });
     });
 }
 
-function render(tree, MID_NODE_NAME) {
-    var treeRight = tree['r'] ? tree['r'] : {};
-    var treeLeft = tree['l'] ? tree['l'] : {};
-    renderTree('#main', treeRight, treeLeft, MID_NODE_NAME);
-}
-
 // 渲染簇图
-function renderTree(aim, treeRight, treeLeft, MID_NODE_NAME) {
+function renderTree(treeRight = {}, treeLeft = {}, aim, MID_NODE_NAME) {
     var m = [20, 120, 20, 120];
     var w = 1280 - m[1] - m[3];
     var h = 600 - m[0] - m[2];  //靠左
@@ -102,7 +95,7 @@ function renderTree(aim, treeRight, treeLeft, MID_NODE_NAME) {
         nodeEnter.append("svg:text")
             .attr("x", function (d) {
                 if (d.name === MID_NODE_NAME) {
-                    return 20;
+                    return 10;
                 }
                 return d.children || d._children ? -10 : 10; }
             )

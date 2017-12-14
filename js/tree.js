@@ -3,18 +3,33 @@ function initialize() {
     const MID_NODE_NAME = '上海携程商务有限公司';
     const TREE_MAP = '../data/tree/v2.json';
 
-    // 请求数据，绘制图表
-    d3.json(TREE_MAP, (error, resp) => {
+    // 请求数据，绘制图表 模拟分别请求左右分支的情况
+    d3.json(TREE_MAP, (error, lResp) => {
         if (error) {
             return console.error(error);
         }
 
-        if (typeof resp === 'string') {
-            resp = JSON.parse(resp);
-        }
+        // 此处应该使用 async/await + Promise 但当前项目不允许
+        d3.json(TREE_MAP, (error, rResp) => {
+            if (error) {
+                return console.error(error);
+            }
+    
+            if (typeof lResp === 'string') {
+                lResp = JSON.parse(lResp);
+            }
+            if (typeof rResp === 'string') {
+                rResp = JSON.parse(rResp);
+            }
+    
+            const resp = {
+                l: lResp.l,
+                r: rResp.r
+            };
 
-        // 初始化
-        render(resp, MID_NODE_NAME);
+            // 初始化
+            render(resp, MID_NODE_NAME);
+        });
     });
 }
 

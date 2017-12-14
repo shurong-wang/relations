@@ -1,7 +1,7 @@
 function initialize() {
     // 当前企业 ID
     const MID_NODE_NAME = '上海携程商务有限公司';
-    const TREE_MAP = '../data/tree/v2.json';
+    const TREE_MAP = '../data/tree/tree2.json';
 
     // 请求数据，绘制图表 模拟分别请求左右分支的情况
     d3.json(TREE_MAP, (error, lResp) => {
@@ -58,31 +58,27 @@ function renderTree(aim, treeRight, treeLeft, MID_NODE_NAME) {
 
     update(treeRight, treeLeft);
 
-    function initNodes(left) {
-        left.x0 = h / 2;
-        left.y0 = 0;
-        var leftNodes = tree.nodes(left);
-        return leftNodes;
+    function layout(node) {
+        node.x0 = h / 2;
+        node.y0 = 0;
+        return tree.nodes(node);
     }
 
-    function update(source, l) {
+    function update(source, lsource) {
         var duration = d3.event && d3.event.altKey ? 5000 : 500;
 
         // Compute the new tree layout.
-        var nodes = initNodes(source);
-        var leftNodes = initNodes(l);
-        // if( l !=)
-        var len = nodes.length;
+        var nodes = layout(source);
+        var leftNodes = layout(lsource);
+        var lastIndex = nodes.length;
         for (var i in leftNodes) {
-            nodes[len++] = leftNodes[i];
+            nodes[lastIndex++] = leftNodes[i];
         }
 
         // Normalize for fixed-depth.
         nodes.forEach(function (d) {
-            tmp = 1;
-            if (d.pos == 'l') { tmp = -1; }
-            d.y = tmp * d.depth * 200;  // 线条长度，也是作于方向
-            // d.x = d.l * 63;
+            var direction = d.pos == 'l' ? -1 : 1;
+            d.y = d.depth * 200 * direction;
         });
 
         // Update the nodes…
@@ -95,9 +91,7 @@ function renderTree(aim, treeRight, treeLeft, MID_NODE_NAME) {
             .attr("transform", function (d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
             .on("click", function(d) { 
                 // ajax_get_server(d.name);
-                console.log('ON/OFF', d.name);
-                toggle(d); 
-                update(d,l); 
+                console.log(d.name);
             });
 
         nodeEnter.append("svg:circle")
@@ -180,16 +174,5 @@ function renderTree(aim, treeRight, treeLeft, MID_NODE_NAME) {
             d.x0 = d.x;
             d.y0 = d.y;
         });
-    }
-
-    // Toggle children.
-    function toggle(d) {
-        if (d.children) {
-            d._children = d.children; // 闭合子节点
-            d.children = null;
-        } else {
-            d.children = d._children; // 开启子节点
-            d._children = null;
-        }
     }
 }

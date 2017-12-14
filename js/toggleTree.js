@@ -1,5 +1,4 @@
-const TOGGLE_TREE_LEFT = "./data/tree/toggle_tree_l.json";
-const TOGGLE_TREE = "./data/tree/toggle_tree_r.json";
+const API = "./data/tree/toggle_tree_r.json";
 
 var m = [20, 120, 20, 20],
     w = 1280 - m[1] - m[3],
@@ -20,7 +19,7 @@ var vis = d3.select("#main").append("svg:svg")
     // .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
     .attr("transform", "translate(" + w / 2 + "," + -m[0] * 3 + ")");
 
-d3.json(TOGGLE_TREE, function (json) {
+d3.json(API, function (json) {
     root = json;
     root.x0 = h / 2;
     root.y0 = 0;

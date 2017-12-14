@@ -48,7 +48,10 @@ function update(source) {
     var nodes = tree.nodes(root).reverse();
 
     // Normalize for fixed-depth.
-    nodes.forEach(function (d) { d.y = d.depth * 180; });
+    nodes.forEach(function (d) {
+        var direction = -1;
+        d.y = d.depth * 180 * direction; 
+    });
 
     // Update the nodes…
     var node = vis.selectAll("g.node")

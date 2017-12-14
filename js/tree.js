@@ -77,6 +77,7 @@ function renderTree(aim, treeRight, treeLeft, MID_NODE_NAME) {
 
         // Normalize for fixed-depth.
         nodes.forEach(function (d) {
+            // 方向控制
             var direction = d.pos == 'l' ? -1 : 1;
             d.y = d.depth * 200 * direction;
         });

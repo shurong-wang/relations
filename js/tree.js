@@ -78,8 +78,12 @@ function renderTree(aim, treeRight, treeLeft, MID_NODE_NAME) {
         var nodeEnter = node.enter().append("svg:g")
             .attr("class", "node")
             .attr("transform", function (d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-            .on("click", function (d) { alert(d.name); }); // 点击事件
-        // .on("click", function(d) { ajax_get_server(d.name);console.log(d);toggle(d); update(d,l); });
+            .on("click", function(d) { 
+                // ajax_get_server(d.name);
+                console.log('ON/OFF', d.name);
+                toggle(d); 
+                update(d,l); 
+            });
 
         nodeEnter.append("svg:circle")
             .attr("r", 1e-6)

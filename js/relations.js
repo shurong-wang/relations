@@ -9,6 +9,7 @@ const APIS = [
     'data/huawei.json'
 ];
 const RELATIONS_MAP = APIS[0];
+// const RELATIONS_MAP = 'http://192.168.1.18/api.php?req=http://192.168.1.27:8080/jstx/getRelationNode.do?companyId=209522';
 
 // 企业信息 API
 const NODE_INFO = 'data/nodeInfo.json';
@@ -162,6 +163,10 @@ d3.json(RELATIONS_MAP, (error, resp) => {
         return console.error(error);
     }
 
+    if (typeof resp === 'string') {
+        resp = JSON.parse(resp);
+    }
+
     // 初始化
     initialize(resp);
 });
@@ -192,21 +197,13 @@ function initialize(resp) {
         .nodes(nodes) // 设定节点数组
         .links(links); // 设定连线数组
 
-    // 开启力导向布局
-    force.start();
+   // 开启力导向布局
+   force.start();
 
     // 手动快速布局
     for (let i = 0, n = 1000; i < n; ++i) {
         force.tick();
     }
-
-    // 停止力布局
-    force.stop();
-
-    // 固定所有节点
-    nodes.forEach(node => {
-        node.fixed = true;
-    });
 
     // 箭头
     const marker = container.append('svg:defs').selectAll('marker')
@@ -409,6 +406,9 @@ function initialize(resp) {
 
     // 更新力导向图
     function tick() {
+
+        console.log('tick...');
+
         // 节点位置
         nodeCircle.attr('transform', node => 'translate(' + node.x + ',' + node.y + ')');
         // 连线路径
@@ -421,6 +421,14 @@ function initialize(resp) {
         });
     }
 
+    // 停止力布局
+    force.stop();
+
+    // 固定所有节点
+    nodes.forEach(node => {
+        node.fixed = true;
+    });
+
     // 更新力导向图
     // 注意1：必须调用一次 tick （否则，节点会堆积在左上角）
     // 注意2：调用位置必须在 nodeCircle, nodeText, linkLine, lineText 后
@@ -430,6 +438,7 @@ function initialize(resp) {
     force.on('tick', tick);
 
 }
+
 
 function genLinks(relations) {
     const indexHash = {};

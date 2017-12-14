@@ -1,0 +1,27 @@
+{
+    "23920925": [
+        {
+            "id": 2.3920925E7,
+            "lable": "Company",
+            "name": "上海携程商务有限公司",
+            "open": true,
+            
+            "children": [
+                {
+                    "children": [],
+                    "id": 1.882354791E9,
+                    "lable": "Human",
+                    "name": "孙茂华",
+                    "open": false
+                },
+                {
+                    "children": [],
+                    "id": 2.139706935E9,
+                    "lable": "Human",
+                    "name": "范敏",
+                    "open": false
+                }
+            ]
+        }
+    ]
+}

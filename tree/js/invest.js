@@ -1,55 +1,55 @@
 function initialize() {
     // 当前根节点 ID
-    const MID_NODE_NAME = '上海携程商务有限公司';
-    const API = './data/tree.simple.json';
+    const MID_NODE_ID = '23920925';
+    const API_L = './data/ctrip_l.json';
+    const API_R = './data/ctrip_r.json';
     const aim = '#main';
 
-    // 请求数据，绘制图表 模拟分别请求左右分支的情况
-    d3.json(API, (error, lResp) => {
+    // 此处应该使用 async/await + Promise 但当前项目不允许
+    d3.json(API_L, (error, respL) => {
         if (error) {
             return console.error(error);
         }
 
-        // 此处应该使用 async/await + Promise 但当前项目不允许
-        d3.json(API, (error, rResp) => {
+        d3.json(API_R, (error, respR) => {
             if (error) {
                 return console.error(error);
             }
-    
-            if (typeof lResp === 'string') {
-                lResp = JSON.parse(lResp);
+
+            if (typeof respL === 'string') {
+                respL = JSON.parse(respL);
             }
-            if (typeof rResp === 'string') {
-                rResp = JSON.parse(rResp);
+            if (typeof respR === 'string') {
+                respR = JSON.parse(respR);
             }
-    
-            var treeRight = rResp.r;
-            var treeLeft = rResp.l;
+
+            var treeRight = respR[MID_NODE_ID][0];
+            var treeLeft = respL[MID_NODE_ID][0];
 
             // 初始化
-            render(treeRight, treeLeft, aim, MID_NODE_NAME);
+            render(treeRight, treeLeft, aim, MID_NODE_ID);
         });
     });
 }
 
 // 渲染簇图
-function render(treeRight = {}, treeLeft = {}, aim, MID_NODE_NAME) {
+function render(treeRight = {}, treeLeft = {}, aim, MID_NODE_ID) {
     var m = [20, 120, 20, 120];
     var w = 1280 - m[1] - m[3];
     var h = 600 - m[0] - m[2];
     var i = 0;
-    const gap = 0.1; // 树枝间隙缩密度
+    const gap = 0.4; // 树枝密度
 
     var tree = d3.layout.cluster()
         .size([h, w])
-        .separation(function(a, b) {
+        .separation(function (a, b) {
             return a.parent == b.parent ? 1 : 2;
         });
 
     var diagonal = d3.svg.diagonal()
         .projection(function (d) {
             // x, y 坐标对调，形成横向的树图
-            return [d.y, d.x * gap]; 
+            return [d.y, d.x * gap];
         });
 
     var vis = d3.select(aim).append("svg:svg")
@@ -58,38 +58,42 @@ function render(treeRight = {}, treeLeft = {}, aim, MID_NODE_NAME) {
         .append("svg:g")
         .attr("transform", "translate(" + h + "," + m[0] + ")");
 
+    // 标识左侧树枝
+    treeLeft = defLeftNode(treeLeft);
+
     update(treeRight, treeLeft);
 
-    function update(source, lSource) {
+    function update(source, sourceL) {
 
         // 布局节点
         var nodes = layoutNodes(source);
-        var leftNodes = layoutNodes(lSource);
+        var nodesLeft = layoutNodes(sourceL);
         var lastIndex = nodes.length;
-        for (var i in leftNodes) {
-            nodes[lastIndex++] = leftNodes[i];
+        for (const key in nodesLeft) {
+            if (nodesLeft.hasOwnProperty(key)) {
+                nodes[lastIndex++] = nodesLeft[key];
+            }
         }
-
         // 设置树枝深度和方向
         nodes.forEach(function (d) {
-            // 树枝方向 负值向左/正值向右
-            var direction = d.pos == 'l' ? -1 : 1; 
+            // 树枝方向：负值向左/正值向右
+            var direction = d.direction || 1;
             d.y = d.depth * 200 * direction;
         });
 
         // 更新节点
         var node = vis.selectAll("g.node")
-            .data(nodes, function (d) { 
-                return d.id || (d.id = ++i); 
+            .data(nodes, function (d) {
+                return d.id || (d.id = ++i);
             });
 
         // 在容器插入节点分组
         var nodeEnter = node.enter().append("svg:g")
             .attr("class", "node")
-            .attr("transform", function (d) { 
-                return "translate(" + source.y0 + "," + source.x0 * gap + ")"; 
+            .attr("transform", function (d) {
+                return "translate(" + source.y0 + "," + source.x0 * gap + ")";
             })
-            .on("click", function(d) { 
+            .on("click", function (d) {
                 // ajax_get_server(d.name);
                 console.log(d.name);
             });
@@ -97,40 +101,43 @@ function render(treeRight = {}, treeLeft = {}, aim, MID_NODE_NAME) {
         // 插入节点圆
         nodeEnter.append("svg:circle")
             .attr("r", 1e-6)
-            .style("fill", function (d) { 
-                return d._children ? "lightsteelblue" : "#fff"; 
+            .style("fill", function (d) {
+                return d._children ? "lightsteelblue" : "#fff";
             });
 
         // 插入节点文字
         nodeEnter.append("svg:text")
             .attr("x", function (d) {
-                if (d.name === MID_NODE_NAME) {
+                if (d.id == MID_NODE_ID) {
                     return 10;
                 }
-                return d.children || d._children ? -10 : 10; }
+                return d.children || d._children ? -10 : 10;
+            }
             )
             .attr("dy", ".35em")
             .attr("text-anchor", function (d) {
-                if (d.name === MID_NODE_NAME) {
+                if (d.id == MID_NODE_ID) {
                     return "start";
                 }
-                return d.children || d._children ? "end" : "start"; 
+                return d.children || d._children ? "end" : "start";
             })
-            .text(function (d) { return d.name; })
+            .text(function (d) {
+                return d.name;
+            })
             .style("fill-opacity", 1e-6);
 
         // 展开树枝节点
         var duration = d3.event && d3.event.altKey ? 5000 : 500;
         var nodeUpdate = node.transition()
             .duration(duration)
-            .attr("transform", function (d) { 
-                return "translate(" + d.y + "," + d.x * gap + ")"; 
+            .attr("transform", function (d) {
+                return "translate(" + d.y + "," + d.x * gap + ")";
             });
 
         nodeUpdate.select("circle")
             .attr("r", 4.5)
-            .style("fill", function (d) { 
-                return d._children ? "lightsteelblue" : "#fff"; 
+            .style("fill", function (d) {
+                return d._children ? "lightsteelblue" : "#fff";
             });
 
         nodeUpdate.select("text")
@@ -139,8 +146,8 @@ function render(treeRight = {}, treeLeft = {}, aim, MID_NODE_NAME) {
         // 关闭树枝节点
         var nodeExit = node.exit().transition()
             .duration(duration)
-            .attr("transform", function (d) { 
-                return "translate(" + source.y + "," + source.x * gap + ")"; 
+            .attr("transform", function (d) {
+                return "translate(" + source.y + "," + source.x * gap + ")";
             })
             .remove();
 
@@ -152,8 +159,8 @@ function render(treeRight = {}, treeLeft = {}, aim, MID_NODE_NAME) {
 
         // 更新树枝
         var link = vis.selectAll("path.link")
-            .data(tree.links(nodes), function (d) { 
-                return d.target.id; 
+            .data(tree.links(nodes), function (d) {
+                return d.target.id;
             });
 
         // 插入新树枝
@@ -195,5 +202,39 @@ function render(treeRight = {}, treeLeft = {}, aim, MID_NODE_NAME) {
         node.x0 = h / 2;
         node.y0 = 0;
         return tree.nodes(node);
+    }
+
+    // 标识左侧树枝
+    function defLeftNode(node) {
+        return deepAssign(node, {direction: -1});
+    }
+
+    // 深拷贝并扩展属性
+    function deepAssign(obj, sub = {}) {
+        const getType = o => Object.prototype.toString.call(o).slice(8, -1);
+        const isObject = o => getType(o) === 'Object';
+        const isArray = o => getType(o) === 'Array';
+        const isIterable = o => typeof o === 'object' && typeof o !== 'null';
+        let newObj;
+        if (isIterable(obj)) {
+            newObj = isArray(obj) ? [] : {};
+            for (let [k, v] of Object.entries(obj)) {
+                if (isIterable(v)) { 
+                    newObj[k] = deepAssign(v, sub); // 递归
+                    if(isObject(v)) {
+                        Object.assign(newObj[k], sub);
+                    }
+                } else {
+                    newObj[k] = v;
+                }
+            }
+        } else {
+            return obj;
+        }
+        if(isObject(newObj)) {
+            Object.assign(newObj, sub);
+        }
+        
+        return newObj;
     }
 }

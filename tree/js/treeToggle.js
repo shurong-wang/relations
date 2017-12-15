@@ -1,5 +1,5 @@
-const API1 = "./data/tree/toggle_tree_r.json";
-const API2 = "./data/tree/toggle_tree_l.json";
+const API1 = "./data/tree_toggle_r.json";
+const API2 = "./data/tree_toggle_l.json";
 
 var m = [20, 120, 20, 20],
     w = 1280 - m[1] - m[3],

@@ -1,7 +1,7 @@
 function initialize() {
     // 当前根节点 ID
     const MID_NODE_NAME = '上海携程商务有限公司';
-    const API = '../data/tree/tree2.json';
+    const API = './data/tree.simple.json';
     const aim = '#main';
 
     // 请求数据，绘制图表 模拟分别请求左右分支的情况

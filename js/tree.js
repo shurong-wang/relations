@@ -139,7 +139,7 @@ function render(treeRight = {}, treeLeft = {}, aim, MID_NODE_NAME) {
         var nodeExit = node.exit().transition()
             .duration(duration)
             .attr("transform", function (d) { 
-                return "translate(" + source.y + "," + source.x + ")"; 
+                return "translate(" + source.y + "," + source.x * gap + ")"; 
             })
             .remove();
 

@@ -130,7 +130,7 @@ function update(source, direction = 1) {
     // Transition exiting nodes to the parent's new position.
     var nodeExit = node.exit().transition()
         .duration(duration)
-        .attr("transform", function (d) { return "translate(" + source.y + "," + source.x + ")"; })
+        .attr("transform", function (d) { return "translate(" + source.y + "," + source.x * gap + ")"; })
         .remove();
 
     nodeExit.select("circle")

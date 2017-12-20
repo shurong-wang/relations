@@ -4,6 +4,7 @@ let focusNodeId = 22822;
 // 企业关系 API 
 const APIS = [
     'data/bianlifeng.simple.json',
+    'data/xiecheng.json',
     'data/baidu.json',
     'data/tencent.json',
     'data/alibaba.json',
@@ -11,7 +12,7 @@ const APIS = [
 ];
 
 // 企业关系 API
-const RELATIONS_MAP = APIS[0];
+const RELATIONS_MAP = APIS[1];
 
 // 企业信息 API
 const NODE_INFO = 'data/bianlifeng.info.json';
@@ -49,7 +50,8 @@ const lineConf = {
         SERVE: 'rgb(128, 194, 216)',
         OWN: 'rgb(204, 225, 152)',
         INVEST_C: 'rgb(242, 90, 41)',
-        INVEST_H: 'rgb(242, 90, 41)'
+        INVEST_H: 'rgb(242, 90, 41)',
+        BRANCH: 'rgb(135,170,205)'
     }
 };
 
@@ -255,7 +257,7 @@ function initialize(resp) {
         .attr('stroke-width', 2)
         .append('svg:path')
         .attr('d', 'M2,0 L0,-3 L9,0 L0,3 M2,0 L0,-3')
-        .attr('fill', link => lineConf.strokeColor[link.type]);
+        .attr('fill', link => lineConf.strokeColor[link.type] || '#333');
 
     // 节点连线    
     const linkLine = container.selectAll('.link')
@@ -268,7 +270,7 @@ function initialize(resp) {
             'd': link => genLinkPath(link),
             'id': link => 'link-' + link.id,
         })
-        .style('stroke', link => lineConf.strokeColor[link.type]);
+        .style('stroke', link => lineConf.strokeColor[link.type] || '#333');
 
     // 连线的文字
     const lineText = container.append('g').selectAll('.linetext')

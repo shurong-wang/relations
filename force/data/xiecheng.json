@@ -1,0 +1,1429 @@
+{
+    "nodes": [
+        {
+            "id": "1881108958",
+            "labels": [
+                "Human"
+            ],
+            "properties": {
+                "name": "孙洁",
+                "ntype": "f"
+            }
+        },
+        {
+            "id": "2408771664",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "上海携程商务有限公司长宁分公司",
+                "ntype": "s"
+            }
+        },
+        {
+            "id": "2944357174",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "上海坤源企业管理咨询中心（有限合伙）",
+                "ntype": "f"
+            }
+        },
+        {
+            "id": "2821811320",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "上海携程商务有限公司虹漕路营业部",
+                "ntype": "s"
+            }
+        },
+        {
+            "id": "2005386443",
+            "labels": [
+                "Human"
+            ],
+            "properties": {
+                "name": "杨钦",
+                "ntype": "f"
+            }
+        },
+        {
+            "id": "3014760573",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "北京携程太美国际旅行社有限公司（开业）",
+                "ntype": "s"
+            }
+        },
+        {
+            "id": "2432250473",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "北京十一贝科技有限公司",
+                "ntype": "s"
+            }
+        },
+        {
+            "id": "2087576509",
+            "labels": [
+                "Human"
+            ],
+            "properties": {
+                "name": "白琼",
+                "ntype": "f"
+            }
+        },
+        {
+            "id": "2410082804",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "上海华程西南旅行社有限公司长宁分公司",
+                "ntype": "f"
+            }
+        },
+        {
+            "id": "1233369559",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "上海携程智慧旅游商务咨询有限公司",
+                "ntype": "f"
+            }
+        },
+        {
+            "id": "1882354791",
+            "labels": [
+                "Human"
+            ],
+            "properties": {
+                "name": "孙茂华",
+                "ntype": "s"
+            }
+        },
+        {
+            "id": "1753702928",
+            "labels": [
+                "Human"
+            ],
+            "properties": {
+                "name": "SUN JIE（孙洁）",
+                "ntype": "s"
+            }
+        },
+        {
+            "id": "2052736961",
+            "labels": [
+                "Human"
+            ],
+            "properties": {
+                "name": "游金章",
+                "ntype": "f"
+            }
+        },
+        {
+            "id": "856825036",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "携程保险代理有限公司",
+                "ntype": "s"
+            }
+        },
+        {
+            "id": "17937678",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "北京太美行动文化传播有限公司",
+                "ntype": "f"
+            }
+        },
+        {
+            "id": "24923678",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "北京携程太美国际旅行社有限公司",
+                "ntype": "s"
+            }
+        },
+        {
+            "id": "1330948535",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "上海铁友旅游咨询有限公司",
+                "ntype": "s"
+            }
+        },
+        {
+            "id": "539702606",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "上海华程西南国际旅行社有限公司",
+                "ntype": "s"
+            }
+        },
+        {
+            "id": "2344096990",
+            "labels": [
+                "Human"
+            ],
+            "properties": {
+                "name": "陈刚",
+                "ntype": "f"
+            }
+        },
+        {
+            "id": "866981380",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "携程旅游信息技术（上海）有限公司",
+                "ntype": "f"
+            }
+        },
+        {
+            "id": "650397229",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "携程旅游网络技术（上海）有限公司",
+                "ntype": "f"
+            }
+        },
+        {
+            "id": "31798351",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "携程计算机技术（上海）有限公司",
+                "ntype": "f"
+            }
+        },
+        {
+            "id": "2944354580",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "上海诗程文化传播有限公司",
+                "ntype": "s"
+            }
+        },
+        {
+            "id": "2944225104",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "上海西翠信息技术有限公司",
+                "ntype": "s"
+            }
+        },
+        {
+            "id": "2310297370",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "上海搜镇信息技术有限公司",
+                "ntype": "s"
+            }
+        },
+        {
+            "id": "2002633907",
+            "labels": [
+                "Human"
+            ],
+            "properties": {
+                "name": "杨涛",
+                "ntype": "f"
+            }
+        },
+        {
+            "id": "23920925",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "上海携程商务有限公司",
+                "ntype": "s"
+            }
+        },
+        {
+            "id": "1983074566",
+            "labels": [
+                "Human"
+            ],
+            "properties": {
+                "name": "李小平",
+                "ntype": "f"
+            }
+        },
+        {
+            "id": "1149661360",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "上海大昂天海邮轮旅游有限公司",
+                "ntype": "s"
+            }
+        },
+        {
+            "id": "2123646434",
+            "labels": [
+                "Human"
+            ],
+            "properties": {
+                "name": "胡世辉",
+                "ntype": "f"
+            }
+        },
+        {
+            "id": "2409091168",
+            "labels": [
+                "Company"
+            ],
+            "properties": {
+                "name": "上海国程航空旅行社有限公司",
+                "ntype": "s"
+            }
+        },
+        {
+            "id": "2076505721",
+            "labels": [
+                "Human"
+            ],
+            "properties": {
+                "name": "王肖璠",
+                "ntype": "f"
+            }
+        },
+        {
+            "id": "2139706935",
+            "labels": [
+                "Human"
+            ],
+            "properties": {
+                "name": "范敏",
+                "ntype": "s"
+            }
+        }
+    ],
+    "relationships": [
+        {
+            "id": "158436224",
+            "type": "SERVE",
+            "startNode": "1881108958",
+            "endNode": "2432250473",
+            "properties": {
+                "labels": [
+                    "董事"
+                ]
+            }
+        },
+        {
+            "id": "25634167",
+            "type": "SERVE",
+            "startNode": "1881108958",
+            "endNode": "24923678",
+            "properties": {
+                "labels": [
+                    "董事"
+                ]
+            }
+        },
+        {
+            "id": "162464563",
+            "type": "SERVE",
+            "startNode": "1881108958",
+            "endNode": "2409091168",
+            "properties": {
+                "labels": [
+                    "董事长"
+                ]
+            }
+        },
+        {
+            "id": "162464559",
+            "type": "SERVE",
+            "startNode": "1881108958",
+            "endNode": "2409091168",
+            "properties": {
+                "labels": [
+                    "董事"
+                ]
+            }
+        },
+        {
+            "id": "114503961",
+            "type": "OWN",
+            "startNode": "1881108958",
+            "endNode": "2409091168",
+            "properties": {
+                "labels": [
+                    "法人"
+                ]
+            }
+        },
+        {
+            "id": "290212628",
+            "type": "INVEST_C",
+            "startNode": "2944357174",
+            "endNode": "2432250473",
+            "properties": {
+                "labels": [
+                    "参股"
+                ],
+                "amount": "290.2"
+            }
+        },
+        {
+            "id": "9976327",
+            "type": "INVEST_H",
+            "startNode": "2005386443",
+            "endNode": "2944357174",
+            "properties": {
+                "labels": [
+                    "参股"
+                ]
+            }
+        },
+        {
+            "id": "143872301",
+            "type": "SERVE",
+            "startNode": "2005386443",
+            "endNode": "3014760573",
+            "properties": {
+                "labels": [
+                    "监事"
+                ]
+            }
+        },
+        {
+            "id": "276768232",
+            "type": "SERVE",
+            "startNode": "2005386443",
+            "endNode": "856825036",
+            "properties": {
+                "labels": [
+                    "监事"
+                ]
+            }
+        },
+        {
+            "id": "189890393",
+            "type": "SERVE",
+            "startNode": "2005386443",
+            "endNode": "24923678",
+            "properties": {
+                "labels": [
+                    "监事"
+                ]
+            }
+        },
+        {
+            "id": "243323930",
+            "type": "SERVE",
+            "startNode": "2005386443",
+            "endNode": "1330948535",
+            "properties": {
+                "labels": [
+                    "监事"
+                ]
+            }
+        },
+        {
+            "id": "109825149",
+            "type": "SERVE",
+            "startNode": "2005386443",
+            "endNode": "31798351",
+            "properties": {
+                "labels": [
+                    "监事"
+                ]
+            }
+        },
+        {
+            "id": "206445343",
+            "type": "SERVE",
+            "startNode": "2005386443",
+            "endNode": "2944354580",
+            "properties": {
+                "labels": [
+                    "监事"
+                ]
+            }
+        },
+        {
+            "id": "311990914",
+            "type": "SERVE",
+            "startNode": "2005386443",
+            "endNode": "1149661360",
+            "properties": {
+                "labels": [
+                    "监事"
+                ]
+            }
+        },
+        {
+            "id": "242946406",
+            "type": "SERVE",
+            "startNode": "2087576509",
+            "endNode": "2944225104",
+            "properties": {
+                "labels": [
+                    "监事"
+                ]
+            }
+        },
+        {
+            "id": "267344416",
+            "type": "SERVE",
+            "startNode": "2087576509",
+            "endNode": "2310297370",
+            "properties": {
+                "labels": [
+                    "监事"
+                ]
+            }
+        },
+        {
+            "id": "284952547",
+            "type": "INVEST_H",
+            "startNode": "1882354791",
+            "endNode": "2944357174",
+            "properties": {
+                "labels": [
+                    "参股"
+                ]
+            }
+        },
+        {
+            "id": "325783888",
+            "type": "INVEST_H",
+            "startNode": "1882354791",
+            "endNode": "1233369559",
+            "properties": {
+                "labels": [
+                    "参股"
+                ],
+                "amount": "50.0"
+            }
+        },
+        {
+            "id": "4798074",
+            "type": "SERVE",
+            "startNode": "1882354791",
+            "endNode": "856825036",
+            "properties": {
+                "labels": [
+                    "执行董事"
+                ]
+            }
+        },
+        {
+            "id": "328539026",
+            "type": "INVEST_H",
+            "startNode": "1882354791",
+            "endNode": "23920925",
+            "properties": {
+                "labels": [
+                    "参股"
+                ],
+                "amount": "306.0"
+            }
+        },
+        {
+            "id": "241408562",
+            "type": "SERVE",
+            "startNode": "1753702928",
+            "endNode": "539702606",
+            "properties": {
+                "labels": [
+                    "监事"
+                ]
+            }
+        },
+        {
+            "id": "183735278",
+            "type": "SERVE",
+            "startNode": "1753702928",
+            "endNode": "866981380",
+            "properties": {
+                "labels": [
+                    "监事"
+                ]
+            }
+        },
+        {
+            "id": "175622556",
+            "type": "SERVE",
+            "startNode": "1753702928",
+            "endNode": "650397229",
+            "properties": {
+                "labels": [
+                    "监事"
+                ]
+            }
+        },
+        {
+            "id": "125019801",
+            "type": "SERVE",
+            "startNode": "1753702928",
+            "endNode": "23920925",
+            "properties": {
+                "labels": [
+                    "监事"
+                ]
+            }
+        },
+        {
+            "id": "143872300",
+            "type": "SERVE",
+            "startNode": "2052736961",
+            "endNode": "3014760573",
+            "properties": {
+                "labels": [
+                    "经理"
+                ]
+            }
+        },
+        {
+            "id": "143872299",
+            "type": "SERVE",
+            "startNode": "2052736961",
+            "endNode": "3014760573",
+            "properties": {
+                "labels": [
+                    "董事"
+                ]
+            }
+        },
+        {
+            "id": "283283089",
+            "type": "SERVE",
+            "startNode": "2052736961",
+            "endNode": "24923678",
+            "properties": {
+                "labels": [
+                    "经理"
+                ]
+            }
+        },
+        {
+            "id": "131438176",
+            "type": "OWN",
+            "startNode": "2052736961",
+            "endNode": "24923678",
+            "properties": {
+                "labels": [
+                    "法人"
+                ]
+            }
+        },
+        {
+            "id": "15787230",
+            "type": "SERVE",
+            "startNode": "2052736961",
+            "endNode": "24923678",
+            "properties": {
+                "labels": [
+                    "董事"
+                ]
+            }
+        },
+        {
+            "id": "217984879",
+            "type": "INVEST_C",
+            "startNode": "17937678",
+            "endNode": "3014760573",
+            "properties": {
+                "labels": [
+                    "参股"
+                ]
+            }
+        },
+        {
+            "id": "316005454",
+            "type": "INVEST_C",
+            "startNode": "17937678",
+            "endNode": "24923678",
+            "properties": {
+                "labels": [
+                    "参股"
+                ],
+                "amount": "0.0"
+            }
+        },
+        {
+            "id": "124360829",
+            "type": "BRANCH",
+            "startNode": "539702606",
+            "endNode": "2410082804",
+            "properties": {
+                "labels": [
+                    "分支机构"
+                ]
+            }
+        },
+        {
+            "id": "303264595",
+            "type": "INVEST_H",
+            "startNode": "2344096990",
+            "endNode": "2944357174",
+            "properties": {
+                "labels": [
+                    "参股"
+                ]
+            }
+        },
+        {
+            "id": "309636728",
+            "type": "SERVE",
+            "startNode": "2344096990",
+            "endNode": "1330948535",
+            "properties": {
+                "labels": [
+                    "执行董事"
+                ]
+            }
+        },
+        {
+            "id": "309923417",
+            "type": "OWN",
+            "startNode": "2344096990",
+            "endNode": "1330948535",
+            "properties": {
+                "labels": [
+                    "法人"
+                ]
+            }
+        },
+        {
+            "id": "279011685",
+            "type": "SERVE",
+            "startNode": "2344096990",
+            "endNode": "2944225104",
+            "properties": {
+                "labels": [
+                    "董事"
+                ]
+            }
+        },
+        {
+            "id": "174991226",
+            "type": "INVEST_C",
+            "startNode": "31798351",
+            "endNode": "856825036",
+            "properties": {
+                "labels": [
+                    "参股"
+                ],
+                "amount": "500.0"
+            }
+        },
+        {
+            "id": "284952549",
+            "type": "INVEST_H",
+            "startNode": "2002633907",
+            "endNode": "2944357174",
+            "properties": {
+                "labels": [
+                    "参股"
+                ]
+            }
+        },
+        {
+            "id": "143872298",
+            "type": "SERVE",
+            "startNode": "2002633907",
+            "endNode": "3014760573",
+            "properties": {
+                "labels": [
+                    "董事"
+                ]
+            }
+        },
+        {
+            "id": "244015540",
+            "type": "SERVE",
+            "startNode": "2002633907",
+            "endNode": "24923678",
+            "properties": {
+                "labels": [
+                    "董事"
+                ]
+            }
+        },
+        {
+            "id": "162464560",
+            "type": "SERVE",
+            "startNode": "2002633907",
+            "endNode": "2409091168",
+            "properties": {
+                "labels": [
+                    "董事"
+                ]
+            }
+        },
+        {
+            "id": "95306917",
+            "type": "BRANCH",
+            "startNode": "23920925",
+            "endNode": "2408771664",
+            "properties": {
+                "labels": [
+                    "分支机构"
+                ]
+            }
+        },
+        {
+            "id": "102522767",
+            "type": "BRANCH",
+            "startNode": "23920925",
+            "endNode": "2821811320",
+            "properties": {
+                "labels": [
+                    "分支机构"
+                ]
+            }
+        },
+        {
+            "id": "166559372",
+            "type": "INVEST_C",
+            "startNode": "23920925",
+            "endNode": "3014760573",
+            "properties": {
+                "labels": [
+                    "参股"
+                ]
+            }
+        },
+        {
+            "id": "328539262",
+            "type": "INVEST_C",
+            "startNode": "23920925",
+            "endNode": "2432250473",
+            "properties": {
+                "labels": [
+                    "参股"
+                ],
+                "amount": "711.0"
+            }
+        },
+        {
+            "id": "190114637",
+            "type": "INVEST_C",
+            "startNode": "23920925",
+            "endNode": "856825036",
+            "properties": {
+                "labels": [
+                    "参股"
+                ],
+                "amount": "4500.0"
+            }
+        },
+        {
+            "id": "328539261",
+            "type": "INVEST_C",
+            "startNode": "23920925",
+            "endNode": "24923678",
+            "properties": {
+                "labels": [
+                    "参股"
+                ],
+                "amount": "0.0"
+            }
+        },
+        {
+            "id": "40490989",
+            "type": "INVEST_C",
+            "startNode": "23920925",
+            "endNode": "1330948535",
+            "properties": {
+                "labels": [
+                    "参股"
+                ],
+                "amount": "1500.0"
+            }
+        },
+        {
+            "id": "327615120",
+            "type": "INVEST_C",
+            "startNode": "23920925",
+            "endNode": "539702606",
+            "properties": {
+                "labels": [
+                    "参股"
+                ]
+            }
+        },
+        {
+            "id": "328539260",
+            "type": "INVEST_C",
+            "startNode": "23920925",
+            "endNode": "2944354580",
+            "properties": {
+                "labels": [
+                    "参股"
+                ],
+                "amount": "300.0"
+            }
+        },
+        {
+            "id": "329922681",
+            "type": "INVEST_C",
+            "startNode": "23920925",
+            "endNode": "2944225104",
+            "properties": {
+                "labels": [
+                    "参股"
+                ]
+            }
+        },
+        {
+            "id": "201256066",
+            "type": "INVEST_C",
+            "startNode": "23920925",
+            "endNode": "2310297370",
+            "properties": {
+                "labels": [
+                    "参股"
+                ],
+                "amount": "100.0"
+            }
+        },
+        {
+            "id": "265719787",
+            "type": "INVEST_C",
+            "startNode": "23920925",
+            "endNode": "1149661360",
+            "properties": {
+                "labels": [
+                    "参股"
+                ]
+            }
+        },
+        {
+            "id": "274565316",
+            "type": "INVEST_C",
+            "startNode": "23920925",
+            "endNode": "2409091168",
+            "properties": {
+                "labels": [
+                    "参股"
+                ],
+                "amount": "51.0"
+            }
+        },
+        {
+            "id": "284952548",
+            "type": "INVEST_H",
+            "startNode": "1983074566",
+            "endNode": "2944357174",
+            "properties": {
+                "labels": [
+                    "参股"
+                ]
+            }
+        },
+        {
+            "id": "173363918",
+            "type": "SERVE",
+            "startNode": "1983074566",
+            "endNode": "856825036",
+            "properties": {
+                "labels": [
+                    "总经理"
+                ]
+            }
+        },
+        {
+            "id": "173363917",
+            "type": "OWN",
+            "startNode": "1983074566",
+            "endNode": "856825036",
+            "properties": {
+                "labels": [
+                    "法人"
+                ]
+            }
+        },
+        {
+            "id": "249105067",
+            "type": "SERVE",
+            "startNode": "1983074566",
+            "endNode": "1330948535",
+            "properties": {
+                "labels": [
+                    "执行董事"
+                ]
+            }
+        },
+        {
+            "id": "143872297",
+            "type": "SERVE",
+            "startNode": "2123646434",
+            "endNode": "3014760573",
+            "properties": {
+                "labels": [
+                    "董事"
+                ]
+            }
+        },
+        {
+            "id": "150864030",
+            "type": "OWN",
+            "startNode": "2123646434",
+            "endNode": "17937678",
+            "properties": {
+                "labels": [
+                    "法人"
+                ]
+            }
+        },
+        {
+            "id": "119196263",
+            "type": "SERVE",
+            "startNode": "2123646434",
+            "endNode": "17937678",
+            "properties": {
+                "labels": [
+                    "经理"
+                ]
+            }
+        },
+        {
+            "id": "127586753",
+            "type": "SERVE",
+            "startNode": "2123646434",
+            "endNode": "17937678",
+            "properties": {
+                "labels": [
+                    "董事"
+                ]
+            }
+        },
+        {
+            "id": "266835237",
+            "type": "INVEST_H",
+            "startNode": "2123646434",
+            "endNode": "17937678",
+            "properties": {
+                "labels": [
+                    "参股"
+                ],
+                "amount": "0.0"
+            }
+        },
+        {
+            "id": "2938430",
+            "type": "SERVE",
+            "startNode": "2123646434",
+            "endNode": "24923678",
+            "properties": {
+                "labels": [
+                    "董事"
+                ]
+            }
+        },
+        {
+            "id": "250119244",
+            "type": "INVEST_H",
+            "startNode": "2076505721",
+            "endNode": "2944357174",
+            "properties": {
+                "labels": [
+                    "参股"
+                ]
+            }
+        },
+        {
+            "id": "163605851",
+            "type": "SERVE",
+            "startNode": "2076505721",
+            "endNode": "2432250473",
+            "properties": {
+                "labels": [
+                    "董事"
+                ]
+            }
+        },
+        {
+            "id": "325783877",
+            "type": "SERVE",
+            "startNode": "2076505721",
+            "endNode": "1233369559",
+            "properties": {
+                "labels": [
+                    "监事"
+                ]
+            }
+        },
+        {
+            "id": "162464565",
+            "type": "SERVE",
+            "startNode": "2076505721",
+            "endNode": "2409091168",
+            "properties": {
+                "labels": [
+                    "监事"
+                ]
+            }
+        },
+        {
+            "id": "158619566",
+            "type": "SERVE",
+            "startNode": "2139706935",
+            "endNode": "2408771664",
+            "properties": {
+                "labels": [
+                    "总经理"
+                ]
+            }
+        },
+        {
+            "id": "114437199",
+            "type": "OWN",
+            "startNode": "2139706935",
+            "endNode": "2408771664",
+            "properties": {
+                "labels": [
+                    "法人"
+                ]
+            }
+        },
+        {
+            "id": "195071350",
+            "type": "INVEST_H",
+            "startNode": "2139706935",
+            "endNode": "2944357174",
+            "properties": {
+                "labels": [
+                    "参股"
+                ]
+            }
+        },
+        {
+            "id": "143872296",
+            "type": "SERVE",
+            "startNode": "2139706935",
+            "endNode": "3014760573",
+            "properties": {
+                "labels": [
+                    "董事长"
+                ]
+            }
+        },
+        {
+            "id": "29216335",
+            "type": "OWN",
+            "startNode": "2139706935",
+            "endNode": "3014760573",
+            "properties": {
+                "labels": [
+                    "法人"
+                ]
+            }
+        },
+        {
+            "id": "179368221",
+            "type": "SERVE",
+            "startNode": "2139706935",
+            "endNode": "2410082804",
+            "properties": {
+                "labels": [
+                    "总经理"
+                ]
+            }
+        },
+        {
+            "id": "114939274",
+            "type": "OWN",
+            "startNode": "2139706935",
+            "endNode": "2410082804",
+            "properties": {
+                "labels": [
+                    "法人"
+                ]
+            }
+        },
+        {
+            "id": "325783887",
+            "type": "INVEST_H",
+            "startNode": "2139706935",
+            "endNode": "1233369559",
+            "properties": {
+                "labels": [
+                    "参股"
+                ],
+                "amount": "450.0"
+            }
+        },
+        {
+            "id": "325783873",
+            "type": "SERVE",
+            "startNode": "2139706935",
+            "endNode": "1233369559",
+            "properties": {
+                "labels": [
+                    "执行董事"
+                ]
+            }
+        },
+        {
+            "id": "325783859",
+            "type": "OWN",
+            "startNode": "2139706935",
+            "endNode": "1233369559",
+            "properties": {
+                "labels": [
+                    "法人"
+                ]
+            }
+        },
+        {
+            "id": "304427007",
+            "type": "SERVE",
+            "startNode": "2139706935",
+            "endNode": "24923678",
+            "properties": {
+                "labels": [
+                    "董事长"
+                ]
+            }
+        },
+        {
+            "id": "99144575",
+            "type": "SERVE",
+            "startNode": "2139706935",
+            "endNode": "539702606",
+            "properties": {
+                "labels": [
+                    "执行董事兼总经理"
+                ]
+            }
+        },
+        {
+            "id": "197144955",
+            "type": "OWN",
+            "startNode": "2139706935",
+            "endNode": "539702606",
+            "properties": {
+                "labels": [
+                    "法人"
+                ]
+            }
+        },
+        {
+            "id": "153575317",
+            "type": "SERVE",
+            "startNode": "2139706935",
+            "endNode": "866981380",
+            "properties": {
+                "labels": [
+                    "执行董事"
+                ]
+            }
+        },
+        {
+            "id": "314362191",
+            "type": "OWN",
+            "startNode": "2139706935",
+            "endNode": "866981380",
+            "properties": {
+                "labels": [
+                    "法人"
+                ]
+            }
+        },
+        {
+            "id": "64537165",
+            "type": "OWN",
+            "startNode": "2139706935",
+            "endNode": "650397229",
+            "properties": {
+                "labels": [
+                    "法人"
+                ]
+            }
+        },
+        {
+            "id": "261653329",
+            "type": "SERVE",
+            "startNode": "2139706935",
+            "endNode": "650397229",
+            "properties": {
+                "labels": [
+                    "执行董事"
+                ]
+            }
+        },
+        {
+            "id": "315343268",
+            "type": "SERVE",
+            "startNode": "2139706935",
+            "endNode": "650397229",
+            "properties": {
+                "labels": [
+                    "总经理"
+                ]
+            }
+        },
+        {
+            "id": "133766552",
+            "type": "SERVE",
+            "startNode": "2139706935",
+            "endNode": "31798351",
+            "properties": {
+                "labels": [
+                    "总经理"
+                ]
+            }
+        },
+        {
+            "id": "208033812",
+            "type": "OWN",
+            "startNode": "2139706935",
+            "endNode": "31798351",
+            "properties": {
+                "labels": [
+                    "法人"
+                ]
+            }
+        },
+        {
+            "id": "220604889",
+            "type": "SERVE",
+            "startNode": "2139706935",
+            "endNode": "2310297370",
+            "properties": {
+                "labels": [
+                    "执行董事兼总经理"
+                ]
+            }
+        },
+        {
+            "id": "62656905",
+            "type": "OWN",
+            "startNode": "2139706935",
+            "endNode": "2310297370",
+            "properties": {
+                "labels": [
+                    "法人"
+                ]
+            }
+        },
+        {
+            "id": "328539263",
+            "type": "INVEST_H",
+            "startNode": "2139706935",
+            "endNode": "23920925",
+            "properties": {
+                "labels": [
+                    "参股"
+                ],
+                "amount": "2694.0"
+            }
+        },
+        {
+            "id": "156882660",
+            "type": "SERVE",
+            "startNode": "2139706935",
+            "endNode": "23920925",
+            "properties": {
+                "labels": [
+                    "总经理"
+                ]
+            }
+        },
+        {
+            "id": "95027901",
+            "type": "OWN",
+            "startNode": "2139706935",
+            "endNode": "23920925",
+            "properties": {
+                "labels": [
+                    "法人"
+                ]
+            }
+        },
+        {
+            "id": "126418816",
+            "type": "SERVE",
+            "startNode": "2139706935",
+            "endNode": "23920925",
+            "properties": {
+                "labels": [
+                    "执行董事"
+                ]
+            }
+        },
+        {
+            "id": "155903749",
+            "type": "SERVE",
+            "startNode": "2139706935",
+            "endNode": "23920925",
+            "properties": {
+                "labels": [
+                    "总经理"
+                ]
+            }
+        },
+        {
+            "id": "313046866",
+            "type": "INVEST_H",
+            "startNode": "2139706935",
+            "endNode": "1149661360",
+            "properties": {
+                "labels": [
+                    "参股"
+                ]
+            }
+        },
+        {
+            "id": "164539807",
+            "type": "OWN",
+            "startNode": "2139706935",
+            "endNode": "1149661360",
+            "properties": {
+                "labels": [
+                    "法人"
+                ]
+            }
+        },
+        {
+            "id": "254201781",
+            "type": "SERVE",
+            "startNode": "2139706935",
+            "endNode": "1149661360",
+            "properties": {
+                "labels": [
+                    "董事长"
+                ]
+            }
+        }
+    ]
+}

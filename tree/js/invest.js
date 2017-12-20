@@ -1,9 +1,8 @@
-function initialize() {
+function renderTree() {
     // 当前根节点 ID
-    const MID_NODE_ID = '23920925';
-    const API_L = './data/ctrip_l.json';
-    const API_R = './data/ctrip_r.json';
-    const aim = '#main';
+    const MID_NODE_ID = '23920925'; 
+    const API_L = './data/ctrip_l.json'; 
+    const API_R = './data/ctrip_r.json'; 
 
     // 此处应该使用 async/await + Promise 但当前项目不允许
     d3.json(API_L, (error, respL) => {
@@ -23,22 +22,45 @@ function initialize() {
                 respR = JSON.parse(respR);
             }
 
-            var treeRight = respR[MID_NODE_ID][0];
             var treeLeft = respL[MID_NODE_ID][0];
+            var treeRight = respR[MID_NODE_ID][0];
 
-            // 初始化
-            render(treeRight, treeLeft, aim, MID_NODE_ID);
+            try {
+                // 初始化
+            	render(treeRight, treeLeft, MID_NODE_ID);
+            } catch (error) {
+                console.warn(error);
+                console.warn(resp);
+            }
+            
         });
     });
 }
 
+renderTree();
+
 // 渲染簇图
-function render(treeRight = {}, treeLeft = {}, aim, MID_NODE_ID) {
+function render(treeRight = {}, treeLeft = {}, MID_NODE_ID) {
+	
+	const treeBoxId = '#tree';
+	const emptyBoxId = '#tree-empty';
+	const width = 1162;
+	const height = window.innerHeight;
+	
+	const maxLength = Math.max(treeRight.children.length, treeLeft.children.length);
+	if (maxLength < 1) {
+		d3.select(emptyBoxId).style('display', 'block');
+		return;
+	} else {
+		d3.select(emptyBoxId).style('display', 'none');
+	}
+
     var m = [20, 120, 20, 120];
     var w = 1280 - m[1] - m[3];
     var h = 600 - m[0] - m[2];
     var i = 0;
-    const gap = 0.4; // 树枝密度
+    
+    const gap = 0.05 * maxLength; // 树枝密度
 
     var tree = d3.layout.cluster()
         .size([h, w])
@@ -52,12 +74,42 @@ function render(treeRight = {}, treeLeft = {}, aim, MID_NODE_ID) {
             return [d.y, d.x * gap];
         });
 
-    var vis = d3.select(aim).append("svg:svg")
-        .attr("width", 1200)
-        .attr("height", h + m[0] + m[2])
-        .append("svg:g")
-        .attr("transform", "translate(" + h + "," + m[0] + ")");
+    // 全图缩放器
+    const zoom = d3.behavior.zoom()
+        .scaleExtent([0.25, 2])
+        .on('zoom', zoomFn);
+    
+    // SVG 画布
+    var svg = d3.select(treeBoxId).append("svg:svg")
+        .attr("width", width)
+        // .attr("height", h + m[0] + m[2])
+        .attr("height", Math.max((h + m[0] + m[2]) * gap, height))
+        .append('g')
+	    .call(zoom)
+	    .on('dblclick.zoom', null);
+    
+    // 缩放层（位置必须在 svg 画布之后， container 之前）
+    const zoomOverlay = svg.append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .style('fill', 'none')
+        .style('pointer-events', 'all');
+    
+     var container = svg.append("svg:g")
+        .attr("transform", "translate(" + h + "," + (m[0]) + ")")
+        .attr('class', 'container');
 
+	function zoomFn() {
+	    const {
+	        translate,
+	        scale
+	    } = d3.event;
+	    const [x, y] = translate;
+	    const [dx, dy] = [h, m[0]];
+	    const zoomTranslate = [x + dx, y + dy];
+	    container.attr('transform', 'translate(' + zoomTranslate + ')scale(' + scale + ')');
+	}
+	
     // 标识左侧树枝
     treeLeft = defLeftNode(treeLeft);
 
@@ -82,14 +134,14 @@ function render(treeRight = {}, treeLeft = {}, aim, MID_NODE_ID) {
         });
 
         // 更新节点
-        var node = vis.selectAll("g.node")
+        var node = container.selectAll("g.node")
             .data(nodes, function (d) {
                 return d.id || (d.id = ++i);
             });
 
         // 在容器插入节点分组
         var nodeEnter = node.enter().append("svg:g")
-            .attr("class", "node")
+            .attr("class", "tree-node")
             .attr("transform", function (d) {
                 return "translate(" + source.y0 + "," + source.x0 * gap + ")";
             })
@@ -102,7 +154,7 @@ function render(treeRight = {}, treeLeft = {}, aim, MID_NODE_ID) {
         nodeEnter.append("svg:circle")
             .attr("r", 1e-6)
             .style("fill", function (d) {
-                return d._children ? "lightsteelblue" : "#fff";
+                return d._children ? "#eee" : "#333";
             });
 
         // 插入节点文字
@@ -137,7 +189,7 @@ function render(treeRight = {}, treeLeft = {}, aim, MID_NODE_ID) {
         nodeUpdate.select("circle")
             .attr("r", 4.5)
             .style("fill", function (d) {
-                return d._children ? "lightsteelblue" : "#fff";
+                return d._children ? "#eee" : "#333";
             });
 
         nodeUpdate.select("text")
@@ -158,7 +210,7 @@ function render(treeRight = {}, treeLeft = {}, aim, MID_NODE_ID) {
             .style("fill-opacity", 1e-6);
 
         // 更新树枝
-        var link = vis.selectAll("path.link")
+        var link = container.selectAll("path.link")
             .data(tree.links(nodes), function (d) {
                 return d.target.id;
             });

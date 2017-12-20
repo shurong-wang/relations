@@ -12,20 +12,20 @@ const APIS = [
 ];
 
 // 企业关系 API
-const RELATIONS_MAP = APIS[1];
+const RELATIONS_MAP = APIS[0];
 
 // 企业信息 API
 const NODE_INFO = 'data/bianlifeng.info.json';
 
 const width = 1162;
-const height = window.innerHeight;
+const height = Math.max(window.innerHeight, 600);
 
 const initScale = .7;
 
 const nodeConf = {
     fillColor: {
-        Human: 'rgb(255, 76, 10)',
-        Company: 'rgb(35, 148, 206)'
+        Human: 'rgb(255, 76, 10)',  // 个人
+        Company: 'rgb(35, 148, 206)'// 公司
     },
     strokeColor: {
         Human: 'rgb(244,56,0)',
@@ -35,10 +35,6 @@ const nodeConf = {
         Human: 3,
         Company: 0
     },
-    textFillColor: {
-        Human: '#fff',
-        Company: '#fff'
-    },
     radius: {
         Human: 36,
         Company: 56
@@ -47,19 +43,16 @@ const nodeConf = {
 
 const lineConf = {
     strokeColor: {
-        SERVE: 'rgb(128, 194, 216)',
-        OWN: 'rgb(204, 225, 152)',
-        INVEST_C: 'rgb(242, 90, 41)',
-        INVEST_H: 'rgb(242, 90, 41)',
-        BRANCH: 'rgb(135,170,205)'
+        SERVE: 'rgb(128, 194, 216)', // 任职 [ 执行董事, 监事, 经理, 总经理 ]
+        OWN: 'rgb(204, 225, 152)',   // 法人 [ 法人 ] 
+        INVEST_C: 'rgb(242, 90, 41)',// 企业投资 [ 参股 ]
+        INVEST_H: 'rgb(242, 90, 41)',// 个人投资 [ 参股 ]
+        BRANCH: 'rgb(135,170,205)'   // 分支 [ 企业分支 ]
     }
 };
 
 const nodeTextFontSize = 16;
 const lineTextFontSize = 12;
-
-let nodesMap = {};
-let linkMap = {};
 
 const menuConf = {
     width: 500,
@@ -189,16 +182,19 @@ function initialize(resp) {
     const nodesLength = nodes.length;
 
     // 生成 nodes map
-    nodesMap = genNodesMap(nodes);
+    const [nodesMap, nodesCountMap]= genNodesMap(nodes);
+    const {Human = 0, Company = 0} = nodesCountMap;
+    // 设置节点数目
+    updateNodeNum(Company, Human);
 
     // 构建 nodes（不能直接使用请求数据中的 nodes）
     nodes = d3.values(nodesMap);
 
     // 起点和终点相同的关系映射
-    linkMap = genLinkMap(relations);
+    const [linkMap, linkCountMap] = genLinkMap(relations);
 
     // 构建 links（source 属性必须从 0 开始）
-    const links = genLinks(relations);
+    const links = genLinks(relations, linkMap, nodesMap);
 
     // 绑定力导向图数据
     force
@@ -313,14 +309,14 @@ function initialize(resp) {
 
     // 鼠标交互
     nodeCircle.on('mouseenter', function (currNode) {
-        toggleNode(nodeCircle, currNode, true);
+        toggleNode(nodeCircle, currNode, linkMap, true);
         toggleMenu(menuWrapper, currNode, true);
         toggleLine(linkLine, currNode, true);
         toggleMarker(marker, currNode, true);
         toggleLineText(lineText, currNode, true);
     })
         .on('mouseleave', function (currNode) {
-            toggleNode(nodeCircle, currNode, false);
+            toggleNode(nodeCircle, currNode, linkMap, false);
             toggleMenu(menuWrapper, currNode, false);
             toggleLine(linkLine, currNode, false);
             toggleMarker(marker, currNode, false);
@@ -333,9 +329,7 @@ function initialize(resp) {
         .attr('id', node => 'node-text-' + node.id)
         .style('font-size', nodeTextFontSize)
         .style('font-weight', 400)
-        .style('fill', ({
-            ntype
-        }) => nodeConf.textFillColor[ntype])
+        .style('fill', '#fff')
         .attr('text-anchor', 'middle')
         .attr('dy', '.35em')
         .attr('x', function ({
@@ -460,7 +454,7 @@ function initialize(resp) {
 }
 
 
-function genLinks(relations) {
+function genLinks(relations, linkMap, nodesMap) {
     const indexHash = {};
 
     return relations.map(function (item, i) {
@@ -472,13 +466,12 @@ function genLinks(relations) {
             type
         } = item;
         const label = item.properties ? item.properties.labels + '' : item.label;
- 
 
-        const linkKey = startNode + '-' + endNode;
-        if (indexHash[linkKey]) {
-            indexHash[linkKey] -= 1;
+        const hashKey = startNode + '-' + endNode;
+        if (indexHash[hashKey]) {
+            indexHash[hashKey] -= 1;
         } else {
-            indexHash[linkKey] = linkMap[linkKey] - 1;
+            indexHash[hashKey] = linkMap[hashKey] - 1;
         }
 
         return {
@@ -487,26 +480,15 @@ function genLinks(relations) {
             target: nodesMap[endNode],
             label,
             type,
-            count: linkMap[linkKey],
-            index: indexHash[linkKey]
+            count: linkMap[hashKey],
+            index: indexHash[hashKey]
         }
     })
 }
 
-function genLinkMap(relations) {
-    const hash = {};
-    relations.map(function ({
-        startNode,
-        endNode
-    }) {
-        const key = startNode + '-' + endNode;
-        hash[key] = hash[key] ? hash[key] + 1 : 1;
-    });
-    return hash;
-}
-
 function genNodesMap(nodes) {
     const hash = {};
+    const countHash = {};
     nodes.map(function (node) {
         const id = node.id;
         const name = node.properties ? node.properties.name : node.name;
@@ -516,8 +498,22 @@ function genNodesMap(nodes) {
             name,
             ntype
         };
+        countHash[ntype] = countHash[ntype] ? countHash[ntype] + 1 : 1;
     });
-    return hash;
+    return [hash, countHash];
+}
+
+function genLinkMap(relations) {
+    const hash = {};
+    const countHash = {};
+    // SERVE, OWN, INVEST_C, INVEST_H, BRANCH
+    relations.map(function (item) {
+        const { startNode, endNode, type } = item;
+        const hashKey = startNode + '-' + endNode;
+        hash[hashKey] = hash[hashKey] ? hash[hashKey] + 1 : 1;
+        countHash[type] = countHash[type] ? countHash[type] + 1 : 1;
+    });
+    return [hash, countHash];
 }
 
 // 生成关系连线路径
@@ -600,7 +596,7 @@ function isLinkLine(node, link) {
     return link.source.id == node.id || link.target.id == node.id;
 }
 
-function isLinkNode(currNode, node) {
+function isLinkNode(currNode, node, linkMap) {
     if (currNode.id === node.id) {
         return true;
     }
@@ -694,14 +690,14 @@ function getLineTextAngle(d, bbox) {
     }
 }
 
-function toggleNode(nodeCircle, currNode, isHover) {
+function toggleNode(nodeCircle, currNode, linkMap = {}, isHover = false) {
     if (isHover) {
         // 提升节点层级 
         nodeCircle.sort((a, b) => a.id === currNode.id ? 1 : -1);
         // this.parentNode.appendChild(this);
         nodeCircle
             .style('opacity', .1)
-            .filter(node => isLinkNode(currNode, node))
+            .filter(node => isLinkNode(currNode, node, linkMap))
             .style('opacity', 1);
 
     } else {
@@ -853,9 +849,9 @@ function toggleNodeInfo(flag, data) {
             regLocation // 注册地址
         } = data;
 
-        const {origin, pathname, search} = window.location;
+        const { origin, pathname, search } = window.location;
         const companyLink = origin + pathname + search;
-        
+
         const html = `
             <div class="company-title">
                 <span class="close-info">×</span>
@@ -900,16 +896,8 @@ function toggleMask(flag) {
         }
         const html = `
             <div class="loader">
-                <div class="ball-spin-fade-loader">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                </div>
+                <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+                <span class="sr-only">Loading...</span>
             </div>
         `;
         loadingMask.innerHTML = html;
@@ -922,6 +910,10 @@ function toggleMask(flag) {
     }
 }
 
+function updateNodeNum(cnum, hnum) {
+    d3.select('#company-num').text(cnum);
+    d3.select('#human-num').text(hnum);
+}
 
 function formatDate(timestamp) {
     const date = new Date(+timestamp);

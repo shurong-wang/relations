@@ -64,10 +64,150 @@ text {
     text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
 }
 
+
+.graph-legends {
+    position: absolute;
+    right: 6px;
+    top: 6px
+}
+
+.graph-legends .legend-search {
+    background: #fff;
+    border: 1px solid #ececec;
+    padding: 5px 0;
+    cursor: pointer
+}
+
+.graph-legends .legend-search .fa {
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 100
+}
+
+.graph-legends .legend-node {
+    padding: 10px 5px 5px;
+    margin-top: 5px;
+    background: #fff;
+    border: 1px solid #ececec;
+    box-shadow: 2px 2px 4px #888888;
+    pointer-events: none;
+    user-select: none;
+}
+
+.graph-legends .legend-node .fa {
+    font-size: 18px
+}
+
+.graph-legends .legend-node .node-item+.node-item {
+    margin-top: 5px;
+    border-top: 1px solid #ececec;
+    padding-top: 5px
+}
+
+.graph-legends .legend-node .node-item .node-name {
+    margin-top: 5px;
+    padding-bottom: 5px
+}
+
+.graph-legends .legend-link {
+    margin-top: 5px;
+    background: #fff;
+    padding: 0 5px 10px;
+    border: 1px solid #ececec
+}
+
+.graph-legends .legend-link .link-title {
+    margin: 0 -5px 5px;
+    border-bottom: 1px solid #ececec;
+    padding: 3px 0;
+    display: inline-block
+}
+
+.graph-legends .legend-link .link-icon {
+    font-size: 18px
+}
+
+.graph-legends .legend-link .link-item+.link-item {
+    margin-top: 5px;
+    border-top: 1px solid #ececec;
+    padding-top: 5px
+}
+
+.graph-legends .legend-min {
+    width: 40px;
+    text-align: center
+}
+
+.graph-legends .legend-max {
+    width: 246px;
+    position: absolute;
+    right: 39px;
+    top: 1px
+}
+
+.graph-legends .legend-max .search-warp {
+    height: 30px;
+    margin-bottom: 5px;
+    background: #fff
+}
+
+.graph-legends .legend-max .search-warp input {
+    width: 246px;
+    height: 30px
+}
+
+.graph-legends .legend-max .search-warp .search-icon {
+    height: 30px;
+    width: 30px;
+    line-height: 30px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #ececec;
+    cursor: pointer
+}
+
+.graph-legends .legend-max .legend-node-content {
+    width: 246px;
+    border: 1px solid #ebebeb;
+    height: calc(100vh - 260px);
+    background: #fff
+}
+
+.graph-legends .legend-max .legend-node-content .node-item {
+    height: 30px
+}
+
+.graph-legends .legend-max .legend-node-content .node-item:hover {
+    background: #00a9be;
+    color: #fff
+}
+
+.graph-legends .legend-max .legend-node-content .node-item .fa {
+    display: inline-block;
+    width: 20px;
+    height: 30px;
+    float: right;
+    padding-top: 5px
+}
+
+.graph-legends .legend-max .legend-node-content .legend-node-name {
+    display: inline-block;
+    margin: 0;
+    line-height: 14px;
+    padding: 7px 0 7px 14px;
+    font-size: 14px;
+    width: 200px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: keep-all;
+    white-space: nowrap;
+    cursor: pointer
+}
+
 .node-info-warp {
     position: absolute;
-    top: 0px;
-    right: 1px;
+    top: 11px;
+    right: 48px;
     width: 230px;
     margin: 0;
     background: #fff;
@@ -170,88 +310,4 @@ text {
     align-items: center;
     justify-content: center;
     transform: scale(0.8);
-}
-
-@keyframes ball-spin-fade-loader {
-    50% {
-        opacity: 0.1;
-        -webkit-transform: scale(0.1);
-        transform: scale(0.1);
-    }
-    100% {
-        opacity: 1;
-        -webkit-transform: scale(1.5);
-        transform: scale(1.5);
-    }
-}
-
-.ball-spin-fade-loader {
-    position: relative;
-}
-
-.ball-spin-fade-loader>div {
-    background-color: #333;
-    width: 10px;
-    height: 10px;
-    border-radius: 100%;
-    margin: 2px;
-    -webkit-animation-fill-mode: both;
-    animation-fill-mode: both;
-    position: absolute;
-}
-
-.ball-spin-fade-loader>div:nth-child(1) {
-    top: 25px;
-    left: 0;
-    -webkit-animation: ball-spin-fade-loader 1s 0s infinite linear;
-    animation: ball-spin-fade-loader 1s 0s infinite linear;
-}
-
-.ball-spin-fade-loader>div:nth-child(2) {
-    top: 17.04545px;
-    left: 17.04545px;
-    -webkit-animation: ball-spin-fade-loader 1s 0.12s infinite linear;
-    animation: ball-spin-fade-loader 1s 0.12s infinite linear;
-}
-
-.ball-spin-fade-loader>div:nth-child(3) {
-    top: 0;
-    left: 25px;
-    -webkit-animation: ball-spin-fade-loader 1s 0.24s infinite linear;
-    animation: ball-spin-fade-loader 1s 0.24s infinite linear;
-}
-
-.ball-spin-fade-loader>div:nth-child(4) {
-    top: -17.04545px;
-    left: 17.04545px;
-    -webkit-animation: ball-spin-fade-loader 1s 0.36s infinite linear;
-    animation: ball-spin-fade-loader 1s 0.36s infinite linear;
-}
-
-.ball-spin-fade-loader>div:nth-child(5) {
-    top: -25px;
-    left: 0;
-    -webkit-animation: ball-spin-fade-loader 1s 0.48s infinite linear;
-    animation: ball-spin-fade-loader 1s 0.48s infinite linear;
-}
-
-.ball-spin-fade-loader>div:nth-child(6) {
-    top: -17.04545px;
-    left: -17.04545px;
-    -webkit-animation: ball-spin-fade-loader 1s 0.6s infinite linear;
-    animation: ball-spin-fade-loader 1s 0.6s infinite linear;
-}
-
-.ball-spin-fade-loader>div:nth-child(7) {
-    top: 0;
-    left: -25px;
-    -webkit-animation: ball-spin-fade-loader 1s 0.72s infinite linear;
-    animation: ball-spin-fade-loader 1s 0.72s infinite linear;
-}
-
-.ball-spin-fade-loader>div:nth-child(8) {
-    top: 17.04545px;
-    left: -17.04545px;
-    -webkit-animation: ball-spin-fade-loader 1s 0.84s infinite linear;
-    animation: ball-spin-fade-loader 1s 0.84s infinite linear;
 }

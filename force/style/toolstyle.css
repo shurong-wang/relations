@@ -1,256 +1,7 @@
-#locateSearchResult:focus {
-    outline: none;
-}
-
-a#locateSearchResult.highlighted:hover {
-    background-color: #d90;
-    color: red;
-}
-
-a#locateSearchResult {
-    outline: none;
-}
-
-#myProgress {
-    position: relative;
-    width: 93.5%;
-    height: 10px;
-    background-color: #ddd;
-    padding: 0px;
-    display: none;
-}
-
-#myBar {
-    position: absolute;
-    width: 50%;
-    height: 50%;
-    background-color: red;
-    display: none;
-}
-
-
-/** adding searching Styles **/
-
-.dbEntry {
-    background-color: #ffffff;
-    color: #2980b9;
-    padding: 10px;
-    font-size: 14px;
-    border: none;
-    cursor: pointer;
-}
-
-.dbEntrySelected {
-    background-color: #bdc3c7;
-    color: #2980b9;
-    padding: 10px;
-    font-size: 14px;
-    border: none;
-    cursor: pointer;
-}
-
-.dbEntry:hover,
-.dbEntry:focus {
-    background-color: #bdc3c7;
-}
-
-.searchMenuEntry {
-    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-    box-sizing: border-box;
-    background-color: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    border-bottom: none;
-    border-radius: 4px 4px 0 0;
-    bottom: 40px;
-    display: none;
-    font-size: 14px;
-    list-style: none;
-    min-width: 300px;
-    margin: 0;
-    padding: 0;
-    position: absolute;
-    z-index: 99;
-}
-
-.searchMenuEntry li.highlighted {
-    background-color: #feb;
-}
-
-.searchMenuEntry>li:first-of-type {
-    border: none;
-}
-
-.searchMenuEntry>li {
-    border-top: solid 0px #bdc3c7;
-}
-
-.searchMenuEntry li {
-    display: block;
-}
-
-.searchMenuEntry select {
-    float: right;
-}
-
-ul#optionsMenu>li:hover .searchMenuEntry {
-    display: block;
-}
-
-.searchInputText {
-    background-color: #ffffff;
-    color: black;
-    border: black;
-    text-decoration: none;
-    max-width: 250px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    height: 20px;
-    margin: 10px 0;
-}
-
-.searchMenu {
-    box-sizing: border-box;
-    background-color: rgb(24, 32, 42);
-    height: 40px;
-}
-
-img,
-iframe {
-    border: none;
-}
-
-.hidden {
-    display: none !important;
-}
-
-.clear {
-    clear: both;
-}
-
-a {
-    color: #69c;
-    text-decoration: none;
-}
-
-a:hover {
-    color: #3498db;
-}
-
-#optionsArea a {
-    color: #2980b9;
-}
-
-#optionsArea a.highlighted {
-    background-color: #d90;
-}
-
-.toolTipMenu li.highlighted {
-    background-color: #feb;
-}
-
-#browserCheck {
-    /* checking for IE where WebVOWL is not working */
-    background-color: #f00;
-    padding: 5px 0;
-    position: absolute;
-    text-align: center;
-    width: 100%;
-}
-
-#browserCheck a {
-    color: #fff;
-}
-
-#browserCheck a:hover {
-    text-decoration: underline;
-}
-
-
-/*----------------------------------------------
-  SideBar Animation Class;
------------------------------------------------ */
-
-@-webkit-keyframes sbExpandAnimation {
-    0% {
-        width: 78%;
-    }
-    100% {
-        width: 100%;
-    }
-}
-
-@-moz-keyframes sbExpandAnimation {
-    0% {
-        width: 78%;
-    }
-    100% {
-        width: 100%;
-    }
-}
-
-@-o-keyframes sbExpandAnimation {
-    0% {
-        width: 78%;
-    }
-    100% {
-        width: 100%;
-    }
-}
-
-@keyframes sbExpandAnimation {
-    0% {
-        width: 78%;
-    }
-    100% {
-        width: 100%;
-    }
-}
-
-
-/*Collapse Animation*/
-
-@-webkit-keyframes sbCollapseAnimation {
-    0% {
-        width: 100%;
-    }
-    100% {
-        width: 78%;
-    }
-}
-
-@-moz-keyframes sbCollapseAnimation {
-    0% {
-        width: 100%;
-    }
-    100% {
-        width: 78%;
-    }
-}
-
-@-o-keyframes sbCollapseAnimation {
-    0% {
-        width: 100%;
-    }
-    100% {
-        width: 78%;
-    }
-}
-
-@keyframes sbCollapseAnimation {
-    0% {
-        width: 100%;
-    }
-    100% {
-        width: 78%;
-    }
-}
-
-
 /*----------------------------------------------
         LAYOUT
 ----------------------------------------------*/
-
+/* 
 body {
     background: rgb(255, 255, 255);
     height: 100%;
@@ -295,7 +46,8 @@ main {
     margin: 0;
     overflow: hidden;
     padding: 0;
-}
+} */
+
 
 nav#optionsArea {
     position: fixed;
@@ -1069,4 +821,253 @@ a#pause-button:not(.paused)::before {
     -moz-animation-timing-function: linear;
     -o-animation-timing-function: linear;
     animation-timing-function: linear;
+}
+
+
+#locateSearchResult:focus {
+    outline: none;
+}
+
+a#locateSearchResult.highlighted:hover {
+    background-color: #d90;
+    color: red;
+}
+
+a#locateSearchResult {
+    outline: none;
+}
+
+#myProgress {
+    position: relative;
+    width: 93.5%;
+    height: 10px;
+    background-color: #ddd;
+    padding: 0px;
+    display: none;
+}
+
+#myBar {
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    background-color: red;
+    display: none;
+}
+
+
+/** adding searching Styles **/
+
+.dbEntry {
+    background-color: #ffffff;
+    color: #2980b9;
+    padding: 10px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+}
+
+.dbEntrySelected {
+    background-color: #bdc3c7;
+    color: #2980b9;
+    padding: 10px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+}
+
+.dbEntry:hover,
+.dbEntry:focus {
+    background-color: #bdc3c7;
+}
+
+.searchMenuEntry {
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    box-sizing: border-box;
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    bottom: 40px;
+    display: none;
+    font-size: 14px;
+    list-style: none;
+    min-width: 300px;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    z-index: 99;
+}
+
+.searchMenuEntry li.highlighted {
+    background-color: #feb;
+}
+
+.searchMenuEntry>li:first-of-type {
+    border: none;
+}
+
+.searchMenuEntry>li {
+    border-top: solid 0px #bdc3c7;
+}
+
+.searchMenuEntry li {
+    display: block;
+}
+
+.searchMenuEntry select {
+    float: right;
+}
+
+ul#optionsMenu>li:hover .searchMenuEntry {
+    display: block;
+}
+
+.searchInputText {
+    background-color: #ffffff;
+    color: black;
+    border: black;
+    text-decoration: none;
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 20px;
+    margin: 10px 0;
+}
+
+.searchMenu {
+    box-sizing: border-box;
+    background-color: rgb(24, 32, 42);
+    height: 40px;
+}
+
+img,
+iframe {
+    border: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.clear {
+    clear: both;
+}
+
+a {
+    color: #69c;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #3498db;
+}
+
+#optionsArea a {
+    color: #2980b9;
+}
+
+#optionsArea a.highlighted {
+    background-color: #d90;
+}
+
+.toolTipMenu li.highlighted {
+    background-color: #feb;
+}
+
+#browserCheck {
+    /* checking for IE where WebVOWL is not working */
+    background-color: #f00;
+    padding: 5px 0;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+}
+
+#browserCheck a {
+    color: #fff;
+}
+
+#browserCheck a:hover {
+    text-decoration: underline;
+}
+
+
+/*----------------------------------------------
+  SideBar Animation Class;
+----------------------------------------------- */
+
+@-webkit-keyframes sbExpandAnimation {
+    0% {
+        width: 78%;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
+@-moz-keyframes sbExpandAnimation {
+    0% {
+        width: 78%;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
+@-o-keyframes sbExpandAnimation {
+    0% {
+        width: 78%;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
+@keyframes sbExpandAnimation {
+    0% {
+        width: 78%;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
+
+/*Collapse Animation*/
+
+@-webkit-keyframes sbCollapseAnimation {
+    0% {
+        width: 100%;
+    }
+    100% {
+        width: 78%;
+    }
+}
+
+@-moz-keyframes sbCollapseAnimation {
+    0% {
+        width: 100%;
+    }
+    100% {
+        width: 78%;
+    }
+}
+
+@-o-keyframes sbCollapseAnimation {
+    0% {
+        width: 100%;
+    }
+    100% {
+        width: 78%;
+    }
+}
+
+@keyframes sbCollapseAnimation {
+    0% {
+        width: 100%;
+    }
+    100% {
+        width: 78%;
+    }
 }

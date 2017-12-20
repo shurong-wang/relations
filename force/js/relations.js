@@ -337,9 +337,10 @@ function initialize(resp) {
         .attr('text-anchor', 'middle')
         .attr('dy', '.35em')
         .attr('x', function ({
-            name
+            name,
+            ntype
         }) {
-            return textBreaking(d3.select(this), name);
+            return textBreaking(d3.select(this), name, ntype);
         });
 
     // 节点菜单
@@ -604,7 +605,7 @@ function isLinkNode(currNode, node) {
     return linkMap[currNode.id + '-' + node.id] || linkMap[node.id + '-' + currNode.id];
 }
 
-function textBreaking(d3text, text) {
+function textBreaking(d3text, text, ntype) {
     const len = text.length;
     if (len <= 4) {
         d3text.append('tspan')
@@ -612,12 +613,24 @@ function textBreaking(d3text, text) {
             .attr('y', 2)
             .text(text);
     } else {
-        const topText = text.substring(0, 4);
-        const midText = text.substring(4, 9);
+        // 企业节点
+        let topText = text.substring(0, 4);
+        let midText = text.substring(4, 9);
         let botText = text.substring(9, len);
         let topY = -22;
         let midY = 8;
         let botY = 34;
+
+        // 个人节点
+        if (ntype === 'Human') {
+            topText = text.substring(0, 3);
+            midText = text.substring(3, 7);
+            botText = text.substring(7, len);
+            topY = -18;
+            midY = 6;
+            botY = 24;
+        }
+
         if (len <= 10) {
             topY += 10;
             midY += 10;

@@ -1,20 +1,22 @@
-// 当前企业 ID
+// 当前企业 ID 
 let focusNodeId = 22822;
 
-// 企业关系 API
+// 企业关系 API 
 const APIS = [
+    'data/bianlifeng.simple.json',
     'data/baidu.json',
     'data/tencent.json',
     'data/alibaba.json',
     'data/huawei.json'
 ];
+
+// 企业关系 API
 const RELATIONS_MAP = APIS[0];
-// const RELATIONS_MAP = 'http://192.168.1.18/api.php?req=http://192.168.1.27:8080/jstx/getRelationNode.do?companyId=209522';
 
 // 企业信息 API
-const NODE_INFO = 'data/nodeInfo.json';
+const NODE_INFO = 'data/bianlifeng.info.json';
 
-const width = Math.max(window.innerWidth, 1366);
+const width = 1162;
 const height = window.innerHeight;
 
 const initScale = .7;
@@ -63,30 +65,29 @@ const menuConf = {
     offetRadius: 30,
     color: '#00B9C4',
     dataset: [{
-            per: 25,
-            action: 'info',
-            lable: '企业信息',
-            url: '#'
-        },
-        {
-            per: 25,
-            action: 'equity',
-            lable: '股权结构',
-            url: 'http://www.qq.com/'
-        },
-        {
-            per: 25,
-            action: 'tree',
-            lable: '投资族谱',
-            url: 'http://www.sohu.com'
-        },
-        {
-            per: 25,
-            action: 'relation',
-            lable: '企业族谱',
-            url: 'http://www.163.com'
-        },
-    ],
+        per: 25,
+        action: 'info',
+        hash: '',
+        lable: '企业信息'
+    },
+    {
+        per: 25,
+        action: 'equity',
+        hash: 'reigon',
+        lable: '股权结构'
+    },
+    {
+        per: 25,
+        action: 'tree',
+        hash: 'investment',
+        lable: '投资族谱'
+    },
+    {
+        per: 25,
+        action: 'relation',
+        hash: 'genealogy',
+        lable: '企业族谱'
+    }],
     iconPath: 'menu-icon/',
     iconSize: {
         width: 15,
@@ -116,7 +117,7 @@ const drag = force.drag()
     .on('drag', dragFn)
     .on('dragend', dragendFn);
 
-// SVG
+// SVG 画布
 const svg = d3.select('#graph').append('svg')
     .attr('width', width)
     .attr('height', height)
@@ -124,7 +125,7 @@ const svg = d3.select('#graph').append('svg')
     .call(zoom)
     .on('dblclick.zoom', null);
 
-// 缩放层（位置必须在 container 之前）
+//缩放层（位置必须在 svg 画布之后， container 之前）
 const zoomOverlay = svg.append('rect')
     .attr('width', width)
     .attr('height', height)
@@ -167,16 +168,21 @@ d3.json(RELATIONS_MAP, (error, resp) => {
         resp = JSON.parse(resp);
     }
 
-    // 初始化
-    initialize(resp);
+    try {
+        // 初始化
+        initialize(resp);
+    } catch (error) {
+        console.error(error);
+        console.error(resp);
+    }
+
 });
 
 // 初始化
 function initialize(resp) {
-    let {
-        nodes,
-        relationships: relations
-    } = resp;
+
+    let nodes = resp.nodes;
+    let relations = resp.relations || resp.relationships;
 
     const nodesLength = nodes.length;
 
@@ -197,13 +203,21 @@ function initialize(resp) {
         .nodes(nodes) // 设定节点数组
         .links(links); // 设定连线数组
 
-   // 开启力导向布局
-   force.start();
+    // 开启力导向布局
+    force.start();
 
     // 手动快速布局
     for (let i = 0, n = 1000; i < n; ++i) {
         force.tick();
     }
+
+    // 停止力布局
+    force.stop();
+
+    // 固定所有节点
+    nodes.forEach(node => {
+        node.fixed = true;
+    });
 
     // 箭头
     const marker = container.append('svg:defs').selectAll('marker')
@@ -297,12 +311,12 @@ function initialize(resp) {
 
     // 鼠标交互
     nodeCircle.on('mouseenter', function (currNode) {
-            toggleNode(nodeCircle, currNode, true);
-            toggleMenu(menuWrapper, currNode, true);
-            toggleLine(linkLine, currNode, true);
-            toggleMarker(marker, currNode, true);
-            toggleLineText(lineText, currNode, true);
-        })
+        toggleNode(nodeCircle, currNode, true);
+        toggleMenu(menuWrapper, currNode, true);
+        toggleLine(linkLine, currNode, true);
+        toggleMarker(marker, currNode, true);
+        toggleLineText(lineText, currNode, true);
+    })
         .on('mouseleave', function (currNode) {
             toggleNode(nodeCircle, currNode, false);
             toggleMenu(menuWrapper, currNode, false);
@@ -375,6 +389,10 @@ function initialize(resp) {
                         toggleMask(false);
                         return console.error(error);
                     }
+
+                    if (typeof resp === 'string') {
+                        resp = JSON.parse(resp);
+                    }
                     setTimeout(function () {
                         toggleMask(false);
                         toggleNodeInfo(true, resp);
@@ -382,7 +400,9 @@ function initialize(resp) {
                 });
                 return;
             }
-            location = d.data.url + '?id=' + hoverNodeId;
+
+            location.href = '#' + d.data.hash + ((new Date().getTime() + '').substr(-5));
+
         });
 
     const menuArc = d3.svg.arc()
@@ -406,9 +426,6 @@ function initialize(resp) {
 
     // 更新力导向图
     function tick() {
-
-        console.log('tick...');
-
         // 节点位置
         nodeCircle.attr('transform', node => 'translate(' + node.x + ',' + node.y + ')');
         // 连线路径
@@ -421,14 +438,6 @@ function initialize(resp) {
         });
     }
 
-    // 停止力布局
-    force.stop();
-
-    // 固定所有节点
-    nodes.forEach(node => {
-        node.fixed = true;
-    });
-
     // 更新力导向图
     // 注意1：必须调用一次 tick （否则，节点会堆积在左上角）
     // 注意2：调用位置必须在 nodeCircle, nodeText, linkLine, lineText 后
@@ -437,20 +446,31 @@ function initialize(resp) {
     // 监听力学图运动事件，更新坐标
     force.on('tick', tick);
 
+    // 临时性解决关系文字偏移问题（后期需要仔细优化）
+    svg.on('mouseenter', function () {
+        tick();
+    })
+        .on('mouseleave', function () {
+            tick();
+        });
+
 }
 
 
 function genLinks(relations) {
     const indexHash = {};
 
-    return relations.map(function ({
-        id,
-        startNode,
-        endNode,
-        properties: {labels},
-        type
-    }, i) {
-        const label = labels + '';
+    return relations.map(function (item, i) {
+
+        let {
+            id,
+            startNode,
+            endNode,
+            type
+        } = item;
+        const label = item.properties ? item.properties.labels + '' : item.label;
+ 
+
         const linkKey = startNode + '-' + endNode;
         if (indexHash[linkKey]) {
             indexHash[linkKey] -= 1;
@@ -485,13 +505,9 @@ function genLinkMap(relations) {
 function genNodesMap(nodes) {
     const hash = {};
     nodes.map(function (node) {
-        const {
-            id,
-            labels,
-            properties: {name}
-        } = node;
-        const ntype = labels + '';
-
+        const id = node.id;
+        const name = node.properties ? node.properties.name : node.name;
+        const ntype = node.labels ? node.labels + '' : node.ntype;
         hash[id] = {
             id,
             name,
@@ -519,14 +535,14 @@ function genLinkPath(link) {
         parallelTx,
         parallelTy
     } = getParallelLine(
-        count,
-        index,
-        r,
-        sx,
-        sy,
-        tx,
-        ty
-    );
+            count,
+            index,
+            r,
+            sx,
+            sy,
+            tx,
+            ty
+        );
 
     return 'M' + parallelSx + ',' + parallelSy + ' L' + parallelTx + ',' + parallelTy;
 }
@@ -822,19 +838,26 @@ function toggleNodeInfo(flag, data) {
             regLocation // 注册地址
         } = data;
 
+        const {origin, pathname, search} = window.location;
+        const companyLink = origin + pathname + search;
+        
         const html = `
             <div class="company-title">
                 <span class="close-info">×</span>
-                <span class="company-name">${name}</span>
+                <span class="company-name">
+                	<a class="company-link" href="${companyLink}" title="${name || '--'}" >
+                		${name}
+                	</a>
+                </span>
                 <span class="company-reg-status">${regStatus}</span>
             </div>
             <div class="node-title-split"></div>
             <div class="company-info">
-                <div>法人：${legalPersonName}</div>
-                <div>企业类型：${companyOrgType}</div>
-                <div>注册资本：${regCapital}</div>
-                <div>成立日期：${formatDate(estiblishTime)}</div>
-                <div>注册地址：${regLocation}</div>
+                <div>法人：${legalPersonName || '--'}</div>
+                <div>企业类型：${companyOrgType || '--'}</div>
+                <div>注册资本：${regCapital || '--'}</div>
+                <div>成立日期：${estiblishTime || '--'}</div>
+                <div>注册地址：${regLocation || '--'}</div>
             </div>
         `;
         nodeInfoWarp.innerHTML = html;

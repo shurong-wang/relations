@@ -1,29 +1,45 @@
 body {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+
+    /* 
     position: fixed;
     width: 100%;
     height: 100%;
-    margin: 0;
-    padding: 0;
     overflow: hidden;
     font-size: 14px;
     font-family: 'Open Sans', Helvetica, Arial, sans-serif;
     line-height: 1;
     background: rgb(255, 255, 255);
+    */
 }
 
-#graph {
-    width: 100vw;
-    height: 100vh;
-    -webkit-user-drag: none;
-    user-select: none;
-    margin: 0;
-    padding: 0;
+#canvasArea {
+    display: flex;
+    justify-content: center;
     position: relative;
-    box-sizing: border-box;
-    background-color: #ecf0f1;
-    overflow: hidden;
+    margin: 0;
+    width: 100%;
 }
 
+#canvasArea #graph {
+    box-sizing: border-box;
+    position: relative;
+    width: 1162px;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    user-select: none;
+    background-color: #ecf0f1;
+}
+
+#canvasArea svg {
+    box-sizing: border-box;
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+}
 
 text {
     font: Microsoft YaHei;
@@ -82,25 +98,31 @@ text {
 }
 
 .node-info-warp .company-title .company-name {
-    float: left;
+    display: inline-block;
     width: 180px;
     overflow: hidden;
-    display: inline-block;
     word-break: keep-all;
     white-space: nowrap;
     text-overflow: ellipsis;
     font-size: 18px;
 }
 
+.node-info-warp .company-title .company-name .company-link {
+	cursor: pointer;
+    text-decoration: none;
+    color: #1A1A1B;
+}
+
+
 .node-info-warp .company-title .company-reg-status {
-    border: 1px solid #00aae2;
-    color: #00aae2;
     float: right;
-    height: 12px;
-    padding: 2px;
     line-height: 12px;
-    font-size: 12px;
+    padding: 2px;
+    border: 1px solid #00aae2;
     border-radius: 2px;
+    white-space: nowrap;
+    font-size: 12px;
+    color: #00aae2;
 }
 
 .node-info-warp .company-info>div {

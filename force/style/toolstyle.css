@@ -1,6 +1,8 @@
 /*----------------------------------------------
         LAYOUT
 ----------------------------------------------*/
+
+
 /* 
 body {
     background: rgb(255, 255, 255);
@@ -47,7 +49,6 @@ main {
     overflow: hidden;
     padding: 0;
 } */
-
 
 nav#optionsArea {
     position: fixed;
@@ -109,6 +110,7 @@ ul.toolTipMenu li a:only-child,
 .checkboxContainer input,
 .checkboxContainer label {
     vertical-align: middle;
+    cursor: pointer;
 }
 
 ul#optionsMenu li>ul.toolTipMenu li a:hover {
@@ -140,7 +142,7 @@ ul#optionsMenu>li:hover .aboutMenu {
     background-color: #ffffff;
     border: 1px solid rgba(0, 0, 0, 0.15);
     border-bottom: none;
-    border-radius: 4px 4px 0 0;
+    /* border-radius: 4px 4px 0 0; */
     bottom: 40px;
     display: none;
     font-size: 14px;
@@ -150,15 +152,13 @@ ul#optionsMenu>li:hover .aboutMenu {
     padding: 0;
     position: absolute;
     z-index: 99;
+    user-select: none;
 }
 
-.toolTipMenu>li:first-of-type {
-    border: none;
+.toolTipMenu li.toggleOption {
+    border-bottom: solid 1px #bdc3c7;
 }
 
-.toolTipMenu>li {
-    border-top: solid 1px #bdc3c7;
-}
 
 .toolTipMenu li {
     color: #2980b9;
@@ -186,6 +186,10 @@ ul#optionsMenu>li:hover .aboutMenu {
 .toggleOption {
     padding: 8px 5px;
     min-width: 150px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: keep-all;
+    white-space: nowrap;
 }
 
 .slideOption {
@@ -823,7 +827,6 @@ a#pause-button:not(.paused)::before {
     animation-timing-function: linear;
 }
 
-
 #locateSearchResult:focus {
     outline: none;
 }
@@ -857,29 +860,6 @@ a#locateSearchResult {
 
 /** adding searching Styles **/
 
-.dbEntry {
-    background-color: #ffffff;
-    color: #2980b9;
-    padding: 10px;
-    font-size: 14px;
-    border: none;
-    cursor: pointer;
-}
-
-.dbEntrySelected {
-    background-color: #bdc3c7;
-    color: #2980b9;
-    padding: 10px;
-    font-size: 14px;
-    border: none;
-    cursor: pointer;
-}
-
-.dbEntry:hover,
-.dbEntry:focus {
-    background-color: #bdc3c7;
-}
-
 .searchMenuEntry {
     -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
@@ -887,16 +867,36 @@ a#locateSearchResult {
     background-color: #ffffff;
     border: 1px solid rgba(0, 0, 0, 0.15);
     border-bottom: none;
-    border-radius: 4px 4px 0 0;
+    /* border-radius: 4px 4px 0 0; */
     bottom: 40px;
     display: none;
     font-size: 14px;
     list-style: none;
-    min-width: 300px;
+    min-width: 168px;
     margin: 0;
     padding: 0;
     position: absolute;
     z-index: 99;
+    max-height: 340px;
+    overflow-y: auto;
+    user-select: none;
+}
+
+.searchMenuEntry::-webkit-scrollbar {
+    width: 4px;
+}
+
+.searchMenuEntry::-webkit-scrollbar-track {
+    background-color: rgb(242,241,239);
+}
+
+.searchMenuEntry::-webkit-scrollbar-thumb {
+    background-color: rgb(197,194,188);
+}
+
+.dbEntry:hover,
+.dbEntry:focus {
+    background-color: #bdc3c7;
 }
 
 .searchMenuEntry li.highlighted {
@@ -921,6 +921,34 @@ a#locateSearchResult {
 
 ul#optionsMenu>li:hover .searchMenuEntry {
     display: block;
+}
+
+.dbEntry {
+    max-width: 168px;
+    background-color: #ffffff;
+    color: #2980b9;
+    padding: 10px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    /* word-break: keep-all; */
+}
+
+.dbEntry:hover,
+.dbEntry:focus {
+    background-color: #bdc3c7;
+}
+
+.dbEntrySelected {
+    background-color: #bdc3c7;
+    color: #2980b9;
+    padding: 10px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
 }
 
 .searchInputText {

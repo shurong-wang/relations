@@ -5,6 +5,7 @@
     <meta charset='utf-8'>
     <title>集数天下</title>
     <!-- <script src='http://d3js.org/d3.v3.min.js' charset='utf-8'></script> -->
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
     <script src="./js/d3.v3.min.js"></script>
     <link rel="stylesheet" href="./style/facss/font-awesome.min.css">
     <link rel="stylesheet" href="./style/graph.css">
@@ -41,27 +42,15 @@
         <nav id="optionsArea">
             <ul id="optionsMenu">
                 <li class="searchMenu" id="searchMenuId">
-                    <input class="searchInputText" type="text" id="search-input-text" placeholder="输入公司名/人名">
-                    <ul class="searchMenuEntry" id="searchEntryContainer" style="display: block;">
-                        <li elementid="12" class="dbEntry">百度网络科技公司</li>
-                        <li elementid="17" class="dbEntry">百度金融</li>
+                    <input class="searchInputText" type="text" id="searchInputText" placeholder="输入公司名/人名">
+                    <ul class="searchMenuEntry" id="searchEntryContainer">
+                       <!-- 搜索列表 -->
                     </ul>
                 </li>
                 <li id="filterOption">
                     <a href="#">关系筛选</a>
                     <ul class="toolTipMenu filter">
-                        <li class="toggleOption" id="server-filter-option">
-                            <div class="checkboxContainer">
-                                <input class="filterCheckbox" id="server-filter-checkbox" type="checkbox" checked>
-                                <label for="server-filter-checkbox">任职</label>
-                            </div>
-                        </li>
-                        <li class="toggleOption" id="datatypeFilteringOption">
-                            <div class="checkboxContainer">
-                                <input class="filterCheckbox" id="disjointFilterCheckbox" type="checkbox" checked>
-                                <label for="disjointFilterCheckbox">法人</label>
-                            </div>
-                        </li>
+                        <!-- 可筛选关系 -->
                     </ul>
                 </li>
                 <!-- <li id="export">

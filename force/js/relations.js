@@ -12,7 +12,7 @@ const APIS = [
 ];
 
 // 企业关系 API
-const RELATIONS_MAP = APIS[0];
+const RELATIONS_MAP = APIS[1];
 
 // 企业信息 API
 const NODE_INFO = 'data/bianlifeng.info.json';
@@ -182,10 +182,17 @@ function initialize(resp) {
     const nodesLength = nodes.length;
 
     // 生成 nodes map
-    const [nodesMap, nodesCountMap]= genNodesMap(nodes);
-    const {Human = 0, Company = 0} = nodesCountMap;
+    const [nodesMap, nodesCountMap] = genNodesMap(nodes);
+    const { Human = 0, Company = 0 } = nodesCountMap;
+
     // 设置节点数目
     updateNodeNum(Company, Human);
+
+    // 生成节点搜索 HTML
+    genSuggest(nodes);
+
+    // 生成关系筛选 HTML
+    genFilter(relations);
 
     // 构建 nodes（不能直接使用请求数据中的 nodes）
     nodes = d3.values(nodesMap);
@@ -344,10 +351,7 @@ function initialize(resp) {
     const piedata = pie(menuConf.dataset);
 
     // 聚焦节点
-    const focusNode = nodeCircle.filter(({
-        ntype,
-        id
-    }) => ntype === 'Company' && +id === +focusNodeId);
+    const focusNode = nodeCircle.filter(node => node.ntype === 'Company' && +node.id === +focusNodeId);
 
     focusNode.append('circle')
         .attr('r', node => nodeConf.radius[node.ntype] + 8)
@@ -365,9 +369,7 @@ function initialize(resp) {
         .style('stroke-dashoffset', -45);
 
     // 环形菜单
-    const menuWrapper = nodeCircle.filter(({
-            ntype
-        }) => ntype === 'Company')
+    const menuWrapper = nodeCircle.filter(node => node.ntype === 'Company')
         .append('g')
         .attr('id', node => 'menu-wrapper-' + node.id)
         .style('display', 'none');
@@ -489,6 +491,7 @@ function genLinks(relations, linkMap, nodesMap) {
 function genNodesMap(nodes) {
     const hash = {};
     const countHash = {};
+    const suggestHash = {}
     nodes.map(function (node) {
         const id = node.id;
         const name = node.properties ? node.properties.name : node.name;
@@ -506,9 +509,8 @@ function genNodesMap(nodes) {
 function genLinkMap(relations) {
     const hash = {};
     const countHash = {};
-    // SERVE, OWN, INVEST_C, INVEST_H, BRANCH
     relations.map(function (item) {
-        const { startNode, endNode, type } = item;
+        const { startNode, endNode, type, id } = item;
         const hashKey = startNode + '-' + endNode;
         hash[hashKey] = hash[hashKey] ? hash[hashKey] + 1 : 1;
         countHash[type] = countHash[type] ? countHash[type] + 1 : 1;
@@ -828,11 +830,11 @@ function getParallelLine(
 
 function toggleNodeInfo(flag, data) {
 
-    let nodeInfoWarp = document.querySelector('.node-info-warp');
+    let nodeInfoWarp = $('.node-info-warp');
 
     if (flag && data) {
         if (!nodeInfoWarp) {
-            const graph = document.querySelector('#graph');
+            const graph = $('#graph');
             nodeInfoWarp = document.createElement('div');
             nodeInfoWarp.setAttribute('class', 'node-info-warp');
             graph.appendChild(nodeInfoWarp);
@@ -872,7 +874,7 @@ function toggleNodeInfo(flag, data) {
             </div>
         `;
         nodeInfoWarp.innerHTML = html;
-        document.querySelector('.close-info').addEventListener('click', function () {
+        $('.close-info').on('click', function () {
             toggleNodeInfo(false, null);
         });
         nodeInfoWarp.style.cssText = 'display: block';
@@ -885,11 +887,11 @@ function toggleNodeInfo(flag, data) {
 }
 
 function toggleMask(flag) {
-    let loadingMask = document.querySelector('#loading-mask');
+    let loadingMask = $('#loading-mask');
 
     if (flag) {
         if (!loadingMask) {
-            const graph = document.querySelector('#graph');
+            const graph = $('#graph');
             loadingMask = document.createElement('div');
             loadingMask.setAttribute('id', 'loading-mask');
             graph.appendChild(loadingMask);
@@ -923,4 +925,105 @@ function formatDate(timestamp) {
     let d = date.getDate();
     d = d < 10 ? ('0' + d) : d;
     return y + '-' + m + '-' + d;
+}
+
+
+// 搜索节点
+const suggestHash = {};
+const $searchInput = $('#searchInputText');
+const $searchContainer = $('#searchEntryContainer');
+$searchInput.on("input", userInput);
+
+
+function genSuggest(nodes) {
+    const html = nodes.map(node => {
+        const id = node.id;
+        const name = node.properties ? node.properties.name : node.name;
+        const ntype = node.labels ? node.labels + '' : node.ntype;
+        suggestHash[name] = {
+            id,
+            name,
+            ntype
+        };
+        return `<li data-cid="${id}" class="dbEntry company-${id}" title="${name}" onclick="onSelectSuggest(this)">${name}</li>`
+    });
+    $searchContainer.html(html.join(''));
+}
+
+function userInput() {
+    const $suggestItems = $searchContainer.find('li');
+    let inputText = this.value;
+    if (inputText.length === 0) {
+        $suggestItems.show();
+    } else {
+        matching(inputText);
+    }
+}
+
+function matching(inputText) {
+    const result = [];
+    let selector = '';
+    const $suggestItems = $searchContainer.find('li');
+
+    for (let [name, node] of Object.entries(suggestHash)) {
+        if(name.indexOf(inputText) > -1 || inputText.indexOf(name) > -1) {
+            result.push(node.id);
+        }
+    }
+    selector = result.join(',.company-');
+    selector = selector ? '.company-' + selector : '';
+
+    if (selector) {
+        $suggestItems.not(selector).hide();
+        $suggestItems.find(selector).show();
+        $searchContainer.show();
+    } else {
+        $searchContainer.hide();
+    }
+    
+}
+
+function onSelectSuggest(o) {
+    const cid = $(o).data('cid');
+    console.log(cid);
+}
+
+
+// 关系筛选
+function genFilter(relations) {
+
+    const relationHash = {
+        SERVE: '任职',
+        OWN: '法人',
+        INVEST_C: '企业投资',
+        INVEST_H: '个人投资',
+        BRANCH: '分支'
+    };
+
+    const typeHash = {};
+    relations.map(function (item) {
+        const { startNode, endNode, type, id } = item;
+        typeHash[type] ? typeHash[type].push(id) : typeHash[type] = [id];
+    });
+
+    const filterLi = Object.entries(typeHash).map(([type, relation]) => {
+        return `` +
+            `
+            <li class="toggleOption" id="${type}FilteringOption">
+                <div class="checkboxContainer">
+                    <input class="filterCheckbox" id="${type}FilterCheckbox" data-type="${type}" data-ids="${typeHash[type]}"
+                        onChange="onChangeFilter(this)" type="checkbox" checked>
+                    <label for="${type}FilterCheckbox">${relationHash[type]}</label>
+                </div>
+            </li>
+            `;
+    });
+
+    $('#filterOption ul.filter').html(filterLi.join(''));
+}
+
+function onChangeFilter(o) {
+    const type = $(o).data('type');
+    const ids = $(o).data('ids');
+    console.log(type, ids);
 }

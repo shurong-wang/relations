@@ -197,10 +197,6 @@ text {
     padding: 7px 0 7px 14px;
     font-size: 14px;
     width: 200px;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    word-break: keep-all;
-    white-space: nowrap;
     cursor: pointer
 }
 

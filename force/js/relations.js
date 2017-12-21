@@ -985,7 +985,10 @@ function matching(inputText) {
 
 function onSelectSuggest(o) {
     const cid = $(o).data('cid');
-    console.log(cid);
+    const cname = $(o).text();
+    $searchInput.val(cname);
+    matching(cname);
+    
 }
 
 
@@ -1023,7 +1026,8 @@ function genFilter(relations) {
 }
 
 function onChangeFilter(o) {
+    const checked = $(o).prop('checked');
     const type = $(o).data('type');
     const ids = $(o).data('ids');
-    console.log(type, ids);
+    console.log(type, ids, checked);
 }

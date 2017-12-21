@@ -179,21 +179,26 @@ d3.json(RELATIONS_MAP, (error, resp) => {
 function genDrawinData(resp) {
     let nodes = resp.nodes;
     let relations = resp.relations || resp.relationships;
-    
+
     // 生成 nodes map
-    const [ nodesMap, { Human: hnum = 0, Company: cnum = 0 } ] = genNodesMap(nodes);
-    
+    const [nodesMap, { Human: hnum = 0, Company: cnum = 0 }] = genNodesMap(nodes);
+
     // 起点和终点相同的关系映射
-    const [ linkMap ] = genLinkMap(relations);
-    
+    const [linkMap] = genLinkMap(relations);
+
     // 构建 nodes（不能直接使用请求数据中的 nodes）
     nodes = d3.values(nodesMap);
-    
+
     // 构建 links（source 属性必须从 0 开始）
     const links = genLinks(relations, linkMap, nodesMap);
 
     return [nodes, links, linkMap, hnum, cnum];
 }
+
+function updateDrawinData(nodes, links, linkMap, hnum, cnum) {
+    return [nodes, links, linkMap, hnum, cnum];
+}
+
 
 // 绘图
 function update(nodes, links, linkMap, hnum, cnum) {
@@ -992,11 +997,14 @@ function onSelectSuggest(o) {
     const cname = $(o).text();
     $searchInput.val(cname);
     matching(cname);
-    toggleHighlight(cid)
+
+    const [nodes, links, linkMap, hnum, cnum] = genDateBySearch(cid);
+    update(nodes, links, linkMap, hnum, cnum);
 }
 
-function toggleHighlight(cid) {
-
+function genDateBySearch(cid) {
+     // todo...
+     return [nodes, links, linkMap, hnum, cnum];
 }
 
 // 关系筛选
@@ -1038,5 +1046,11 @@ function onChangeFilter(o) {
     const type = $(o).data('type');
     const ids = $(o).data('ids').split(',');
 
+    const [nodes, links, linkMap, hnum, cnum] = genDateByFilter(type, ids, checked);
+    update(nodes, links, linkMap, hnum, cnum);
+}
 
+function genDateByFilter(type, ids, checked) {
+    // todo...
+    return [nodes, links, linkMap, hnum, cnum];
 }

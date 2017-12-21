@@ -12,7 +12,7 @@ const APIS = [
 ];
 
 // 企业关系 API
-const RELATIONS_MAP = APIS[1];
+const RELATIONS_MAP = APIS[0];
 
 // 企业信息 API
 const NODE_INFO = 'data/bianlifeng.info.json';
@@ -153,6 +153,11 @@ feMerge.append('feMergeNode')
     .attr('in', 'SourceGraphic');
 
 
+let nodeCircle;
+let linkLine;
+let marker;
+let lineText;
+
 // 请求数据，绘制图表
 d3.json(RELATIONS_MAP, (error, resp) => {
     if (error) {
@@ -163,45 +168,44 @@ d3.json(RELATIONS_MAP, (error, resp) => {
         resp = JSON.parse(resp);
     }
 
-    try {
-        // 初始化
-        initialize(resp);
-    } catch (error) {
-        console.error(error);
-        console.error(resp);
-    }
+    // 生成绘图数据
+    const [nodes, links, linkMap, hnum, cnum] = genDrawinData(resp);
+
+    // 绘图
+    update(nodes, links, linkMap, hnum, cnum);
 
 });
 
-// 初始化
-function initialize(resp) {
-
+function genDrawinData(resp) {
     let nodes = resp.nodes;
     let relations = resp.relations || resp.relationships;
-
-    const nodesLength = nodes.length;
-
+    
     // 生成 nodes map
-    const [nodesMap, nodesCountMap] = genNodesMap(nodes);
-    const { Human = 0, Company = 0 } = nodesCountMap;
+    const [ nodesMap, { Human: hnum = 0, Company: cnum = 0 } ] = genNodesMap(nodes);
+    
+    // 起点和终点相同的关系映射
+    const [ linkMap ] = genLinkMap(relations);
+    
+    // 构建 nodes（不能直接使用请求数据中的 nodes）
+    nodes = d3.values(nodesMap);
+    
+    // 构建 links（source 属性必须从 0 开始）
+    const links = genLinks(relations, linkMap, nodesMap);
+
+    return [nodes, links, linkMap, hnum, cnum];
+}
+
+// 绘图
+function update(nodes, links, linkMap, hnum, cnum) {
 
     // 设置节点数目
-    updateNodeNum(Company, Human);
+    updateNodeNum(cnum, hnum);
 
     // 生成节点搜索 HTML
     genSuggest(nodes);
 
     // 生成关系筛选 HTML
-    genFilter(relations);
-
-    // 构建 nodes（不能直接使用请求数据中的 nodes）
-    nodes = d3.values(nodesMap);
-
-    // 起点和终点相同的关系映射
-    const [linkMap, linkCountMap] = genLinkMap(relations);
-
-    // 构建 links（source 属性必须从 0 开始）
-    const links = genLinks(relations, linkMap, nodesMap);
+    genFilter(links);
 
     // 绑定力导向图数据
     force
@@ -225,7 +229,7 @@ function initialize(resp) {
     });
 
     // 箭头
-    const marker = container.append('svg:defs').selectAll('marker')
+    marker = container.append('svg:defs').selectAll('marker')
         .data(force.links())
         .enter().append('svg:marker')
         .attr('id', link => 'marker-' + link.id)
@@ -263,7 +267,7 @@ function initialize(resp) {
         .attr('fill', link => lineConf.strokeColor[link.type] || '#333');
 
     // 节点连线    
-    const linkLine = container.selectAll('.link')
+    linkLine = container.selectAll('.link')
         .data(force.links())
         .enter()
         .append('path')
@@ -276,7 +280,7 @@ function initialize(resp) {
         .style('stroke', link => lineConf.strokeColor[link.type] || '#333');
 
     // 连线的文字
-    const lineText = container.append('g').selectAll('.linetext')
+    lineText = container.append('g').selectAll('.linetext')
         .data(force.links())
         .enter()
         .append('text')
@@ -293,7 +297,7 @@ function initialize(resp) {
         .text(link => link.label);
 
     // 节点（圆）
-    const nodeCircle = container.append('g')
+    nodeCircle = container.append('g')
         .selectAll('.node')
         .data(force.nodes())
         .enter()
@@ -315,13 +319,14 @@ function initialize(resp) {
         .style('filter', 'url(#drop-shadow)');
 
     // 鼠标交互
-    nodeCircle.on('mouseenter', function (currNode) {
-        toggleNode(nodeCircle, currNode, linkMap, true);
-        toggleMenu(menuWrapper, currNode, true);
-        toggleLine(linkLine, currNode, true);
-        toggleMarker(marker, currNode, true);
-        toggleLineText(lineText, currNode, true);
-    })
+    nodeCircle
+        .on('mouseenter', function (currNode) {
+            toggleNode(nodeCircle, currNode, linkMap, true);
+            toggleMenu(menuWrapper, currNode, true);
+            toggleLine(linkLine, currNode, true);
+            toggleMarker(marker, currNode, true);
+            toggleLineText(lineText, currNode, true);
+        })
         .on('mouseleave', function (currNode) {
             toggleNode(nodeCircle, currNode, linkMap, false);
             toggleMenu(menuWrapper, currNode, false);
@@ -331,7 +336,7 @@ function initialize(resp) {
         });
 
     // 节点文字
-    const nodeText = nodeCircle.append('text')
+    nodeText = nodeCircle.append('text')
         .attr('class', 'nodetext')
         .attr('id', node => 'node-text-' + node.id)
         .style('font-size', nodeTextFontSize)
@@ -446,15 +451,15 @@ function initialize(resp) {
     force.on('tick', tick);
 
     // 临时性解决关系文字偏移问题（后期需要仔细优化）
-    svg.on('mouseenter', function () {
-        tick();
-    })
+    svg
+        .on('mouseenter', function () {
+            tick();
+        })
         .on('mouseleave', function () {
             tick();
         });
 
 }
-
 
 function genLinks(relations, linkMap, nodesMap) {
     const indexHash = {};
@@ -511,11 +516,10 @@ function genLinkMap(relations) {
     const countHash = {};
     relations.map(function (item) {
         const { startNode, endNode, type, id } = item;
-        const hashKey = startNode + '-' + endNode;
-        hash[hashKey] = hash[hashKey] ? hash[hashKey] + 1 : 1;
-        countHash[type] = countHash[type] ? countHash[type] + 1 : 1;
+        const k = startNode + '-' + endNode;
+        hash[k] = hash[k] ? hash[k] + 1 : 1;
     });
-    return [hash, countHash];
+    return [hash];
 }
 
 // 生成关系连线路径
@@ -830,11 +834,11 @@ function getParallelLine(
 
 function toggleNodeInfo(flag, data) {
 
-    let nodeInfoWarp = $('.node-info-warp');
+    let nodeInfoWarp = document.querySelector('.node-info-warp');
 
     if (flag && data) {
         if (!nodeInfoWarp) {
-            const graph = $('#graph');
+            const graph = document.querySelector('#graph');
             nodeInfoWarp = document.createElement('div');
             nodeInfoWarp.setAttribute('class', 'node-info-warp');
             graph.appendChild(nodeInfoWarp);
@@ -887,11 +891,11 @@ function toggleNodeInfo(flag, data) {
 }
 
 function toggleMask(flag) {
-    let loadingMask = $('#loading-mask');
+    let loadingMask = document.querySelector('#loading-mask');
 
     if (flag) {
         if (!loadingMask) {
-            const graph = $('#graph');
+            const graph = document.querySelector('#graph');
             loadingMask = document.createElement('div');
             loadingMask.setAttribute('id', 'loading-mask');
             graph.appendChild(loadingMask);
@@ -966,7 +970,7 @@ function matching(inputText) {
     const $suggestItems = $searchContainer.find('li');
 
     for (let [name, node] of Object.entries(suggestHash)) {
-        if(name.indexOf(inputText) > -1 || inputText.indexOf(name) > -1) {
+        if (name.indexOf(inputText) > -1 || inputText.indexOf(name) > -1) {
             result.push(node.id);
         }
     }
@@ -980,7 +984,7 @@ function matching(inputText) {
     } else {
         $searchContainer.hide();
     }
-    
+
 }
 
 function onSelectSuggest(o) {
@@ -988,9 +992,12 @@ function onSelectSuggest(o) {
     const cname = $(o).text();
     $searchInput.val(cname);
     matching(cname);
-    
+    toggleHighlight(cid)
 }
 
+function toggleHighlight(cid) {
+
+}
 
 // 关系筛选
 function genFilter(relations) {
@@ -1027,7 +1034,9 @@ function genFilter(relations) {
 
 function onChangeFilter(o) {
     const checked = $(o).prop('checked');
+    const display = checked ? 'block' : 'none';
     const type = $(o).data('type');
-    const ids = $(o).data('ids');
-    console.log(type, ids, checked);
+    const ids = $(o).data('ids').split(',');
+
+
 }

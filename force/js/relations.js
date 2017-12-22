@@ -12,7 +12,7 @@ const APIS = [
 ];
 
 // 企业关系 API
-const RELATIONS_MAP = APIS[1];
+const RELATIONS_MAP = APIS[0];
 
 // 企业信息 API
 const NODE_INFO = 'data/bianlifeng.info.json';
@@ -120,7 +120,7 @@ const drag = force.drag()
     .on('drag', dragFn)
     .on('dragend', dragendFn);
 
-    
+
 // SVG 画布
 const svg = d3.select('#graph').append('svg')
     .attr('width', width)
@@ -175,10 +175,10 @@ d3.json(RELATIONS_MAP, (error, resp) => {
     [pureNodes, relations] = formatApiData(pureNodes, relations);
 
     // 生成绘图数据
-    const {nodes, links, linkMap, hnum, cnum} = genDrawinData(pureNodes, relations);
+    genDrawinData(pureNodes, relations);
 
     // 绘图
-    initialize(nodes, links, linkMap, hnum, cnum);
+    initialize();
 });
 
 // 生成画图数据
@@ -193,11 +193,11 @@ function genDrawinData(pureNodes, relations) {
     const links = genLinks(relations, linkMap, nodesMap);
     // 将画图数据保存到全局变量
     drawinData = { pureNodes, relations, nodes, links, nodesMap, linkMap, hnum, cnum };
-    return drawinData;
 }
 
 // 初始化绘图
-function initialize(nodes, links, linkMap, hnum, cnum) {
+function initialize() {
+    const { nodes, links, linkMap, hnum, cnum } = drawinData;
     // 绑定力导向图数据
     force
         .nodes(nodes) // 设定节点数组
@@ -474,7 +474,7 @@ function genNodesMap(pureNodes) {
     const countHash = {};
     const suggestHash = {};
     pureNodes = pureNodes.map(function (node) {
-        const {id, name, ntype} = node;
+        const { id, name, ntype } = node;
         nodeHash[id] = node;
         countHash[ntype] = countHash[ntype] ? countHash[ntype] + 1 : 1;
         return node;
@@ -983,7 +983,9 @@ function onSelectSuggest(o) {
 
 }
 
+
 // 关系筛选
+const checkboxHash = {};
 function genFilter() {
 
     let { relations, nodes, nodesMap } = drawinData;
@@ -994,18 +996,20 @@ function genFilter() {
         INVEST_H: '个人投资',
         BRANCH: '分支'
     };
-
     const typeHash = {};
+
     relations.map(function (item) {
         const { startNode, endNode, type, id } = item;
         typeHash[type] ? typeHash[type].push(id) : typeHash[type] = [id];
+        checkboxHash[type] = true;
+
         // 在节点上添加关系类型
         for (const node of nodes) {
             if (node.id === startNode || node.id === endNode) {
                 if (node.ltype) {
                     node.ltype[type] ? node.ltype[type] += 1 : node.ltype[type] = 1;
                 } else {
-                    node.ltype = {[type]: 1};
+                    node.ltype = { [type]: 1 };
                 }
                 node.linkWeight = node.linkWeight ? node.linkWeight += 1 : 1;
             }
@@ -1032,17 +1036,7 @@ function onChangeFilter(o) {
     const checked = $(o).prop('checked');
     const display = checked ? 'block' : 'none';
     const type = $(o).data('type');
-
-
-    let { pureNodes, relations, nodes, links, nodesMap, linkMap, hnum, cnum } = drawinData;
-
-    // 更新节点权重（连线数量）
-    for (const node of nodes) {
-        const typeWeight = node.ltype[type] | 0;
-        if (typeWeight) {
-            checked ? node.linkWeight += typeWeight : node.linkWeight -= typeWeight;
-        }
-    }
+    const { nodes, relations } = drawinData;
 
     linkLine
         .filter(link => link.type === type)
@@ -1052,13 +1046,49 @@ function onChangeFilter(o) {
         .filter(link => link.type === type)
         .style('display', display);
 
+    for (const node of nodes) {
+        const typeWeight = node.ltype[type] | 0;
+        if (typeWeight) {
+            checked ? node.linkWeight += typeWeight : node.linkWeight -= typeWeight;
+        }
+    }
     nodeCircle
         .style('display', node => node.linkWeight > 0 ? 'block' : 'none');
 
-    if (checked) {
-        tick();
-    }
+    
+    checkboxHash[type] = checked;
+    const filterRelations = relations.filter(relation => checkboxHash[relation.type]);
+    const filterNodes = nodes.filter(node => node.linkWeight > 0);
+    
+    const filterDate = updateDrawinData(filterNodes, filterRelations);
+    updateByFilter(filterDate);
+}
 
+// 更新画图
+function updateByFilter(filterDate) {
+    const { hnum, cnum, nodes } = filterDate;
+
+    // 设置节点数目
+    setNum(cnum, hnum);
+
+    // 生成节点搜索 HTML
+    genSuggest(nodes);
+
+    tick();
+}
+
+// 更新画图数据
+function updateDrawinData(pureNodes, relations) {
+    // 生成 nodes map
+    const [nodesMap, { Human: hnum = 0, Company: cnum = 0 }] = genNodesMap(pureNodes);
+    // 起点和终点相同的关系映射
+    const [linkMap] = genLinkMap(relations);
+    // 构建 nodes（不能直接使用请求数据中的 nodes）
+    const nodes = d3.values(nodesMap);
+    // 构建 links（source 属性必须从 0 开始）
+    const links = genLinks(relations, linkMap, nodesMap);
+    // 将画图数据保存到全局变量
+    return { pureNodes, relations, nodes, links, nodesMap, linkMap, hnum, cnum };
 }
 
 

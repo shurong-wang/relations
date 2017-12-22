@@ -95,6 +95,13 @@ menuConf.outerRadius = menuConf.innerRadius + menuConf.offetRadius;
 
 const initTranslate = [menuConf.outerRadius, menuConf.outerRadius];
 
+let nodeCircle;
+let linkLine;
+let marker;
+let lineText;
+let focusHalo;
+let wheelMenu;
+
 // 力导向图
 const force = d3.layout.force()
     .size([width, height]) // 画布的大小
@@ -154,12 +161,6 @@ feMerge.append('feMergeNode')
 feMerge.append('feMergeNode')
     .attr('in', 'SourceGraphic');
 
-
-// let nodeCircle;
-// let linkLine;
-// let marker;
-// let lineText;
-
 // 请求数据，绘制图表
 d3.json(RELATIONS_MAP, (error, resp) => {
     if (error) {
@@ -174,7 +175,7 @@ d3.json(RELATIONS_MAP, (error, resp) => {
     const [nodes, links, linkMap, hnum, cnum] = genDrawinData(resp);
 
     // 绘图
-    update(nodes, links, linkMap, hnum, cnum);
+    initialize(nodes, links, linkMap, hnum, cnum);
 
 });
 
@@ -201,18 +202,8 @@ function genDrawinData(resp) {
     return [nodes, links, linkMap, hnum, cnum];
 }
 
-// 绘图
-function update(nodes, links, linkMap, hnum, cnum) {
-
-    // 设置节点数目
-    updateNodeNum(cnum, hnum);
-
-    // 生成节点搜索 HTML
-    genSuggest(nodes);
-
-    // 生成关系筛选 HTML
-    genFilter(links);
-
+// 初始化绘图
+function initialize(nodes, links, linkMap, hnum, cnum) {
     // 绑定力导向图数据
     force
         .nodes(nodes) // 设定节点数组
@@ -240,7 +231,7 @@ function update(nodes, links, linkMap, hnum, cnum) {
         .data(force.links());
     const markerEnter = markerUpdate.enter();
     const markerExit = markerUpdate.exit();
-    const marker = markerEnter.append('svg:marker')
+    marker = markerEnter.append('svg:marker')
         .attr('id', link => 'marker-' + link.id)
         .attr('markerUnits', 'userSpaceOnUse')
         .attr('viewBox', '0 -5 10 10')
@@ -281,7 +272,7 @@ function update(nodes, links, linkMap, hnum, cnum) {
         .data(force.links());
     const linkLineEnter = linkLineUpdate.enter();
     const linkLineExit = linkLineUpdate.exit();
-    const linkLine = linkLineEnter.append('path')
+    linkLine = linkLineEnter.append('path')
         .attr('class', 'link')
         .attr({
             'marker-end': link => 'url(#' + 'marker-' + link.id + ')', // 标记箭头
@@ -297,7 +288,7 @@ function update(nodes, links, linkMap, hnum, cnum) {
         .data(force.links());
     const lineTextEnter = lineTextUpdate.enter();
     const lineTextExit = lineTextUpdate.exit();
-    const lineText = lineTextEnter.append('text')
+    lineText = lineTextEnter.append('text')
         .attr('class', 'linetext')
         .style('font-size', lineTextFontSize)
         .attr({
@@ -316,7 +307,7 @@ function update(nodes, links, linkMap, hnum, cnum) {
         .data(force.nodes());
     const nodeCircleEnter = nodeCircleUpdate.enter();
     const nodeCircleExit = nodeCircleUpdate.exit();
-    const nodeCircle = nodeCircleEnter.append('g')
+    nodeCircle = nodeCircleEnter.append('g')
         .attr('class', 'node')
         .attr('cx', node => node.x)
         .attr('cy', node => node.y)
@@ -338,14 +329,14 @@ function update(nodes, links, linkMap, hnum, cnum) {
     nodeCircle
         .on('mouseenter', function (currNode) {
             toggleNode(nodeCircle, currNode, linkMap, true);
-            toggleMenu(menuWrapper, currNode, true);
+            toggleMenu(wheelMenu, currNode, true);
             toggleLine(linkLine, currNode, true);
             toggleMarker(marker, currNode, true);
             toggleLineText(lineText, currNode, true);
         })
         .on('mouseleave', function (currNode) {
             toggleNode(nodeCircle, currNode, linkMap, false);
-            toggleMenu(menuWrapper, currNode, false);
+            toggleMenu(wheelMenu, currNode, false);
             toggleLine(linkLine, currNode, false);
             toggleMarker(marker, currNode, false);
             toggleLineText(lineText, currNode, false);
@@ -372,7 +363,7 @@ function update(nodes, links, linkMap, hnum, cnum) {
     const piedata = pie(menuConf.dataset);
 
     // 聚焦光环
-    const focusHalo = nodeCircle.filter(node => node.ntype === 'Company' && +node.id === +companyId);
+    focusHalo = nodeCircle.filter(node => node.ntype === 'Company' && +node.id === +companyId);
     focusHalo.append('circle')
         .attr('r', node => nodeConf.radius[node.ntype] + 8)
         .style('fill', 'rgba(0,0,0,.0)')
@@ -388,11 +379,11 @@ function update(nodes, links, linkMap, hnum, cnum) {
         .style('stroke-dashoffset', -45);
 
     // 环形菜单
-    const menuWrapper = nodeCircle.filter(node => node.ntype === 'Company')
+    wheelMenu = nodeCircle.filter(node => node.ntype === 'Company')
         .append('g')
         .attr('id', node => 'menu-wrapper-' + node.id)
         .style('display', 'none');
-    const wheelMenu = menuWrapper
+    const menuPie = wheelMenu
         .selectAll('.wheel-menu')
         .data(piedata)
         .enter()
@@ -422,33 +413,18 @@ function update(nodes, links, linkMap, hnum, cnum) {
     const menuArc = d3.svg.arc()
         .innerRadius(menuConf.innerRadius)
         .outerRadius(menuConf.outerRadius);
-    wheelMenu.append('path')
+    menuPie.append('path')
         .attr('fill', menuConf.color)
         .attr('stroke', '#fff')
         .attr('stroke-width', 1)
         .attr('d', d => menuArc(d));
-    wheelMenu.append('image')
+    menuPie.append('image')
         .attr('width', menuConf.iconSize.width)
         .attr('height', menuConf.iconSize.height)
         .attr('x', -(menuConf.iconSize.width / 2))
         .attr('y', -(menuConf.iconSize.width / 2))
         .attr('transform', d => 'translate(' + menuArc.centroid(d) + ')')
         .attr('xlink:href', (d, i) => menuConf.iconPath + d.data.action + '.png');
-
-
-    // 更新力导向图
-    function tick() {
-        // 节点位置
-        nodeCircle.attr('transform', node => 'translate(' + node.x + ',' + node.y + ')');
-        // 连线路径
-        linkLine.attr('d', link => genLinkPath(link));
-        // 连线文字位置
-        lineText.attr('dx', link => getLineTextDx(link));
-        // 连线文字角度 
-        lineText.attr('transform', function (link) {
-            return getLineTextAngle(link, this.getBBox());
-        });
-    }
 
     // 更新力导向图
     // 注意1：必须调用一次 tick （否则，节点会堆积在左上角）
@@ -467,6 +443,33 @@ function update(nodes, links, linkMap, hnum, cnum) {
             tick();
         });
 
+    // 设置节点数目
+    setNum(cnum, hnum);
+
+    // 生成节点搜索 HTML
+    genSuggest(nodes);
+
+    // 生成关系筛选 HTML
+    genFilter(links);
+}
+
+// 更新绘图
+function update(nodes, links, linkMap, hnum, cnum) {
+    
+}
+
+// 更新力导向图
+function tick() {
+    // 节点位置
+    nodeCircle.attr('transform', node => 'translate(' + node.x + ',' + node.y + ')');
+    // 连线路径
+    linkLine.attr('d', link => genLinkPath(link));
+    // 连线文字位置
+    lineText.attr('dx', link => getLineTextDx(link));
+    // 连线文字角度 
+    lineText.attr('transform', function (link) {
+        return getLineTextAngle(link, this.getBBox());
+    });
 }
 
 function genLinks(relations, linkMap, nodesMap) {
@@ -720,16 +723,16 @@ function toggleNode(nodeCircle, currNode, linkMap = {}, isHover = false) {
 
 }
 
-function toggleMenu(menuWrapper, currNode, isHover) {
+function toggleMenu(wheelMenu, currNode, isHover) {
     if (isHover) {
         hoverNodeId = currNode.id;
         // 显示节点菜单
-        menuWrapper.filter(node => node.id === currNode.id)
+        wheelMenu.filter(node => node.id === currNode.id)
             .style('display', 'block');
     } else {
         hoverNodeId = 0;
         // 隐藏节点菜单
-        menuWrapper.filter(node => node.id === currNode.id)
+        wheelMenu.filter(node => node.id === currNode.id)
             .style('display', 'none');
     }
 }
@@ -924,7 +927,7 @@ function toggleMask(flag) {
     }
 }
 
-function updateNodeNum(cnum, hnum) {
+function setNum(cnum, hnum) {
     d3.select('#company-num').text(cnum);
     d3.select('#human-num').text(hnum);
 }

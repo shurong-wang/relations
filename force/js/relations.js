@@ -192,7 +192,7 @@ function genDrawinData(pureNodes, relations) {
     // 构建 links（source 属性必须从 0 开始）
     const links = genLinks(relations, linkMap, nodesMap);
     // 将画图数据保存到全局变量
-    drawinData = { pureNodes, relations, nodes, links, linkMap, hnum, cnum };
+    drawinData = { pureNodes, relations, nodes, links, nodesMap, linkMap, hnum, cnum };
     return drawinData;
 }
 
@@ -983,8 +983,9 @@ function onSelectSuggest(o) {
 }
 
 // 关系筛选
-function genFilter(relations) {
+function genFilter() {
 
+    let { relations, nodes, nodesMap } = drawinData;
     const relationHash = {
         SERVE: '任职',
         OWN: '法人',
@@ -997,6 +998,11 @@ function genFilter(relations) {
     relations.map(function (item) {
         const { startNode, endNode, type, id } = item;
         typeHash[type] ? typeHash[type].push(id) : typeHash[type] = [id];
+        for (const node of nodes) {
+            if (node.id === startNode || node.id === endNode) {
+                node.ltype ? !node.ltype.includes(type) && node.ltype.push(type) : node.ltype = [type];
+            }
+        }
     });
 
     const filterLi = Object.entries(typeHash).map(([type, relation]) => {
@@ -1020,7 +1026,14 @@ function onChangeFilter(o) {
     const display = checked ? 'block' : 'none';
     const type = $(o).data('type');
     const ids = $(o).data('ids').split(',');
-    let  { pureNodes, relations, nodes, links, linkMap, hnum, cnum } = drawinData;
+    let { pureNodes, relations, nodes, links, nodesMap, linkMap, hnum, cnum } = drawinData;
+
+    console.log(drawinData.nodes);
+
+    // 更新节点权重（连线数量）
+    for (const node of nodes) {
+        
+    }
 
     linkLine
         .filter(link => link.type === type)

@@ -971,11 +971,11 @@ function userInput() {
     if (inputText.length === 0) {
         $suggestItems.show();
     } else {
-        matchingNode(inputText);
+        resetSuggestView(inputText);
     }
 }
 
-function matchingNode(inputText) {
+function resetSuggestView(inputText) {
     const result = [];
     let selector = '';
     const $suggestItems = $searchContainer.find('li');
@@ -1002,16 +1002,18 @@ function onSelectSuggest(o) {
     const cid = $(o).data('cid');
     const cname = $(o).text();
     $searchInput.val(cname);
-    matchingNode(cname);
+    resetSuggestView(cname);
+    
 
-    const [nodes, links, linkMap, hnum, cnum] = updateDrawinDataBySearch(cid);
-    update(nodes, links, linkMap, hnum, cnum);
+
+    // // todo...
+    // const [nodes, links, linkMap, hnum, cnum] = updateDrawinDataBySearch(cid);
+    // update(nodes, links, linkMap, hnum, cnum);
 }
 
 function updateDrawinDataBySearch(cid) {
-    let { nodes, links, linkMap, hnum, cnum } = drawinData;
-
     // todo...
+    let { nodes, links, linkMap, hnum, cnum } = drawinData;
     return [nodes, links, linkMap, hnum, cnum];
 }
 
@@ -1053,15 +1055,17 @@ function onChangeFilter(o) {
     const display = checked ? 'block' : 'none';
     const type = $(o).data('type');
     const ids = $(o).data('ids').split(',');
-    genDrawinData
-    const [nodes, links, linkMap, hnum, cnum] = updateDrawinDataByFilter(type, ids, checked);
-    update(nodes, links, linkMap, hnum, cnum);
+    
+
+
+
+    // // todo...
+    // const [nodes, links, linkMap, hnum, cnum] = updateDrawinDataByFilter(type, ids, checked);
+    // update(nodes, links, linkMap, hnum, cnum);
 }
 
 function updateDrawinDataByFilter(type, ids, checked) {
-    let { nodes, links, linkMap, hnum, cnum } = drawinData;
-
-
     // todo...
+    let { nodes, links, linkMap, hnum, cnum } = drawinData;
     return [nodes, links, linkMap, hnum, cnum];
 }

@@ -472,11 +472,12 @@ function genLinks(relations, linkMap, nodesMap) {
 function genNodesMap(pureNodes) {
     const nodeHash = {};
     const countHash = {};
-    const suggestHash = {}
-    pureNodes.map(function (node) {
+    const suggestHash = {};
+    pureNodes = pureNodes.map(function (node) {
         const {id, name, ntype} = node;
         nodeHash[id] = node;
         countHash[ntype] = countHash[ntype] ? countHash[ntype] + 1 : 1;
+        return node;
     });
     return [nodeHash, countHash];
 }
@@ -998,9 +999,14 @@ function genFilter() {
     relations.map(function (item) {
         const { startNode, endNode, type, id } = item;
         typeHash[type] ? typeHash[type].push(id) : typeHash[type] = [id];
+        // 在节点上添加关系类型
         for (const node of nodes) {
             if (node.id === startNode || node.id === endNode) {
-                node.ltype ? !node.ltype.includes(type) && node.ltype.push(type) : node.ltype = [type];
+                if (node.ltype) {
+                    node.ltype[type] ? node.ltype[type] += 1 : node.ltype[type] = 1;
+                } else {
+                    node.ltype = {[type]: 1};
+                }
             }
         }
     });
@@ -1028,11 +1034,12 @@ function onChangeFilter(o) {
     const ids = $(o).data('ids').split(',');
     let { pureNodes, relations, nodes, links, nodesMap, linkMap, hnum, cnum } = drawinData;
 
-    console.log(drawinData.nodes);
-
     // 更新节点权重（连线数量）
     for (const node of nodes) {
-        
+        const typeWeight = node.ltype[type] | 0;
+        if (typeWeight) {
+            checked ? node.weight += typeWeight : node.weight -= typeWeight;
+        }
     }
 
     linkLine
@@ -1044,10 +1051,7 @@ function onChangeFilter(o) {
         .style('display', display);
 
     nodeCircle
-        .filter(node => {
-            // console.log(linkMap);
-        })
-        .style('display', display);
+        .style('display', node => node.weight > 0 ? 'block' : 'none');
 
 }
 

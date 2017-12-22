@@ -12,7 +12,7 @@ const APIS = [
 ];
 
 // 企业关系 API
-const RELATIONS_MAP = APIS[0];
+const RELATIONS_MAP = APIS[1];
 
 // 企业信息 API
 const NODE_INFO = 'data/bianlifeng.info.json';
@@ -1007,6 +1007,7 @@ function genFilter() {
                 } else {
                     node.ltype = {[type]: 1};
                 }
+                node.linkWeight = node.linkWeight ? node.linkWeight += 1 : 1;
             }
         }
     });
@@ -1016,7 +1017,7 @@ function genFilter() {
             `
             <li class="toggleOption" id="${type}FilteringOption">
                 <div class="checkboxContainer">
-                    <input class="filterCheckbox" id="${type}FilterCheckbox" data-type="${type}" data-ids="${typeHash[type]}"
+                    <input class="filterCheckbox" id="${type}FilterCheckbox" data-type="${type}"
                         onChange="onChangeFilter(this)" type="checkbox" checked>
                     <label for="${type}FilterCheckbox">${relationHash[type]}</label>
                 </div>
@@ -1031,14 +1032,15 @@ function onChangeFilter(o) {
     const checked = $(o).prop('checked');
     const display = checked ? 'block' : 'none';
     const type = $(o).data('type');
-    const ids = $(o).data('ids').split(',');
+
+
     let { pureNodes, relations, nodes, links, nodesMap, linkMap, hnum, cnum } = drawinData;
 
     // 更新节点权重（连线数量）
     for (const node of nodes) {
         const typeWeight = node.ltype[type] | 0;
         if (typeWeight) {
-            checked ? node.weight += typeWeight : node.weight -= typeWeight;
+            checked ? node.linkWeight += typeWeight : node.linkWeight -= typeWeight;
         }
     }
 
@@ -1051,11 +1053,13 @@ function onChangeFilter(o) {
         .style('display', display);
 
     nodeCircle
-        .style('display', node => node.weight > 0 ? 'block' : 'none');
+        .style('display', node => node.linkWeight > 0 ? 'block' : 'none');
+
+    if (checked) {
+        tick();
+    }
 
 }
-
-
 
 
 // 统一接口数据格式（格式固定后可删除）

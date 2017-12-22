@@ -175,7 +175,7 @@ d3.json(RELATIONS_MAP, (error, resp) => {
     [pureNodes, relations] = formatApiData(pureNodes, relations);
 
     // 生成绘图数据
-    const [nodes, links, linkMap, hnum, cnum] = genDrawinData(pureNodes, relations);
+    const {nodes, links, linkMap, hnum, cnum} = genDrawinData(pureNodes, relations);
 
     // 绘图
     initialize(nodes, links, linkMap, hnum, cnum);
@@ -192,8 +192,8 @@ function genDrawinData(pureNodes, relations) {
     // 构建 links（source 属性必须从 0 开始）
     const links = genLinks(relations, linkMap, nodesMap);
     // 将画图数据保存到全局变量
-    drawinData = { nodes, links, linkMap, hnum, cnum };
-    return [nodes, links, linkMap, hnum, cnum];
+    drawinData = { pureNodes, relations, nodes, links, linkMap, hnum, cnum };
+    return drawinData;
 }
 
 // 初始化绘图
@@ -980,8 +980,6 @@ function onSelectSuggest(o) {
     $searchInput.val(cname);
     resetSuggestView(cname);
 
-
-    let { nodes, links, linkMap, hnum, cnum } = drawinData;
 }
 
 // 关系筛选
@@ -1022,8 +1020,7 @@ function onChangeFilter(o) {
     const display = checked ? 'block' : 'none';
     const type = $(o).data('type');
     const ids = $(o).data('ids').split(',');
-    let { nodes, links, linkMap, hnum, cnum } = drawinData;
-
+    let  { pureNodes, relations, nodes, links, linkMap, hnum, cnum } = drawinData;
 
     linkLine
         .filter(link => link.type === type)
@@ -1040,6 +1037,9 @@ function onChangeFilter(o) {
         .style('display', display);
 
 }
+
+
+
 
 // 统一接口数据格式（格式固定后可删除）
 function formatApiData(pureNodes, relations) {

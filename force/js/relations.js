@@ -1,5 +1,5 @@
 // 当前企业 ID 
-let focusNodeId = 22822;
+let companyId = 22822;
 
 // 企业关系 API 
 const APIS = [
@@ -19,6 +19,7 @@ const NODE_INFO = 'data/bianlifeng.info.json';
 
 const width = 1162;
 const height = Math.max(window.innerHeight, 600);
+let drawinData = {};
 
 const initScale = .7;
 
@@ -112,6 +113,7 @@ const drag = force.drag()
     .on('drag', dragFn)
     .on('dragend', dragendFn);
 
+    
 // SVG 画布
 const svg = d3.select('#graph').append('svg')
     .attr('width', width)
@@ -153,10 +155,10 @@ feMerge.append('feMergeNode')
     .attr('in', 'SourceGraphic');
 
 
-let nodeCircle;
-let linkLine;
-let marker;
-let lineText;
+// let nodeCircle;
+// let linkLine;
+// let marker;
+// let lineText;
 
 // 请求数据，绘制图表
 d3.json(RELATIONS_MAP, (error, resp) => {
@@ -176,6 +178,7 @@ d3.json(RELATIONS_MAP, (error, resp) => {
 
 });
 
+// 生成画图数据
 function genDrawinData(resp) {
     let nodes = resp.nodes;
     let relations = resp.relations || resp.relationships;
@@ -192,13 +195,11 @@ function genDrawinData(resp) {
     // 构建 links（source 属性必须从 0 开始）
     const links = genLinks(relations, linkMap, nodesMap);
 
+    // 将画图数据保存到全局变量
+    drawinData = { nodes, links, linkMap, hnum, cnum };
+
     return [nodes, links, linkMap, hnum, cnum];
 }
-
-function updateDrawinData(nodes, links, linkMap, hnum, cnum) {
-    return [nodes, links, linkMap, hnum, cnum];
-}
-
 
 // 绘图
 function update(nodes, links, linkMap, hnum, cnum) {
@@ -234,9 +235,12 @@ function update(nodes, links, linkMap, hnum, cnum) {
     });
 
     // 箭头
-    marker = container.append('svg:defs').selectAll('marker')
-        .data(force.links())
-        .enter().append('svg:marker')
+    const markerUpdate = container.selectAll('.marker-box').append('svg:defs')
+        .attr('class', 'marker-box')
+        .data(force.links());
+    const markerEnter = markerUpdate.enter();
+    const markerExit = markerUpdate.exit();
+    const marker = markerEnter.append('svg:marker')
         .attr('id', link => 'marker-' + link.id)
         .attr('markerUnits', 'userSpaceOnUse')
         .attr('viewBox', '0 -5 10 10')
@@ -270,12 +274,14 @@ function update(nodes, links, linkMap, hnum, cnum) {
         .append('svg:path')
         .attr('d', 'M2,0 L0,-3 L9,0 L0,3 M2,0 L0,-3')
         .attr('fill', link => lineConf.strokeColor[link.type] || '#333');
+    markerExit.remove();
 
-    // 节点连线    
-    linkLine = container.selectAll('.link')
-        .data(force.links())
-        .enter()
-        .append('path')
+    // 节点连线
+    const linkLineUpdate = container.selectAll('.link')
+        .data(force.links());
+    const linkLineEnter = linkLineUpdate.enter();
+    const linkLineExit = linkLineUpdate.exit();
+    const linkLine = linkLineEnter.append('path')
         .attr('class', 'link')
         .attr({
             'marker-end': link => 'url(#' + 'marker-' + link.id + ')', // 标记箭头
@@ -283,35 +289,40 @@ function update(nodes, links, linkMap, hnum, cnum) {
             'id': link => 'link-' + link.id,
         })
         .style('stroke', link => lineConf.strokeColor[link.type] || '#333');
+    linkLineExit.remove();
 
-    // 连线的文字
-    lineText = container.append('g').selectAll('.linetext')
-        .data(force.links())
-        .enter()
-        .append('text')
+    // 连线文字
+    const lineTextUpdate = container.selectAll('.linetext-box').append('g')
+        .attr('class', 'linetext-box')
+        .data(force.links());
+    const lineTextEnter = lineTextUpdate.enter();
+    const lineTextExit = lineTextUpdate.exit();
+    const lineText = lineTextEnter.append('text')
+        .attr('class', 'linetext')
         .style('font-size', lineTextFontSize)
         .attr({
-            'class': 'linetext',
             'id': link => 'linktext' + link.id,
             'dx': link => getLineTextDx(link),
             'dy': 5
         });
-
+    lineTextExit.remove();
     lineText.append('textPath')
         .attr('xlink:href', link => '#link-' + link.id)
         .text(link => link.label);
 
     // 节点（圆）
-    nodeCircle = container.append('g')
-        .selectAll('.node')
-        .data(force.nodes())
-        .enter()
-        .append('g')
-        .style('cursor', 'pointer')
+    const nodeCircleUpdate = container.selectAll('.node-box').append('g')
+        .attr('class', 'node-box')
+        .data(force.nodes());
+    const nodeCircleEnter = nodeCircleUpdate.enter();
+    const nodeCircleExit = nodeCircleUpdate.exit();
+    const nodeCircle = nodeCircleEnter.append('g')
         .attr('class', 'node')
         .attr('cx', node => node.x)
         .attr('cy', node => node.y)
+        .style('cursor', 'pointer')
         .call(drag); // 节点可拖动
+    nodeCircleExit.remove();
 
     nodeCircle.append('circle')
         // .style('fill-opacity', .3) // debug
@@ -360,17 +371,15 @@ function update(nodes, links, linkMap, hnum, cnum) {
     const pie = d3.layout.pie().value(d => d.per);
     const piedata = pie(menuConf.dataset);
 
-    // 聚焦节点
-    const focusNode = nodeCircle.filter(node => node.ntype === 'Company' && +node.id === +focusNodeId);
-
-    focusNode.append('circle')
+    // 聚焦光环
+    const focusHalo = nodeCircle.filter(node => node.ntype === 'Company' && +node.id === +companyId);
+    focusHalo.append('circle')
         .attr('r', node => nodeConf.radius[node.ntype] + 8)
         .style('fill', 'rgba(0,0,0,.0)')
         .style('stroke', 'rgb(0,209,218)')
         .style('stroke-width', 5)
         .style('stroke-dasharray', node => 2 * Math.PI * (nodeConf.radius[node.ntype] + 8) / 8);
-
-    focusNode.append('circle')
+    focusHalo.append('circle')
         .attr('r', node => nodeConf.radius[node.ntype] + 8)
         .style('fill', 'rgba(0,0,0,.0)')
         .style('stroke', 'rgb(0,209,218)')
@@ -383,7 +392,6 @@ function update(nodes, links, linkMap, hnum, cnum) {
         .append('g')
         .attr('id', node => 'menu-wrapper-' + node.id)
         .style('display', 'none');
-
     const wheelMenu = menuWrapper
         .selectAll('.wheel-menu')
         .data(piedata)
@@ -409,21 +417,16 @@ function update(nodes, links, linkMap, hnum, cnum) {
                 });
                 return;
             }
-
             location.href = '#' + d.data.hash + ((new Date().getTime() + '').substr(-5));
-
         });
-
     const menuArc = d3.svg.arc()
         .innerRadius(menuConf.innerRadius)
         .outerRadius(menuConf.outerRadius);
-
     wheelMenu.append('path')
         .attr('fill', menuConf.color)
         .attr('stroke', '#fff')
         .attr('stroke-width', 1)
         .attr('d', d => menuArc(d));
-
     wheelMenu.append('image')
         .attr('width', menuConf.iconSize.width)
         .attr('height', menuConf.iconSize.height)
@@ -965,11 +968,11 @@ function userInput() {
     if (inputText.length === 0) {
         $suggestItems.show();
     } else {
-        matching(inputText);
+        matchingNode(inputText);
     }
 }
 
-function matching(inputText) {
+function matchingNode(inputText) {
     const result = [];
     let selector = '';
     const $suggestItems = $searchContainer.find('li');
@@ -996,15 +999,17 @@ function onSelectSuggest(o) {
     const cid = $(o).data('cid');
     const cname = $(o).text();
     $searchInput.val(cname);
-    matching(cname);
+    matchingNode(cname);
 
-    const [nodes, links, linkMap, hnum, cnum] = genDateBySearch(cid);
+    const [nodes, links, linkMap, hnum, cnum] = updateDrawinDataBySearch(cid);
     update(nodes, links, linkMap, hnum, cnum);
 }
 
-function genDateBySearch(cid) {
-     // todo...
-     return [nodes, links, linkMap, hnum, cnum];
+function updateDrawinDataBySearch(cid) {
+    let { nodes, links, linkMap, hnum, cnum } = drawinData;
+
+    // todo...
+    return [nodes, links, linkMap, hnum, cnum];
 }
 
 // 关系筛选
@@ -1045,12 +1050,15 @@ function onChangeFilter(o) {
     const display = checked ? 'block' : 'none';
     const type = $(o).data('type');
     const ids = $(o).data('ids').split(',');
-
-    const [nodes, links, linkMap, hnum, cnum] = genDateByFilter(type, ids, checked);
+    genDrawinData
+    const [nodes, links, linkMap, hnum, cnum] = updateDrawinDataByFilter(type, ids, checked);
     update(nodes, links, linkMap, hnum, cnum);
 }
 
-function genDateByFilter(type, ids, checked) {
+function updateDrawinDataByFilter(type, ids, checked) {
+    let { nodes, links, linkMap, hnum, cnum } = drawinData;
+
+
     // todo...
     return [nodes, links, linkMap, hnum, cnum];
 }

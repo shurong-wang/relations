@@ -166,39 +166,33 @@ d3.json(RELATIONS_MAP, (error, resp) => {
     if (error) {
         return console.error(error);
     }
-
     if (typeof resp === 'string') {
         resp = JSON.parse(resp);
     }
+    let pureNodes = resp.nodes;
+    let relations = resp.relations || resp.relationships;
+    // 统一接口数据格式（格式固定后可删除）
+    [pureNodes, relations] = formatApiData(pureNodes, relations);
 
     // 生成绘图数据
-    const [nodes, links, linkMap, hnum, cnum] = genDrawinData(resp);
+    const [nodes, links, linkMap, hnum, cnum] = genDrawinData(pureNodes, relations);
 
     // 绘图
     initialize(nodes, links, linkMap, hnum, cnum);
-
 });
 
 // 生成画图数据
-function genDrawinData(resp) {
-    let nodes = resp.nodes;
-    let relations = resp.relations || resp.relationships;
-
+function genDrawinData(pureNodes, relations) {
     // 生成 nodes map
-    const [nodesMap, { Human: hnum = 0, Company: cnum = 0 }] = genNodesMap(nodes);
-
+    const [nodesMap, { Human: hnum = 0, Company: cnum = 0 }] = genNodesMap(pureNodes);
     // 起点和终点相同的关系映射
     const [linkMap] = genLinkMap(relations);
-
     // 构建 nodes（不能直接使用请求数据中的 nodes）
-    nodes = d3.values(nodesMap);
-
+    const nodes = d3.values(nodesMap);
     // 构建 links（source 属性必须从 0 开始）
     const links = genLinks(relations, linkMap, nodesMap);
-
     // 将画图数据保存到全局变量
     drawinData = { nodes, links, linkMap, hnum, cnum };
-
     return [nodes, links, linkMap, hnum, cnum];
 }
 
@@ -208,18 +202,16 @@ function initialize(nodes, links, linkMap, hnum, cnum) {
     force
         .nodes(nodes) // 设定节点数组
         .links(links); // 设定连线数组
-
     // 开启力导向布局
     force.start();
-
     // 手动快速布局
     for (let i = 0, n = 1000; i < n; ++i) {
         force.tick();
     }
-
     // 停止力布局
     force.stop();
-
+    // 监听力学图运动事件，更新坐标
+    force.on('tick', tick);
     // 固定所有节点
     nodes.forEach(node => {
         node.fixed = true;
@@ -388,28 +380,7 @@ function initialize(nodes, links, linkMap, hnum, cnum) {
         .data(piedata)
         .enter()
         .append('g')
-        .on('click', function (d, i) {
-            if (d.data.action === 'info') {
-                toggleMask(true);
-                toggleNodeInfo(false, null);
-                d3.json(NODE_INFO, (error, resp) => {
-                    if (error) {
-                        toggleMask(false);
-                        return console.error(error);
-                    }
-
-                    if (typeof resp === 'string') {
-                        resp = JSON.parse(resp);
-                    }
-                    setTimeout(function () {
-                        toggleMask(false);
-                        toggleNodeInfo(true, resp);
-                    }, 1000);
-                });
-                return;
-            }
-            location.href = '#' + d.data.hash + ((new Date().getTime() + '').substr(-5));
-        });
+        .on('click', (d) => handleWheelMenu(d));
     const menuArc = d3.svg.arc()
         .innerRadius(menuConf.innerRadius)
         .outerRadius(menuConf.outerRadius);
@@ -431,18 +402,6 @@ function initialize(nodes, links, linkMap, hnum, cnum) {
     // 注意2：调用位置必须在 nodeCircle, nodeText, linkLine, lineText 后
     tick();
 
-    // 监听力学图运动事件，更新坐标
-    force.on('tick', tick);
-
-    // 临时性解决关系文字偏移问题（后期需要仔细优化）
-    svg
-        .on('mouseenter', function () {
-            tick();
-        })
-        .on('mouseleave', function () {
-            tick();
-        });
-
     // 设置节点数目
     setNum(cnum, hnum);
 
@@ -453,9 +412,15 @@ function initialize(nodes, links, linkMap, hnum, cnum) {
     genFilter(links);
 }
 
-// 更新绘图
-function update(nodes, links, linkMap, hnum, cnum) {
-    
+// 临时性解决关系文字偏移问题（后期需要优化）
+if (nodeCircle && linkLine && lineText) {
+    svg
+        .on('mouseenter', function () {
+            tick();
+        })
+        .on('mouseleave', function () {
+            tick();
+        });
 }
 
 // 更新力导向图
@@ -481,9 +446,9 @@ function genLinks(relations, linkMap, nodesMap) {
             id,
             startNode,
             endNode,
-            type
+            type,
+            label
         } = item;
-        const label = item.properties ? item.properties.labels + '' : item.label;
 
         const hashKey = startNode + '-' + endNode;
         if (indexHash[hashKey]) {
@@ -504,33 +469,27 @@ function genLinks(relations, linkMap, nodesMap) {
     })
 }
 
-function genNodesMap(nodes) {
-    const hash = {};
+function genNodesMap(pureNodes) {
+    const nodeHash = {};
     const countHash = {};
     const suggestHash = {}
-    nodes.map(function (node) {
-        const id = node.id;
-        const name = node.properties ? node.properties.name : node.name;
-        const ntype = node.labels ? node.labels + '' : node.ntype;
-        hash[id] = {
-            id,
-            name,
-            ntype
-        };
+    pureNodes.map(function (node) {
+        const {id, name, ntype} = node;
+        nodeHash[id] = node;
         countHash[ntype] = countHash[ntype] ? countHash[ntype] + 1 : 1;
     });
-    return [hash, countHash];
+    return [nodeHash, countHash];
 }
 
 function genLinkMap(relations) {
-    const hash = {};
+    const linkHash = {};
     const countHash = {};
     relations.map(function (item) {
         const { startNode, endNode, type, id } = item;
         const k = startNode + '-' + endNode;
-        hash[k] = hash[k] ? hash[k] + 1 : 1;
+        linkHash[k] = linkHash[k] ? linkHash[k] + 1 : 1;
     });
-    return [hash];
+    return [linkHash];
 }
 
 // 生成关系连线路径
@@ -705,6 +664,29 @@ function getLineTextAngle(d, bbox) {
     } else {
         return 'rotate(0)';
     }
+}
+
+function handleWheelMenu(d) {
+    if (d.data.action === 'info') {
+        toggleMask(true);
+        toggleNodeInfo(false, null);
+        d3.json(NODE_INFO, (error, resp) => {
+            if (error) {
+                toggleMask(false);
+                return console.error(error);
+            }
+
+            if (typeof resp === 'string') {
+                resp = JSON.parse(resp);
+            }
+            setTimeout(function () {
+                toggleMask(false);
+                toggleNodeInfo(true, resp);
+            }, 1000);
+        });
+        return;
+    }
+    location.href = '#' + d.data.hash + ((new Date().getTime() + '').substr(-5));
 }
 
 function toggleNode(nodeCircle, currNode, linkMap = {}, isHover = false) {
@@ -952,14 +934,8 @@ $searchInput.on("input", userInput);
 
 function genSuggest(nodes) {
     const html = nodes.map(node => {
-        const id = node.id;
-        const name = node.properties ? node.properties.name : node.name;
-        const ntype = node.labels ? node.labels + '' : node.ntype;
-        suggestHash[name] = {
-            id,
-            name,
-            ntype
-        };
+        const { id, name, ntype } = node;
+        suggestHash[name] = node;
         return `<li data-cid="${id}" class="dbEntry company-${id}" title="${name}" onclick="onSelectSuggest(this)">${name}</li>`
     });
     $searchContainer.html(html.join(''));
@@ -1003,18 +979,9 @@ function onSelectSuggest(o) {
     const cname = $(o).text();
     $searchInput.val(cname);
     resetSuggestView(cname);
-    
 
 
-    // // todo...
-    // const [nodes, links, linkMap, hnum, cnum] = updateDrawinDataBySearch(cid);
-    // update(nodes, links, linkMap, hnum, cnum);
-}
-
-function updateDrawinDataBySearch(cid) {
-    // todo...
     let { nodes, links, linkMap, hnum, cnum } = drawinData;
-    return [nodes, links, linkMap, hnum, cnum];
 }
 
 // 关系筛选
@@ -1055,17 +1022,42 @@ function onChangeFilter(o) {
     const display = checked ? 'block' : 'none';
     const type = $(o).data('type');
     const ids = $(o).data('ids').split(',');
-    
+    let { nodes, links, linkMap, hnum, cnum } = drawinData;
 
 
+    linkLine
+        .filter(link => link.type === type)
+        .style('display', display);
 
-    // // todo...
-    // const [nodes, links, linkMap, hnum, cnum] = updateDrawinDataByFilter(type, ids, checked);
-    // update(nodes, links, linkMap, hnum, cnum);
+    lineText
+        .filter(link => link.type === type)
+        .style('display', display);
+
+    nodeCircle
+        .filter(node => {
+            // console.log(linkMap);
+        })
+        .style('display', display);
+
 }
 
-function updateDrawinDataByFilter(type, ids, checked) {
-    // todo...
-    let { nodes, links, linkMap, hnum, cnum } = drawinData;
-    return [nodes, links, linkMap, hnum, cnum];
+// 统一接口数据格式（格式固定后可删除）
+function formatApiData(pureNodes, relations) {
+    pureNodes = pureNodes.map(node => {
+        return {
+            id: node.id,
+            name: node.properties ? node.properties.name : node.name,
+            ntype: node.labels ? node.labels + '' : node.ntype
+        };
+    });
+    relations = relations.map(item => {
+        return {
+            id: item.id,
+            startNode: item.startNode,
+            endNode: item.endNode,
+            type: item.type,
+            label: label = item.properties ? item.properties.labels + '' : item.label
+        };
+    });
+    return [pureNodes, relations];
 }

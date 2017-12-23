@@ -1,6 +1,5 @@
-// 当前企业 ID 
-let companyId = 22822;
-
+// 当前企业 ID
+const IDS = [8, 650397229, 650397229, 24762997, 1463816270, 26044960]
 // 企业关系 API 
 const APIS = [
     'data/bianlifeng.simple.json',
@@ -13,6 +12,7 @@ const APIS = [
 
 // 企业关系 API
 const RELATIONS_MAP = APIS[0];
+let companyId = IDS[0];
 
 // 企业信息 API
 const NODE_INFO = 'data/bianlifeng.info.json';

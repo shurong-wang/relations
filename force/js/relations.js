@@ -320,18 +320,10 @@ function initialize() {
     // 鼠标交互
     nodeCircle
         .on('mouseenter', function (currNode) {
-            toggleNode(nodeCircle, currNode, linkMap, true);
-            toggleMenu(wheelMenu, currNode, true);
-            toggleLine(linkLine, currNode, true);
-            toggleMarker(marker, currNode, true);
-            toggleLineText(lineText, currNode, true);
+            highlightNode(true, currNode);
         })
         .on('mouseleave', function (currNode) {
-            toggleNode(nodeCircle, currNode, linkMap, false);
-            toggleMenu(wheelMenu, currNode, false);
-            toggleLine(linkLine, currNode, false);
-            toggleMarker(marker, currNode, false);
-            toggleLineText(lineText, currNode, false);
+            highlightNode(false);
         });
 
     // 节点文字
@@ -670,7 +662,7 @@ function getLineTextAngle(d, bbox) {
 function handleWheelMenu(d) {
     if (d.data.action === 'info') {
         toggleMask(true);
-        toggleNodeInfo(false, null);
+        toggleInfo(false, null);
         d3.json(NODE_INFO, (error, resp) => {
             if (error) {
                 toggleMask(false);
@@ -682,7 +674,7 @@ function handleWheelMenu(d) {
             }
             setTimeout(function () {
                 toggleMask(false);
-                toggleNodeInfo(true, resp);
+                toggleInfo(true, resp);
             }, 1000);
         });
         return;
@@ -690,14 +682,22 @@ function handleWheelMenu(d) {
     location.href = '#' + d.data.hash + ((new Date().getTime() + '').substr(-5));
 }
 
-function toggleNode(nodeCircle, currNode, linkMap = {}, isHover = false) {
+function highlightNode(bool = false, node = null) {
+    toggleNode(nodeCircle, node, bool);
+    toggleMenu(wheelMenu, node, bool);
+    toggleLine(linkLine, node, bool);
+    toggleMarker(marker, node, bool);
+    toggleLineText(lineText, node, bool);
+}
+
+function toggleNode(nodeCircle, currNode, isHover = false) {
     if (isHover) {
         // 提升节点层级 
         nodeCircle.sort((a, b) => a.id === currNode.id ? 1 : -1);
         // this.parentNode.appendChild(this);
         nodeCircle
             .style('opacity', .1)
-            .filter(node => isLinkNode(currNode, node, linkMap))
+            .filter(node => isLinkNode(currNode, node, drawinData.linkMap))
             .style('opacity', 1);
 
     } else {
@@ -710,13 +710,11 @@ function toggleMenu(wheelMenu, currNode, isHover) {
     if (isHover) {
         hoverNodeId = currNode.id;
         // 显示节点菜单
-        wheelMenu.filter(node => node.id === currNode.id)
-            .style('display', 'block');
+        wheelMenu.style('display', node => node.id === currNode.id ? 'block' : 'none');
     } else {
         hoverNodeId = 0;
         // 隐藏节点菜单
-        wheelMenu.filter(node => node.id === currNode.id)
-            .style('display', 'none');
+        wheelMenu.style('display', 'none');
     }
 }
 
@@ -826,7 +824,7 @@ function getParallelLine(
     }
 }
 
-function toggleNodeInfo(flag, data) {
+function toggleInfo(flag, data) {
 
     let nodeInfoWarp = document.querySelector('.node-info-warp');
 
@@ -873,7 +871,7 @@ function toggleNodeInfo(flag, data) {
         `;
         nodeInfoWarp.innerHTML = html;
         $('.close-info').on('click', function () {
-            toggleNodeInfo(false, null);
+            toggleInfo(false, null);
         });
         nodeInfoWarp.style.cssText = 'display: block';
     } else {
@@ -948,11 +946,23 @@ function userInput() {
     if (inputText.length === 0) {
         $suggestItems.show();
     } else {
-        resetSuggestView(inputText);
+        toggleSuggestList(inputText);
     }
 }
 
-function resetSuggestView(inputText) {
+function onSelectSuggest(o) {
+    const { nodesMap, linkMap } = drawinData;
+    const cid = $(o).data('cid');
+    const cname = $(o).text();
+    // 填充输入框，关闭搜索列表
+    $searchInput.val(cname);
+    toggleSuggestList(cname);
+    // 高亮显示搜索节点
+    highlightNode(true, nodesMap[cid]);
+
+}
+
+function toggleSuggestList(inputText) {
     const result = [];
     let selector = '';
     const $suggestItems = $searchContainer.find('li');
@@ -974,15 +984,6 @@ function resetSuggestView(inputText) {
     }
 
 }
-
-function onSelectSuggest(o) {
-    const cid = $(o).data('cid');
-    const cname = $(o).text();
-    $searchInput.val(cname);
-    resetSuggestView(cname);
-
-}
-
 
 // 关系筛选
 const checkboxHash = {};
@@ -1033,6 +1034,8 @@ function genFilter() {
 }
 
 function onChangeFilter(o) {
+    highlightNode(false);
+
     const checked = $(o).prop('checked');
     const display = checked ? 'block' : 'none';
     const type = $(o).data('type');

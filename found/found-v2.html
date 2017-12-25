@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <title>集数天下</title>
+    <!-- <script src='http://d3js.org/d3.v3.min.js' charset='utf-8'></script> -->
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.css" rel="stylesheet">
+    <link href="http://cdn.bootcss.com/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css" rel="stylesheet">
+    <link rel="stylesheet" href="./style/facss/font-awesome.min.css">
+    <link rel="stylesheet" href="./style/graph.css">
+    <link rel="stylesheet" href="./style/toolstyle.css">
+    <link rel="stylesheet" href="./assets/tagsinput.css">
+    <script src="http://cdn.bootcss.com/jquery/3.1.0/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js"></script>
+    <script src="http://cdn.bootcss.com/typeahead.js/0.11.1/typeahead.bundle.js"></script>
+    <script src="https://cdn.bootcss.com/lodash.js/4.17.4/lodash.min.js"></script>
+    <script src="./js/d3.v3.min.js"></script>
+</head>
+
+<body>
+    <main>
+        <section id="canvasArea">
+            <div id="graph">
+                <!-- svg 画布 -->
+            </div>
+        </section>
+
+        <!-- 左边栏 -->
+        <aside id="search-container" class="search-container well">
+            <button id="button-collapse" class="btn btn-primary button-collapse" type="button" data-toggle="collapse" data-target="#search-wraper"
+                aria-expanded="false" aria-controls="search-wraper">
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                <span>添加公司</span>
+            </button>
+            <div id="search-wraper" class="collapse search-wraper">
+                <!-- 源公司搜索框 -->
+                <input id="tags-input" type="text" placeholder="输入源公司"/>
+
+                <!-- 目标公司搜索框 -->
+                <input id="tags-input-target" type="text"  placeholder="输入目标公司"/>
+
+                <!-- 提交按钮 -->
+                <button id="button-relation" type="button" class="btn btn-success button-relation" data-loading-text="加载中..." disabled>
+                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    <span>发现关系</span>
+                    <span class='btn-msg'></span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- 右边栏 -->
+        <aside class="graph-legends">
+            <section class="legend-min">
+                <div class="legend-node">
+                    <div class="node-item">
+                        <i class="node-icon fa fa-building" style="color: rgb(35, 148, 206);"></i>
+                        <div class="node-name">公司</div>
+                        <div id="company-num" class="node-num" style="color: rgb(35, 148, 206);">-</div>
+                    </div>
+                    <div class="node-item">
+                        <i class="node-icon fa fa-users" style="color: rgb(242, 90, 41);"></i>
+                        <div class="node-name">个人</div>
+                        <div id="human-num" class="node-num" style="color: rgb(242, 90, 41);">-</div>
+                    </div>
+                </div>
+            </section>
+        </aside>
+
+        <!-- 底部功能栏 -->
+        <nav id="optionsArea">
+            <ul id="optionsMenu">
+                <li class="searchMenu" id="searchMenuId">
+                    <input class="searchInputText" type="search" id="searchInputText" placeholder="输入公司名/人名">
+                    <ul class="searchMenuEntry" id="searchEntryContainer">
+                        <!-- 搜索列表 -->
+                    </ul>
+                </li>
+                <li id="filterOption">
+                    <a href="#">关系筛选</a>
+                    <ul class="toolTipMenu filter">
+                        <!-- 可筛选关系 -->
+                    </ul>
+                </li>
+                <!-- <li id="export">
+                    <a href="#">导出</a>
+                    <ul class="toolTipMenu export">
+                        <li>
+                            <a href="#" download id="exportJson">导出 JSON</a>
+                        </li>
+                        <li>
+                            <a href="#" download id="exportSvg">导出 SVG</a>
+                        </li>
+                    </ul>
+                </li> -->
+            </ul>
+        </nav>
+
+    </main>
+    <script src="./js/relations.js"></script>
+    <script src="./js/collapse-v2.js"></script>
+</body>
+
+</html>

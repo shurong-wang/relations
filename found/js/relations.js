@@ -1,7 +1,7 @@
 // 企业信息 API
 const NODE_INFO = 'data/bianlifeng.info.json';
 
-const width = window.innerWidth;
+const width = Math.max(window.innerWidth, 11136);
 const height = Math.max(window.innerHeight, 600);
 let drawinData = {};
 

@@ -2,7 +2,9 @@ function renderTree() {
     // 当前根节点 ID
     const MID_NODE_ID = '24416401'; 
     const API_L = './data/huawei_left.json'; 
+    const API_L_2 = './data/huawei_left2.json'; 
     const API_R = './data/huawei_right.json'; 
+    const API_R_2 = './data/huawei_right2.json'; 
 
     // 此处应该使用 async/await + Promise 但当前项目不允许
     d3.json(API_L, (error, respL) => {
@@ -148,9 +150,7 @@ function render(treeRight = {}, treeLeft = {}, MID_NODE_ID) {
         // 插入节点圆
         nodeEnter.append('svg:circle')
             .attr('r', 1e-6)
-            .style('fill', function (d) {
-                return d._children ? '#eee' : '#333';
-            });
+            .style('fill', '#333');
 
         // 插入节点文字
         nodeEnter.append('svg:text')
@@ -182,9 +182,11 @@ function render(treeRight = {}, treeLeft = {}, MID_NODE_ID) {
             });
 
         nodeUpdate.select('circle')
-            .attr('r', 4.5)
+            .attr('r', function (d) {
+                return d.open ? 8 : 5;
+            })
             .style('fill', function (d) {
-                return d._children ? '#eee' : '#333';
+                return d.open ? '#333' : '#aaa';
             });
 
         nodeUpdate.select('text')

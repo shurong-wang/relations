@@ -31,8 +31,7 @@ function renderTree() {
                 // 初始化
             	render(treeRight, treeLeft, MID_NODE_ID);
             } catch (error) {
-                console.warn(error);
-                console.warn(resp);
+                console.error(error);
             }
             
         });

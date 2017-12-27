@@ -1,194 +1,194 @@
 {
     "24416401": [
         {
-            "children": [
-                {
-                    "children": [],
-                    "id": 6.16428616E8,
-                    "lable": "Company",
-                    "name": "中芯国际集成电路新技术研发（上海）有限公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 1.114800056E9,
-                    "lable": "Company",
-                    "name": "上海华为技术有限公司",
-                    "open": true
-                },
-                {
-                    "children": [],
-                    "id": 1.208288762E9,
-                    "lable": "Company",
-                    "name": "华为技术服务有限公司",
-                    "open": true
-                },
-                {
-                    "children": [],
-                    "id": 2.604496E7,
-                    "lable": "Company",
-                    "name": "北京华为数字技术有限公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 1.481503614E9,
-                    "lable": "Company",
-                    "name": "成都华为技术有限公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 5.71706809E8,
-                    "lable": "Company",
-                    "name": "海思光电子有限公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 6.05816572E8,
-                    "lable": "Company",
-                    "name": "深圳市华为技术软件有限公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 7.77675854E8,
-                    "lable": "Company",
-                    "name": "华为终端有限公司",
-                    "open": true
-                },
-                {
-                    "children": [],
-                    "id": 6.28458055E8,
-                    "lable": "Company",
-                    "name": "深圳市华为安捷信电气有限公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 6.28453038E8,
-                    "lable": "Company",
-                    "name": "西安华为技术有限公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 6.05819557E8,
-                    "lable": "Company",
-                    "name": "深圳市华为技术服务有限公司",
-                    "open": true
-                },
-                {
-                    "children": [],
-                    "id": 8.18559653E8,
-                    "lable": "Company",
-                    "name": "贵州艾玛特信息超市项目开发有限公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 2.326017429E9,
-                    "lable": "Company",
-                    "name": "深圳力捷科技有限公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 2.983753263E9,
-                    "lable": "Company",
-                    "name": "东莞华为服务有限公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 2.325552661E9,
-                    "lable": "Company",
-                    "name": "深圳市海思半导体有限公司",
-                    "open": true
-                },
-                {
-                    "children": [],
-                    "id": 2.358818928E9,
-                    "lable": "Company",
-                    "name": "山东华为通信技术有限责任公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 2.349747864E9,
-                    "lable": "Company",
-                    "name": "深圳市华为新技术有限公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 2.412631259E9,
-                    "lable": "Company",
-                    "name": "上海华为信息技术有限公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 2.540785786E9,
-                    "lable": "Company",
-                    "name": "安徽华为通信技术有限责任公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 2.45071194E9,
-                    "lable": "Company",
-                    "name": "上海宇梦通信科技有限公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 1.255771345E9,
-                    "lable": "Company",
-                    "name": "杭州华为企业通信技术有限公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 1.194491236E9,
-                    "lable": "Company",
-                    "name": "杭州华为数字技术有限公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 1.481505221E9,
-                    "lable": "Company",
-                    "name": "华为数字技术（苏州）有限公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 1.473222193E9,
-                    "lable": "Company",
-                    "name": "华为机器有限公司",
-                    "open": false
-                },
-                {
-                    "children": [],
-                    "id": 1.073663E7,
-                    "lable": "Company",
-                    "name": "华为软件技术有限公司",
-                    "open": true
-                },
-                {
-                    "children": [],
-                    "id": 2.345867655E9,
-                    "lable": "Company",
-                    "name": "浙江华为通信技术有限公司",
-                    "open": false
-                }
-            ],
             "id": 2.4416401E7,
             "lable": "Company",
             "name": "华为技术有限公司",
-            "open": true
+            "open": true,
+            "children": [
+                {
+                    "id": 6.16428616E8,
+                    "lable": "Company",
+                    "name": "中芯国际集成电路新技术研发（上海）有限公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 1.114800056E9,
+                    "lable": "Company",
+                    "name": "上海华为技术有限公司",
+                    "open": true,
+                    "children": []
+                },
+                {
+                    "id": 1.208288762E9,
+                    "lable": "Company",
+                    "name": "华为技术服务有限公司",
+                    "open": true,
+                    "children": []
+                },
+                {
+                    "id": 2.604496E7,
+                    "lable": "Company",
+                    "name": "北京华为数字技术有限公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 1.481503614E9,
+                    "lable": "Company",
+                    "name": "成都华为技术有限公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 5.71706809E8,
+                    "lable": "Company",
+                    "name": "海思光电子有限公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 6.05816572E8,
+                    "lable": "Company",
+                    "name": "深圳市华为技术软件有限公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 7.77675854E8,
+                    "lable": "Company",
+                    "name": "华为终端有限公司",
+                    "open": true,
+                    "children": []
+                },
+                {
+                    "id": 6.28458055E8,
+                    "lable": "Company",
+                    "name": "深圳市华为安捷信电气有限公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 6.28453038E8,
+                    "lable": "Company",
+                    "name": "西安华为技术有限公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 6.05819557E8,
+                    "lable": "Company",
+                    "name": "深圳市华为技术服务有限公司",
+                    "open": true,
+                    "children": []
+                },
+                {
+                    "id": 8.18559653E8,
+                    "lable": "Company",
+                    "name": "贵州艾玛特信息超市项目开发有限公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 2.326017429E9,
+                    "lable": "Company",
+                    "name": "深圳力捷科技有限公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 2.983753263E9,
+                    "lable": "Company",
+                    "name": "东莞华为服务有限公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 2.325552661E9,
+                    "lable": "Company",
+                    "name": "深圳市海思半导体有限公司",
+                    "open": true,
+                    "children": []
+                },
+                {
+                    "id": 2.358818928E9,
+                    "lable": "Company",
+                    "name": "山东华为通信技术有限责任公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 2.349747864E9,
+                    "lable": "Company",
+                    "name": "深圳市华为新技术有限公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 2.412631259E9,
+                    "lable": "Company",
+                    "name": "上海华为信息技术有限公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 2.540785786E9,
+                    "lable": "Company",
+                    "name": "安徽华为通信技术有限责任公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 2.45071194E9,
+                    "lable": "Company",
+                    "name": "上海宇梦通信科技有限公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 1.255771345E9,
+                    "lable": "Company",
+                    "name": "杭州华为企业通信技术有限公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 1.194491236E9,
+                    "lable": "Company",
+                    "name": "杭州华为数字技术有限公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 1.481505221E9,
+                    "lable": "Company",
+                    "name": "华为数字技术（苏州）有限公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 1.473222193E9,
+                    "lable": "Company",
+                    "name": "华为机器有限公司",
+                    "open": false,
+                    "children": []
+                },
+                {
+                    "id": 1.073663E7,
+                    "lable": "Company",
+                    "name": "华为软件技术有限公司",
+                    "open": true,
+                    "children": []
+                },
+                {
+                    "id": 2.345867655E9,
+                    "lable": "Company",
+                    "name": "浙江华为通信技术有限公司",
+                    "open": false,
+                    "children": []
+                }
+            ]
         }
     ]
 }

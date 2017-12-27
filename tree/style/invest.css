@@ -1,19 +1,32 @@
 
 /*d3js*/
+* {
+    margin: 0;
+    padding: 0;
+}
 
-.node circle {
+.investment {
+    display: flex;
+    justify-content: center;
+}
+
+.investment svg {
+    background-color: #ecf0f1;
+}
+
+.investment .node circle {
     cursor: pointer;
     fill: #fff;
     stroke: steelblue;
     stroke-width: 1.5px;
 }
 
-.node text {
+.investment .node text {
     font-size: 11px;
     cursor: pointer;
 }
 
-path.link {
+.investment path.link {
     fill: none;
     stroke: #111;
     stroke-width: .2px;

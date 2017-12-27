@@ -1,0 +1,146 @@
+{
+    "2325552661": [
+        {
+            "children": [
+                {
+                    "children": [],
+                    "id": 2.447621799E9,
+                    "lable": "Company",
+                    "name": "苏州市海思半导体有限公司",
+                    "open": false
+                }
+            ],
+            "id": 2.325552661E9,
+            "lable": "Company",
+            "name": "深圳市海思半导体有限公司",
+            "open": true
+        }
+    ],
+    "605819557": [
+        {
+            "children": [
+                {
+                    "children": [],
+                    "id": 2.358652044E9,
+                    "lable": "Company",
+                    "name": "成都华为通信技术有限公司",
+                    "open": true
+                },
+                {
+                    "children": [],
+                    "id": 2.430734455E9,
+                    "lable": "Company",
+                    "name": "南京市力凯通信技术服务有限公司",
+                    "open": false
+                },
+                {
+                    "children": [],
+                    "id": 3.017283981E9,
+                    "lable": "Company",
+                    "name": "广州市力凯通信技术服务有限公司",
+                    "open": false
+                },
+                {
+                    "children": [],
+                    "id": 2.397780599E9,
+                    "lable": "Company",
+                    "name": "长沙市力凯通信技术服务有限公司",
+                    "open": false
+                },
+                {
+                    "children": [],
+                    "id": 2.358818928E9,
+                    "lable": "Company",
+                    "name": "山东华为通信技术有限责任公司",
+                    "open": false
+                }
+            ],
+            "id": 6.05819557E8,
+            "lable": "Company",
+            "name": "深圳市华为技术服务有限公司",
+            "open": true
+        }
+    ],
+    "1208288762": [
+        {
+            "children": [
+                {
+                    "children": [],
+                    "id": 6.05820725E8,
+                    "lable": "Company",
+                    "name": "华为技术服务有限公司深圳分公司",
+                    "open": false
+                }
+            ],
+            "id": 1.208288762E9,
+            "lable": "Company",
+            "name": "华为技术服务有限公司",
+            "open": true
+        }
+    ],
+    "1114800056": [
+        {
+            "children": [
+                {
+                    "children": [],
+                    "id": 2.412631259E9,
+                    "lable": "Company",
+                    "name": "上海华为信息技术有限公司",
+                    "open": false
+                }
+            ],
+            "id": 1.114800056E9,
+            "lable": "Company",
+            "name": "上海华为技术有限公司",
+            "open": true
+        }
+    ],
+    "777675854": [
+        {
+            "children": [
+                {
+                    "children": [],
+                    "id": 7.77678234E8,
+                    "lable": "Company",
+                    "name": "华为终端（东莞）有限公司",
+                    "open": false
+                }
+            ],
+            "id": 7.77675854E8,
+            "lable": "Company",
+            "name": "华为终端有限公司",
+            "open": true
+        }
+    ],
+    "10736630": [
+        {
+            "children": [
+                {
+                    "children": [],
+                    "id": 2.606881E7,
+                    "lable": "Company",
+                    "name": "北京华为朗新科技有限责任公司",
+                    "open": true
+                },
+                {
+                    "children": [],
+                    "id": 2.5811157E7,
+                    "lable": "Company",
+                    "name": "北京盛维新世纪网络通信技术有限公司",
+                    "open": false
+                },
+                {
+                    "children": [],
+                    "id": 1.073653E7,
+                    "lable": "Company",
+                    "name": "北京盛维新世纪软件信息技术有限公司",
+                    "open": false
+                }
+            ],
+            "id": 1.073663E7,
+            "lable": "Company",
+            "name": "华为软件技术有限公司",
+            "open": true
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+{
+    "24416401": [
+        {
+            "children": [
+                {
+                    "children": [],
+                    "id": 1.7066311E7,
+                    "lable": "Company",
+                    "name": "华为投资控股有限公司",
+                    "open": true
+                }
+            ],
+            "id": 2.4416401E7,
+            "lable": "Company",
+            "name": "华为技术有限公司",
+            "open": true
+        }
+    ]
+}

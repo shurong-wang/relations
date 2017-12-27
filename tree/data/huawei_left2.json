@@ -1,0 +1,26 @@
+{
+    "17066311": [
+        {
+            "children": [
+                {
+                    "children": [],
+                    "id": 1.775134421E9,
+                    "lable": "Human",
+                    "name": "任正非",
+                    "open": false
+                },
+                {
+                    "children": [],
+                    "id": 1.491532173E9,
+                    "lable": "Company",
+                    "name": "华为投资控股有限公司工会委员会",
+                    "open": false
+                }
+            ],
+            "id": 1.7066311E7,
+            "lable": "Company",
+            "name": "华为投资控股有限公司",
+            "open": true
+        }
+    ]
+}

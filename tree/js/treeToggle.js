@@ -12,12 +12,12 @@ const aim = '#main';
 
 var tree = d3.layout.tree()
     .size([h, w])
-    .separation(function(a, b) {
+    .separation(function (a, b) {
         return a.parent == b.parent ? 1 : 2;
     });
 
 var diagonal = d3.svg.diagonal()
-    .projection(function (d) { 
+    .projection(function (d) {
         // x, y 坐标对调，形成横向的树图
         return [d.y, d.x * gap];
     });
@@ -69,15 +69,15 @@ function update(source, direction = 1) {
 
     // Update the nodes…
     var node = vis.selectAll("g.node")
-        .data(nodes, function (d) { 
-            return d.id || (d.id = ++i); 
+        .data(nodes, function (d) {
+            return d.id || (d.id = ++i);
         });
 
     // Enter any new nodes at the parent's previous position.
     var nodeEnter = node.enter().append("svg:g")
         .attr("class", "node")
-        .attr("transform", function (d) { 
-            return "translate(" + source.y0 + "," + source.x0 * gap + ")"; 
+        .attr("transform", function (d) {
+            return "translate(" + source.y0 + "," + source.x0 * gap + ")";
         })
         .on("click", function (d) {
             toggle(d);
@@ -86,8 +86,8 @@ function update(source, direction = 1) {
 
     nodeEnter.append("svg:circle")
         .attr("r", 1e-6)
-        .style("fill", function (d) { 
-            return d._children ? "lightsteelblue" : "#fff"; 
+        .style("fill", function (d) {
+            return d._children ? "lightsteelblue" : "#fff";
         });
 
     nodeEnter.append('a')
@@ -95,12 +95,12 @@ function update(source, direction = 1) {
             return d.url;
         })
         .append("svg:text")
-        .attr("x", function (d) { 
-            return d.children || d._children ? -10 : 10; 
+        .attr("x", function (d) {
+            return d.children || d._children ? -10 : 10;
         })
         .attr("dy", ".35em")
-        .attr("text-anchor", function (d) { 
-            return d.children || d._children ? "end" : "start"; 
+        .attr("text-anchor", function (d) {
+            return d.children || d._children ? "end" : "start";
         })
         .text(function (d) { return d.name; })
         .style('fill', function (d) {

@@ -250,6 +250,7 @@ function toggleAll(d) {
 function toggle(d) {
     if (d.children) {
         d._children = d.children;
+        d._children.forEach(toggle);
         d.children = null;
     } else {
         d.children = d._children;

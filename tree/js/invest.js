@@ -44,7 +44,6 @@ renderTree();
 function render(treeRight = {}, treeLeft = {}, MID_NODE_ID) {
     
     const INIT_SCALE = .7;
-	const treeBoxId = '#tree';
 	const width = 1162;
     const height = window.innerHeight;
     
@@ -76,7 +75,7 @@ function render(treeRight = {}, treeLeft = {}, MID_NODE_ID) {
         .on('zoom', zoomFn);
     
     // SVG 画布
-    var svg = d3.select(treeBoxId).append('svg:svg')
+    var svg = d3.select('#tree').append('svg:svg')
         .attr('width', width)
         // .attr('height', h + m[0] + m[2])
         .attr('height', Math.max((h + m[0] + m[2]) * gap, height))

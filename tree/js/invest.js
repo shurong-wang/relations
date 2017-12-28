@@ -252,37 +252,38 @@ function render(treeRight = {}, treeLeft = {}, MID_NODE_ID) {
         return tree.nodes(node);
     }
 
-    // 标识左侧树枝
-    function defLeftNode(node) {
-        return deepAssign(node, {direction: -1});
-    }
+}
 
-    // 深拷贝并扩展属性
-    function deepAssign(obj, sub = {}) {
-        const getType = o => Object.prototype.toString.call(o).slice(8, -1);
-        const isObject = o => getType(o) === 'Object';
-        const isArray = o => getType(o) === 'Array';
-        const isIterable = o => typeof o === 'object' && typeof o !== 'null';
-        let newObj;
-        if (isIterable(obj)) {
-            newObj = isArray(obj) ? [] : {};
-            for (let [k, v] of Object.entries(obj)) {
-                if (isIterable(v)) { 
-                    newObj[k] = deepAssign(v, sub); // 递归
-                    if(isObject(v)) {
-                        Object.assign(newObj[k], sub);
-                    }
-                } else {
-                    newObj[k] = v;
+ // 标识左侧树枝
+ function defLeftNode(node) {
+    return deepAssign(node, {direction: -1});
+}
+
+// 深拷贝并扩展属性
+function deepAssign(obj, sub = {}) {
+    const getType = o => Object.prototype.toString.call(o).slice(8, -1);
+    const isObject = o => getType(o) === 'Object';
+    const isArray = o => getType(o) === 'Array';
+    const isIterable = o => typeof o === 'object' && typeof o !== 'null';
+    let newObj;
+    if (isIterable(obj)) {
+        newObj = isArray(obj) ? [] : {};
+        for (let [k, v] of Object.entries(obj)) {
+            if (isIterable(v)) { 
+                newObj[k] = deepAssign(v, sub); // 递归
+                if(isObject(v)) {
+                    Object.assign(newObj[k], sub);
                 }
+            } else {
+                newObj[k] = v;
             }
-        } else {
-            return obj;
         }
-        if(isObject(newObj)) {
-            Object.assign(newObj, sub);
-        }
-        
-        return newObj;
+    } else {
+        return obj;
     }
+    if(isObject(newObj)) {
+        Object.assign(newObj, sub);
+    }
+    
+    return newObj;
 }

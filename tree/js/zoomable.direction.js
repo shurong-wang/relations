@@ -7,10 +7,6 @@ d3.json(API_R, function (error, treeData) {
 });
 
 function initialize(treeData) {
-    // Calculate total nodes, max label length
-    var totalNodes = 0;
-    var maxLabelLength = 0;
-    // Misc. variables
     var nodeIndex = 0;
     var duration = 300;
     var root;
@@ -27,31 +23,6 @@ function initialize(treeData) {
         .projection(function (d) {
             return [d.y, d.x];
         });
-
-    // A recursive helper function for performing some setup by walking through all nodes
-
-    function visit(parent, visitFn, childrenFn) {
-        if (!parent) return;
-
-        visitFn(parent);
-
-        var children = childrenFn(parent);
-        if (children) {
-            var count = children.length;
-            for (var i = 0; i < count; i++) {
-                visit(children[i], visitFn, childrenFn);
-            }
-        }
-    }
-
-    // Call visit function to establish maxLabelLength
-    visit(treeData, function (d) {
-        totalNodes++;
-        maxLabelLength = Math.max(d.name.length, maxLabelLength);
-
-    }, function (d) {
-        return d.children && d.children.length > 0 ? d.children : null;
-    });
 
     // Define the zoom function for the zoomable tree
 
@@ -188,13 +159,11 @@ function initialize(treeData) {
       
         var links = tree.links(nodes);
 
-        // Set widths between levels based on maxLabelLength.
+        // Set widths between levels.
         nodes.forEach(function (d) {
-            d.y = (d.depth * (maxLabelLength * 10)) * (d.direction || 1); //maxLabelLength * 10px
-
             // alternatively to keep a fixed scale one can set a fixed depth per level
             // Normalize for fixed-depth by commenting out below line
-            // d.y = (d.depth * 500); //500px per level.
+            d.y = (d.depth * 200) * (d.direction || 1); //200px per level.
         });
 
         // Update the nodes…

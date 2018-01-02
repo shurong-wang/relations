@@ -42,24 +42,6 @@ function initialize(treeData) {
         .call(zoomListener)
         .on('dblclick.zoom', null);
 
-    // Helper functions for collapsing and expanding nodes.
-
-    function collapse(d) {
-        if (d.children) {
-            d._children = d.children;
-            d._children.forEach(collapse);
-            d.children = null;
-        }
-    }
-
-    function expand(d) {
-        if (d._children) {
-            d.children = d._children;
-            d.children.forEach(expand);
-            d._children = null;
-        }
-    }
-
     // Toggle children function
 
     function toggleChildren(d) {

@@ -79,16 +79,8 @@ function render(treeRight = {}, treeLeft = {}, MID_NODE_ID) {
         .attr('width', width)
         // .attr('height', h + m[0] + m[2])
         .attr('height', Math.max((h + m[0] + m[2]) * gap, height))
-        .append('g')
 	    .call(zoom)
 	    .on('dblclick.zoom', null);
-    
-    // 缩放层（位置必须在 svg 画布之后， container 之前）
-    const zoomOverlay = svg.append('rect')
-        .attr('width', width)
-        .attr('height', height)
-        .style('fill', 'none')
-        .style('pointer-events', 'all');
     
      var container = svg.append('svg:g')
         .attr('transform', 'translate(' + h + ',' + (m[0]) + ')scale('+ INIT_SCALE + ')')

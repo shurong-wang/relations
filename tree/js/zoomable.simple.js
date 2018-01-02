@@ -7,7 +7,7 @@ d3.json(api, function (error, treeData) {
     var totalNodes = 0;
     var maxLabelLength = 0;
     // Misc. variables
-    var i = 0;
+    var nodeIndex = 0;
     var duration = 300;
     var root;
 
@@ -158,7 +158,7 @@ d3.json(api, function (error, treeData) {
         // Update the nodes…
         node = svgGroup.selectAll('g.node')
             .data(nodes, function (d) {
-                return d.id || (d.id = ++i);
+                return d.id || (d.id = ++nodeIndex);
             });
 
         // Enter any new nodes at the parent's previous position.

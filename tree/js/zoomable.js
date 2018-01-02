@@ -13,7 +13,7 @@ d3.json(api, function (error, treeData) {
     var panSpeed = 200;
     var panBoundary = 20; // Within 20px from edges will pan when dragging.
     // Misc. variables
-    var i = 0;
+    var nodeIndex = 0;
     var duration = 750;
     var root;
 
@@ -372,7 +372,7 @@ d3.json(api, function (error, treeData) {
         // Update the nodes…
         node = svgGroup.selectAll('g.node')
             .data(nodes, function (d) {
-                return d.id || (d.id = ++i);
+                return d.id || (d.id = ++nodeIndex);
             });
 
         // Enter any new nodes at the parent's previous position.

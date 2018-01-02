@@ -113,13 +113,40 @@ d3.json(api, function (error, treeData) {
         return d;
     }
 
+    // Toggle all children function
+
+    function toggleAll(d) {
+        if (d.children) {
+            d.children.forEach(toggleAll);
+            toggleChildren(d);
+        }
+    }
+
     // Toggle children on click.
 
     function click(d) {
-        if (d3.event.defaultPrevented) return; // click suppressed
+        if (d3.event.defaultPrevented) {
+            return; // click suppressed
+        }
         d = toggleChildren(d);
         update(d);
-        // centerNode(d);
+        centerNode(d);
+    }
+
+    // Ajax expand children on click.
+
+    function ajaxExpand(d) {
+        d3.json(api, function (error, treeData) {
+            if (treeData && treeData.children) {
+                var children = (treeData.children).filter(function (item) {
+                    return item.name === d.name;
+                })[0].children;
+
+                d.children = children;
+                d._children = null;
+                update(d);
+            }
+        });
     }
 
     function update(source) {
@@ -167,7 +194,8 @@ d3.json(api, function (error, treeData) {
             .attr('transform', function (d) {
                 return 'translate(' + source.y0 + ',' + source.x0 + ')';
             })
-            .on('click', click);
+            // .on('click', click);
+            .on('click', ajaxExpand);
 
         nodeEnter.append('circle')
             .attr('class', 'nodeCircle')
@@ -288,6 +316,8 @@ d3.json(api, function (error, treeData) {
     root = treeData;
     root.x0 = viewerHeight / 2;
     root.y0 = 0;
+
+    root.children.forEach(toggleAll);
 
     // Layout the tree initially and center on the root node.
     update(root);

@@ -138,13 +138,14 @@ d3.json(api, function (error, treeData) {
     function ajaxExpand(d) {
         d3.json(api, function (error, treeData) {
             if (treeData && treeData.children) {
-                var children = (treeData.children).filter(function (item) {
+                var data = (treeData.children).filter(function (item) {
                     return item.name === d.name;
-                })[0].children;
-
-                d.children = children;
-                d._children = null;
-                update(d);
+                }) || [];
+                if (data[0] && data[0].children) {
+                    d.children = data[0].children;
+                    d._children = null;
+                    update(d);
+                }
             }
         });
     }

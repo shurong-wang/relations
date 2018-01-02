@@ -128,10 +128,8 @@ function initialize(treeData) {
                 name: '',
                 children: root.childrenLeft
             });
-            for (const key in nodesLeft) {
-                if (nodesLeft.hasOwnProperty(key)) {
-                    nodes[nodes.length++] = nodesLeft[key];
-                }
+            for (const item of nodesLeft) {
+                nodes.push(item);
             }
         }
       

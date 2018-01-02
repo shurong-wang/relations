@@ -68,16 +68,12 @@ function initialize(treeData) {
 
     function ajaxExpand(d) {
         d3.json(API_R, function (error, treeData) {
-            var resp = d.direction === -1 ? treeData.childrenLeft : treeData.children;
-            if (resp) {
-                var data = resp.filter(function (item) {
-                    return item.name === d.name || item.name === '';
-                }) || [];
-                if (data[0] && data[0].children) {
-                    d.children = data[0].children;
-                    d._children = null;
-                    update(d);
-                }
+            var sub = (d.direction === -1 ? treeData.childrenLeft : treeData.children) || []; 
+            var subChildren = (sub.filter(({name}) => name === d.name || name === '') || [])[0] || [];
+            if (subChildren.children) {
+                d.children = subChildren.children;
+                d._children = null;
+                update(d);
             }
         });
     }

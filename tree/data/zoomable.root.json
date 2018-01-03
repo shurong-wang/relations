@@ -15,21 +15,8 @@
             "direction": -1
         },
         {
-            "name": "ColorPalette",
-            "direction": -1
-        },
-        {
             "name": "Palette",
             "direction": -1
-        },
-        {
-            "name": "ShapePalette",
-            "direction": -1
-        },
-        {
-            "name": "SizePalette",
-            "direction": -1
         }
-        
     ]
 }

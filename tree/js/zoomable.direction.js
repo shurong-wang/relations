@@ -1,6 +1,6 @@
 const API_ROOT = 'data/zoomable.root.json';
 const API_NEXT = 'data/zoomable.next.json';
-const MID_NODE = 'flare';
+const CENTER_NODE = 'flare';
 
 // Get JSON data
 d3.json(API_ROOT, function (error, treeData) {
@@ -66,6 +66,7 @@ function initialize(treeData) {
                 d.children = subChildren.children;
                 d._children = null;
                 update(d);
+                centerNode(root);
             }
         });
     }
@@ -99,11 +100,11 @@ function initialize(treeData) {
 
         // Compute the new tree layout.
         var nodes = layoutNode(root);
-
         // For left nodes
         if (root.childrenLeft) {
             var nodesLeft = layoutNode({
                 name: '',
+                direction: -1,
                 children: root.childrenLeft
             });
             for (const item of nodesLeft) {
@@ -128,7 +129,13 @@ function initialize(treeData) {
 
         // Enter any new nodes at the parent's previous position.
         var nodeEnter = node.enter().append('g')
-            .attr('class', 'node')
+            .attr('class', function (d) {
+                var classList = (d.direction === -1) ? 'node left-node' : 'node right-node';
+                if (d.name === CENTER_NODE || d.name === '') {
+                    classList += ' center-node';
+                }
+                return classList;
+            })
             .attr('transform', function (d) {
                 return 'translate(' + source.y0 + ',' + source.x0 + ')';
             })
@@ -207,7 +214,9 @@ function initialize(treeData) {
 
         // Enter any new links at the parent's previous position.
         link.enter().insert('path', 'g')
-            .attr('class', 'link')
+            .attr('class', function (d) {
+                return (d.target.direction === -1) ? 'link left-link' : 'link right-link';
+            })
             .attr('d', function (d) {
                 var o = {
                     x: source.x0,
@@ -298,6 +307,7 @@ function initialize(treeData) {
         y = -source.x0;
         x = x * scale + viewerWidth / 2;
         y = y * scale + viewerHeight / 2;
+
         d3.select('g').transition()
             .duration(duration)
             .attr('transform', 'translate(' + x + ',' + y + ')scale(' + scale + ')');

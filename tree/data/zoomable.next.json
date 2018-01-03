@@ -1,0 +1,152 @@
+{
+    "name": "flare",
+    "children": [
+        {
+            "name": "analytics",
+            "children": [
+                {
+                    "name": "cluster"
+                },
+                {
+                    "name": "graph"
+                },
+                {
+                    "name": "optimization"
+                }
+            ]
+        },
+        {
+            "name": "util",
+            "children": [
+                {
+                    "name": "Geometry",
+                    "size": 10993
+                },
+                {
+                    "name": "heap",
+                    "children": []
+                },
+                {
+                    "name": "IEvaluable",
+                    "size": 335
+                },
+                {
+                    "name": "IPredicate",
+                    "size": 383
+                },
+                {
+                    "name": "IValueProxy",
+                    "size": 874
+                }
+            ]
+        }
+    ],
+
+    "childrenLeft": [
+        {
+            "name": "LeftNodes",
+            "direction": -1,
+            "children": [
+                {
+                    "name": "Orientation",
+                    "direction": -1
+                },
+                {
+                    "name": "palette",
+                    "direction": -1
+                },
+                {
+                    "name": "Property",
+                    "direction": -1
+                },
+                {
+                    "name": "MaxFlowMinCut",
+                    "direction": -1
+                },
+                {
+                    "name": "ShortestPaths",
+                    "direction": -1
+                },
+                {
+                    "name": "SpanningTree",
+                    "direction": -1
+                },
+                {
+                    "name": "AgglomerativeCluster",
+                    "direction": -1
+                },
+                {
+                    "name": "CommunityStructure",
+                    "direction": -1
+                },
+                {
+                    "name": "HierarchicalCluster",
+                    "direction": -1
+                },
+                {
+                    "name": "MergeEdge",
+                    "direction": -1
+                },
+                {
+                    "name": "Orientation",
+                    "direction": -1
+                },
+                {
+                    "name": "palette",
+                    "direction": -1
+                },
+                {
+                    "name": "Property",
+                    "direction": -1
+                },
+                {
+                    "name": "MaxFlowMinCut",
+                    "direction": -1
+                },
+                {
+                    "name": "ShortestPaths",
+                    "direction": -1
+                },
+                {
+                    "name": "SpanningTree",
+                    "direction": -1
+                },
+                {
+                    "name": "AgglomerativeCluster",
+                    "direction": -1
+                }
+            ]
+        },
+        {
+            "name": "ColorPalette",
+            "direction": -1
+        },
+        {
+            "name": "Palette",
+            "direction": -1,
+            "children": [
+                {
+                    "name": "CommunityStructure",
+                    "direction": -1
+                },
+                {
+                    "name": "HierarchicalCluster",
+                    "direction": -1
+                },
+                {
+                    "name": "MergeEdge",
+                    "direction": -1
+                }
+            ]
+        },
+        {
+            "name": "ShapePalette",
+            "direction": -1
+        },
+        {
+            "name": "SizePalette",
+            "direction": -1
+        }
+        
+    ]
+}

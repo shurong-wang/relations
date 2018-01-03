@@ -1,0 +1,35 @@
+{
+    "name": "flare",
+    "children": [
+        {
+            "name": "analytics"
+        },
+        {
+            "name": "util"
+        }
+    ],
+
+    "childrenLeft": [
+        {
+            "name": "LeftNodes",
+            "direction": -1
+        },
+        {
+            "name": "ColorPalette",
+            "direction": -1
+        },
+        {
+            "name": "Palette",
+            "direction": -1
+        },
+        {
+            "name": "ShapePalette",
+            "direction": -1
+        },
+        {
+            "name": "SizePalette",
+            "direction": -1
+        }
+        
+    ]
+}

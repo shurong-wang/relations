@@ -1,8 +1,9 @@
-const API_R = 'data/zoomable.direction.json';
+const API_ROOT = 'data/zoomable.root.json';
+const API_NEXT = 'data/zoomable.next.json';
 const MID_NODE = 'flare';
 
 // Get JSON data
-d3.json(API_R, function (error, treeData) {
+d3.json(API_ROOT, function (error, treeData) {
     initialize(treeData);
 });
 
@@ -55,21 +56,12 @@ function initialize(treeData) {
         return d;
     }
 
-    // Toggle all children function
-
-    function toggleAll(d) {
-        if (d.children) {
-            d.children.forEach(toggleAll);
-            toggleChildren(d);
-        }
-    }
-
     // Ajax expand children on click.
 
     function ajaxExpand(d) {
-        d3.json(API_R, function (error, treeData) {
-            var sub = (d.direction === -1 ? treeData.childrenLeft : treeData.children) || []; 
-            var subChildren = (sub.filter(({name}) => name === d.name || name === '') || [])[0] || [];
+        d3.json(API_NEXT, function (error, treeData) {
+            var sub = (d.direction === -1 ? treeData.childrenLeft : treeData.children) || [];
+            var subChildren = (sub.filter(({ name }) => name === d.name || name === '') || [])[0] || [];
             if (subChildren.children) {
                 d.children = subChildren.children;
                 d._children = null;
@@ -84,39 +76,25 @@ function initialize(treeData) {
     // Define the root
     root = treeData;
 
-    // Collapse children
-    root.children.forEach(toggleAll);
-    if (root.childrenLeft) {
-        root.childrenLeft.forEach(toggleAll);
-    }
-
     // Layout the tree initially.
     update(root);
     // center on the root node.
     centerNode(root);
 
 
-    
+
     // Layout the tree
     function update(source) {
-        // Compute the new height, function counts total children of root node and sets tree height accordingly.
-        // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
-        // This makes the layout more consistent.
+        // Compute the new heigh
         var levelWidth = [1];
-        var childCount = function (level, ndata) {
-            if (ndata.children && ndata.children.length > 0) {
-                if (levelWidth.length <= level + 1) {
-                    levelWidth.push(0);
-                }
-                levelWidth[level + 1] += ndata.children.length;
-                ndata.children.forEach(function (d) {
-                    childCount(level + 1, d);
-                });
-            }
-        };
-        childCount(0, root);
+        var levelWidthLeft = [1];
+        childCount(0, root, levelWidth); //Update levelWidth
+        childCountLeft(0, root, levelWidthLeft); //Update levelWidthLeft
+        var maxLevel = d3.max(levelWidth);
+        var maxLevelLeft = d3.max(levelWidthLeft);
+        var newHeight = Math.max(maxLevel, maxLevelLeft) * 25; //25 pixels per line
 
-        var newHeight = d3.max(levelWidth) * 25; // 25 pixels per line  
+        // Update tree height
         tree = tree.size([newHeight, viewerWidth]);
 
         // Compute the new tree layout.
@@ -132,7 +110,7 @@ function initialize(treeData) {
                 nodes.push(item);
             }
         }
-      
+
         var links = tree.links(nodes);
 
         // Set widths between levels.
@@ -268,6 +246,49 @@ function initialize(treeData) {
         });
     }
 
+    // Compute the new height, function counts total children of root node and sets tree height accordingly.
+    // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
+    // This makes the layout more consistent.
+    function childCount(level, treeData, levelWidth) {
+        if (treeData.children && treeData.children.length > 0) {
+            if (levelWidth.length <= level + 1) {
+                levelWidth.push(0);
+            }
+            levelWidth[level + 1] += treeData.children.length;
+
+            // Recursive invocation
+            treeData.children.forEach(function (d) {
+                childCount(level + 1, d, levelWidth);
+            });
+        }
+    }
+    function childCountLeft(level, treeData, levelWidthLeft) {
+        if (level === 0) {
+            if (treeData.childrenLeft && treeData.childrenLeft.length > 0) {
+                if (levelWidthLeft.length <= level + 1) {
+                    levelWidthLeft.push(0);
+                }
+                levelWidthLeft[level + 1] += treeData.childrenLeft.length;
+    
+                // Recursive invocation
+                treeData.childrenLeft.forEach(function (d) {
+                    childCountLeft(level + 1, d, levelWidthLeft);
+                });
+            }
+        } else {
+            if (treeData.children && treeData.children.length > 0) {
+                if (levelWidthLeft.length <= level + 1) {
+                    levelWidthLeft.push(0);
+                }
+                levelWidthLeft[level + 1] += treeData.children.length;
+    
+                // Recursive invocation
+                treeData.children.forEach(function (d) {
+                    childCountLeft(level + 1, d, levelWidthLeft);
+                });
+            }
+        }
+    }
 
     // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
 

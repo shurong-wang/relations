@@ -176,7 +176,7 @@ function initialize(treeData) {
             // Normalize for fixed-depth by commenting out below line
             d.y = (d.depth * 250) * (d.direction || 1); //path length.
             // 显示重复节点
-            if (nodeMap.has(d.id)) {
+            if (nodeMap.has(d.id) && !d.isRoot) {
                 d.id *= -1;
             }
             nodeMap.set(d.id, d.name)

@@ -1,13 +1,43 @@
-const API_ROOT = 'data/zoomable.root.json';
-const API_NEXT = 'data/zoomable.next.json';
-const CENTER_NODE = 'flare';
+const ROOT_NODE = '24416401';
 
-// Get JSON data
-d3.json(API_ROOT, function (error, treeData) {
-    initialize(treeData);
-});
+const API_ROOT_L = './data/huawei_left.root.json';
+const API_ROOT_R = './data/huawei_right.root.json';
 
+const API_NEXT_L = 'data/huawei_left.next.json';
+const API_NEXT_R = 'data/huawei_right.next.json';
+
+
+(function () {
+    // Get JSON data
+    d3.json(API_ROOT_L, (error, respL) => {
+        if (error) {
+            return console.error(error);
+        }
+        d3.json(API_ROOT_R, (error, respR) => {
+            if (error) {
+                return console.error(error);
+            }
+            if (typeof respL === 'string') {
+                respL = JSON.parse(respL);
+            }
+            if (typeof respR === 'string') {
+                respR = JSON.parse(respR);
+            }
+
+            var treeLeft = defLeftNode(respL[ROOT_NODE][0]);
+            var treeRight = respR[ROOT_NODE][0];
+            var treeData = $.extend(true, $.extend(true, {}, treeRight), { childrenLeft: treeLeft.children }, { isRoot: true });
+
+            // console.log(treeData);
+
+            initialize(treeData);
+        });
+    });
+})();
+
+// 画图
 function initialize(treeData) {
+
     var nodeIndex = 0;
     var duration = 300;
     var root;
@@ -59,14 +89,21 @@ function initialize(treeData) {
     // Ajax expand children on click.
 
     function ajaxExpand(d) {
+        if (!d.open || d.isRoot) {
+            return;
+        }
+        const API_NEXT = d.direction === -1 ? API_NEXT_L : API_NEXT_R;
         d3.json(API_NEXT, function (error, treeData) {
-            var sub = (d.direction === -1 ? treeData.childrenLeft : treeData.children) || [];
-            var subChildren = (sub.filter(({ name }) => name === d.name || name === '') || [])[0] || [];
-            if (subChildren.children) {
-                d.children = subChildren.children;
+            if (d.direction === -1) {
+                treeData = defLeftNode(treeData);
+            }
+            var subChildren = treeData[d.id] && treeData[d.id][0] && treeData[d.id][0].children || null;
+            if (subChildren) {
+                d.children = subChildren;
                 d._children = null;
                 update(d);
-                centerNode(root);
+                // centerNode(root);
+                // centerNode(d);
             }
         });
     }
@@ -79,10 +116,9 @@ function initialize(treeData) {
 
     // Layout the tree initially.
     update(root);
+
     // center on the root node.
     centerNode(root);
-
-
 
     // Layout the tree
     function update(source) {
@@ -100,10 +136,12 @@ function initialize(treeData) {
 
         // Compute the new tree layout.
         var nodes = layoutNode(root);
+
         // For left nodes
         if (root.childrenLeft) {
-            var nodesLeft = layoutNode({
-                name: 'flare',
+            const { id, lable, name, open } = root;
+            const nodesLeft = layoutNode({
+                id, lable, name, open,
                 isRoot: true,
                 direction: -1,
                 children: root.childrenLeft
@@ -112,11 +150,11 @@ function initialize(treeData) {
                 nodes.push(item);
             }
         }
-        
+
         //////////////////////////////////////////////////////////////////////////////////////////
 
         // 校准差值，对齐左右两侧树枝
-        const [{x: rightRootY}, {x: leftRootY}] = nodes.filter(node => node.isRoot);
+        const [{ x: rightRootY }, { x: leftRootY }] = nodes.filter(node => node.isRoot);
         const dx = rightRootY - leftRootY;
         if (dx !== 0) {
             nodes = nodes.map(node => {
@@ -124,9 +162,9 @@ function initialize(treeData) {
                     node.x += dx;
                 }
                 return node;
-            });    
+            });
         }
-        
+
         //////////////////////////////////////////////////////////////////////////////////////////
 
         var links = tree.links(nodes);
@@ -135,12 +173,13 @@ function initialize(treeData) {
         nodes.forEach(function (d) {
             // alternatively to keep a fixed scale one can set a fixed depth per level
             // Normalize for fixed-depth by commenting out below line
-            d.y = (d.depth * 200) * (d.direction || 1); //200px per level.
+            d.y = (d.depth * 250) * (d.direction || 1); //path length.
         });
 
         // Update the nodes…
         node = svgGroup.selectAll('g.node')
             .data(nodes, function (d) {
+                // todo ...
                 return d.id || (d.id = ++nodeIndex);
             });
 
@@ -148,7 +187,7 @@ function initialize(treeData) {
         var nodeEnter = node.enter().append('g')
             .attr('class', function (d) {
                 var classList = (d.direction === -1) ? 'node left-node' : 'node right-node';
-                if (d.name === CENTER_NODE || d.name === '') {
+                if (d.id === ROOT_NODE) {
                     classList += ' center-node';
                 }
                 return classList;
@@ -161,17 +200,21 @@ function initialize(treeData) {
         nodeEnter.append('circle')
             .attr('class', 'nodeCircle')
             .attr('r', 0)
-            .style('fill', function (d) {
-                return d._children ? 'lightsteelblue' : '#fff';
-            });
+            .style('fill', '#333');
 
         nodeEnter.append('text')
             .attr('x', function (d) {
+                if (d.id == ROOT_NODE) {
+                    return 10;
+                }
                 return d.children || d._children ? -10 : 10;
             })
             .attr('dy', '.35em')
             .attr('class', 'nodeText')
             .attr('text-anchor', function (d) {
+                if (d.id == ROOT_NODE) {
+                    return 'start';
+                }
                 return d.children || d._children ? 'end' : 'start';
             })
             .text(function (d) {
@@ -179,32 +222,20 @@ function initialize(treeData) {
             })
             .style('fill-opacity', 0);
 
-        // Update the text to reflect whether node has children or not.
-        node.select('text')
-            .attr('x', function (d) {
-                return d.children || d._children ? -10 : 10;
-            })
-            .attr('text-anchor', function (d) {
-                return d.children || d._children ? 'end' : 'start';
-            })
-            .text(function (d) {
-                return d.name;
-            });
-
-        // Change the circle fill depending on whether it has children and is collapsed
-        node.select('circle.nodeCircle')
-            .attr('r', 4.5)
-            .style('fill', function (d) {
-                return d._children ? 'lightsteelblue' : '#fff';
-            });
-
-
-
         // Transition nodes to their new position.
         var nodeUpdate = node.transition()
             .duration(duration)
             .attr('transform', function (d) {
                 return 'translate(' + d.y + ',' + d.x + ')';
+            });
+
+        // Change the circle fill depending on whether it has children and is collapsed
+        nodeUpdate.select('circle.nodeCircle')
+            .attr('r', function (d) {
+                return d.open ? 6 : 4;
+            })
+            .style('fill', function (d) {
+                return d.open ? '#333' : '#aaa';
             });
 
         // Fade the text in
@@ -232,7 +263,8 @@ function initialize(treeData) {
             });
 
         // Enter any new links at the parent's previous position.
-        link.enter().insert('path', 'g')
+        link.enter()
+            .insert('path', 'g')
             .attr('class', function (d) {
                 return (d.target.direction === -1) ? 'link left-link' : 'link right-link';
             })
@@ -298,7 +330,7 @@ function initialize(treeData) {
                     levelWidthLeft.push(0);
                 }
                 levelWidthLeft[level + 1] += treeData.childrenLeft.length;
-    
+
                 // Recursive invocation
                 treeData.childrenLeft.forEach(function (d) {
                     childCountLeft(level + 1, d, levelWidthLeft);
@@ -310,7 +342,7 @@ function initialize(treeData) {
                     levelWidthLeft.push(0);
                 }
                 levelWidthLeft[level + 1] += treeData.children.length;
-    
+
                 // Recursive invocation
                 treeData.children.forEach(function (d) {
                     childCountLeft(level + 1, d, levelWidthLeft);
@@ -342,40 +374,38 @@ function initialize(treeData) {
         return tree.nodes(node).reverse();
     }
 
-    // 标识左侧树枝
-    function defLeftNode(node) {
-        return deepAssign(node, { direction: -1 });
-    }
-
-    // 深拷贝并扩展属性
-    function deepAssign(obj, sub = {}) {
-        const getType = o => Object.prototype.toString.call(o).slice(8, -1);
-        const isObject = o => getType(o) === 'Object';
-        const isArray = o => getType(o) === 'Array';
-        const isIterable = o => typeof o === 'object' && typeof o !== 'null';
-        let newObj;
-        if (isIterable(obj)) {
-            newObj = isArray(obj) ? [] : {};
-            for (let [k, v] of Object.entries(obj)) {
-                if (isIterable(v)) {
-                    newObj[k] = deepAssign(v, sub); // 递归
-                    if (isObject(v)) {
-                        Object.assign(newObj[k], sub);
-                    }
-                } else {
-                    newObj[k] = v;
-                }
-            }
-        } else {
-            return obj;
-        }
-        if (isObject(newObj)) {
-            Object.assign(newObj, sub);
-        }
-
-        return newObj;
-    }
-
 }
 
+// 标识左侧树枝
+function defLeftNode(node) {
+    return deepAssign(node, { direction: -1 });
+}
 
+// 深拷贝并扩展属性
+function deepAssign(obj, sub = {}) {
+    const getType = o => Object.prototype.toString.call(o).slice(8, -1);
+    const isObject = o => getType(o) === 'Object';
+    const isArray = o => getType(o) === 'Array';
+    const isIterable = o => typeof o === 'object' && typeof o !== 'null';
+    let newObj;
+    if (isIterable(obj)) {
+        newObj = isArray(obj) ? [] : {};
+        for (let [k, v] of Object.entries(obj)) {
+            if (isIterable(v)) {
+                newObj[k] = deepAssign(v, sub); // 递归
+                if (isObject(v)) {
+                    Object.assign(newObj[k], sub);
+                }
+            } else {
+                newObj[k] = v;
+            }
+        }
+    } else {
+        return obj;
+    }
+    if (isObject(newObj)) {
+        Object.assign(newObj, sub);
+    }
+
+    return newObj;
+}

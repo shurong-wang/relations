@@ -1,0 +1,33 @@
+{ 
+    "24416401": [ 
+        { 
+            "id": 2.4416401E7, 
+            "lable": "Company",
+            "name": "华为技术有限公司", 
+            "open": true, 
+            "children": [
+                { 
+                    "id": 7.77675854E8, 
+                    "lable": "Company", 
+                    "name": "华为终端有限公司", 
+                    "open": true, 
+                    "children": [] 
+                }, 
+                { 
+                    "id": 6.05819557E8, 
+                    "lable": "Company", 
+                    "name": "深圳市华为技术服务有限公司", 
+                    "open": true, 
+                    "children": [] 
+                }, 
+                { 
+                    "id": 2.358818928E9, 
+                    "lable": "Company", 
+                    "name": "山东华为通信技术有限责任公司", 
+                    "open": false, 
+                    "children": [] 
+                }
+            ] 
+        } 
+    ] 
+}

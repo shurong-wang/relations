@@ -1,10 +1,8 @@
 
 // 当前根节点 ID
 const MID_NODE_ID = '24416401';
-const API_L = './data/huawei_left.json';
-const API_L_2 = './data/huawei_left2.json';
-const API_R = './data/huawei_right.json';
-const API_R_2 = './data/huawei_right2.json';
+const API_L = './data/huawei_left.root.json';
+const API_R = './data/huawei_right.root.json';
 
 // 此处应该使用 async/await + Promise 但当前项目不允许
 d3.json(API_L, (error, respL) => {
@@ -147,8 +145,7 @@ function render(treeRight = {}, treeLeft = {}, MID_NODE_ID) {
                     return 10;
                 }
                 return d.children || d._children ? -10 : 10;
-            }
-            )
+            })
             .attr('dy', '.35em')
             .attr('text-anchor', function (d) {
                 if (d.id == MID_NODE_ID) {
@@ -161,7 +158,6 @@ function render(treeRight = {}, treeLeft = {}, MID_NODE_ID) {
             })
             .style('fill-opacity', 1e-6);
 
-        // 展开树枝节点
         var duration = d3.event && d3.event.altKey ? 5000 : 500;
         var nodeUpdate = node.transition()
             .duration(duration)

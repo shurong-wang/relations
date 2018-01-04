@@ -1,5 +1,6 @@
 {
     "name": "flare",
+    "isRoot": true,
     "children": [
         {
             "name": "analytics"

@@ -104,6 +104,7 @@ function initialize(treeData) {
         if (root.childrenLeft) {
             var nodesLeft = layoutNode({
                 name: 'flare',
+                isRoot: true,
                 direction: -1,
                 children: root.childrenLeft
             });
@@ -112,6 +113,19 @@ function initialize(treeData) {
             }
         }
         
+        //////////////////////////////////////////////////////////////////////////////////////////
+
+        // 校准差值，对齐左右两侧树枝
+        const [{x: rightRootY}, {x: leftRootY}] = nodes.filter(node => node.isRoot);
+        const dx = rightRootY - leftRootY;
+        nodes = nodes.map(node => {
+            if (node.direction === -1) {
+                node.x += dx;
+            }
+            return node;
+　　　　 });
+
+        //////////////////////////////////////////////////////////////////////////////////////////
 
         var links = tree.links(nodes);
 
@@ -181,6 +195,8 @@ function initialize(treeData) {
             .style('fill', function (d) {
                 return d._children ? 'lightsteelblue' : '#fff';
             });
+
+
 
         // Transition nodes to their new position.
         var nodeUpdate = node.transition()

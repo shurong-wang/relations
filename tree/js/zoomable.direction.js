@@ -103,7 +103,7 @@ function initialize(treeData) {
         // For left nodes
         if (root.childrenLeft) {
             var nodesLeft = layoutNode({
-                name: '',
+                name: 'flare',
                 direction: -1,
                 children: root.childrenLeft
             });
@@ -111,6 +111,7 @@ function initialize(treeData) {
                 nodes.push(item);
             }
         }
+        
 
         var links = tree.links(nodes);
 
@@ -253,6 +254,7 @@ function initialize(treeData) {
             d.x0 = d.x;
             d.y0 = d.y;
         });
+
     }
 
     // Compute the new height, function counts total children of root node and sets tree height accordingly.

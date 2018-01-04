@@ -17,6 +17,48 @@
         {
             "name": "Palette",
             "direction": -1
+        },
+        {
+            "name": "Palette",
+            "direction": -1,
+            "children": [
+                {
+                    "name": "CommunityStructure",
+                    "direction": -1
+                },
+                {
+                    "name": "HierarchicalCluster",
+                    "direction": -1
+                },
+                {
+                    "name": "MergeEdge",
+                    "direction": -1
+                },
+                {
+                    "name": "CommunityStructure",
+                    "direction": -1
+                },
+                {
+                    "name": "HierarchicalCluster",
+                    "direction": -1
+                },
+                {
+                    "name": "MergeEdge",
+                    "direction": -1
+                },
+                {
+                    "name": "CommunityStructure",
+                    "direction": -1
+                },
+                {
+                    "name": "HierarchicalCluster",
+                    "direction": -1
+                },
+                {
+                    "name": "MergeEdge",
+                    "direction": -1
+                }
+            ]
         }
     ]
 }

@@ -6,6 +6,8 @@ const API_ROOT_R = './data/huawei_right.root.json';
 const API_NEXT_L = 'data/huawei_left.next.json';
 const API_NEXT_R = 'data/huawei_right.next.json';
 
+// 树节点缓存
+const childrenCache = new Map();
 
 (function () {
     // Get JSON data
@@ -23,13 +25,10 @@ const API_NEXT_R = 'data/huawei_right.next.json';
             if (typeof respR === 'string') {
                 respR = JSON.parse(respR);
             }
-
             var treeLeft = defLeftNode(respL[ROOT_NODE][0]);
             var treeRight = respR[ROOT_NODE][0];
             var treeData = $.extend(true, $.extend(true, {}, treeRight), { childrenLeft: treeLeft.children }, { isRoot: true });
-
             // console.log(treeData);
-
             initialize(treeData);
         });
     });
@@ -92,12 +91,27 @@ function initialize(treeData) {
         if (!d.open || d.isRoot) {
             return;
         }
-        const API_NEXT = d.direction === -1 ? API_NEXT_L : API_NEXT_R;
-        d3.json(API_NEXT, function (error, treeData) {
+        const url = (d.direction === -1 ? API_NEXT_L : API_NEXT_R) + '?id=' + d.id;
+
+        // 读取缓存数据
+        const cached = childrenCache.get(url);
+        if (cached) {
+            d = toggleChildren(d);
+            update(d);
+            // centerNode(root);
+            // centerNode(d);
+            return;
+        }
+        
+        d3.json(url, function (error, treeData) {
             if (d.direction === -1) {
                 treeData = defLeftNode(treeData);
             }
             var subChildren = treeData[d.id] && treeData[d.id][0] && treeData[d.id][0].children || null;
+            // 设置缓存数据
+            if (Array.isArray(subChildren) && subChildren.length > 0) {
+                childrenCache.set(url, subChildren);
+            }
             if (subChildren) {
                 d.children = subChildren;
                 d._children = null;
@@ -181,9 +195,6 @@ function initialize(treeData) {
             }
             nodeMap.set(d.id, d.name)
         });
-
-        console.log(nodeMap);
-        
 
         // Update the nodes…
         node = svgGroup.selectAll('g.node')

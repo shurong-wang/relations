@@ -195,8 +195,7 @@ d3.json(api, function (error, treeData) {
             .attr('transform', function (d) {
                 return 'translate(' + source.y0 + ',' + source.x0 + ')';
             })
-            // .on('click', click);
-            .on('click', ajaxExpand);
+            .on('click', click);
 
         nodeEnter.append('circle')
             .attr('class', 'nodeCircle')

@@ -168,13 +168,22 @@ function initialize(treeData) {
         //////////////////////////////////////////////////////////////////////////////////////////
 
         var links = tree.links(nodes);
+        var nodeMap = new Map();
 
         // Set widths between levels.
         nodes.forEach(function (d) {
             // alternatively to keep a fixed scale one can set a fixed depth per level
             // Normalize for fixed-depth by commenting out below line
             d.y = (d.depth * 250) * (d.direction || 1); //path length.
+            // 显示重复节点
+            if (nodeMap.has(d.id)) {
+                d.id *= -1;
+            }
+            nodeMap.set(d.id, d.name)
         });
+
+        console.log(nodeMap);
+        
 
         // Update the nodes…
         node = svgGroup.selectAll('g.node')

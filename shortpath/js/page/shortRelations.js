@@ -539,6 +539,7 @@ function dragFn(d) {
     d3.select(this)
         .attr('cx', d.x = d3.event.x)
         .attr('cy', d.y = d3.event.y);
+    tick();
 }
 
 function dragendFn(d) {

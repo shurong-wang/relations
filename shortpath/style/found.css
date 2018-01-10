@@ -1,0 +1,217 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: rgb(255, 255, 255);
+    overflow: hidden;
+}
+
+main {
+    width: 100%;
+    height: 100%;
+}
+
+.graph-legends {
+    position: fixed;
+    right: 6px;
+    top: 65px;
+}
+
+.node-info-warp {
+    position: fixed;
+    top: 70px;
+    right: 48px;
+}
+
+.head-rel-found {
+    width: 100%;
+    height: 68px;
+    background: url("../images/mainpage-header-bg.png") no-repeat;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 16;
+}
+
+.head-rel-found nav {
+    width: 85%;
+    height: 100%;
+    margin: 0 auto;
+}
+
+.head-rel-found nav .logo {
+    margin-top: 15px;
+}
+
+.head-rel-found nav .right-title {
+    float: right;
+    text-align: center;
+    height: 68px;
+    line-height: 65px;
+    position: relative;
+    font-size: 18px;
+    cursor: default;
+}
+
+.button-collapse {
+    text-align: left;
+}
+
+.search-container {
+    position: fixed;
+    top: 65px;
+    left: 0;
+    width: 280px;
+    padding: 0;
+    margin-bottom: 0;
+    background-color: #fff;
+    border: 1px solid rgb(12, 214, 220);
+    border-radius: 0;
+}
+
+.search-container.shortpath-container {
+    /* height: 100%; */
+    z-index: 9999999;
+}
+
+.shortpath-list-wraper {
+    height: 193px;
+}
+
+.shortpath-list-inner {
+    height: 150px;
+    overflow-y: auto;
+}
+
+.shortpath-list-inner::-webkit-scrollbar {
+    width: 4px;
+}
+
+.shortpath-list-inner::-webkit-scrollbar-track {
+    background-color: rgb(242,241,239);
+}
+
+.shortpath-list-inner::-webkit-scrollbar-thumb {
+    background-color: rgb(197,194,188);
+}
+
+.shortpath-list-inner ul {
+    margin: 0;
+    padding: 5px 5px;
+    border-bottom: 1px solid #bec6d1;
+}
+
+.shortpath-list-inner ul:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.shortpath-list-inner ul li {
+    list-style: none;
+    margin: 5px;
+    white-space: nowrap;
+    text-overflow: ellipsis; 
+    overflow: hidden;
+    font-size: 13px;
+}
+
+.shortpath-list-inner ul li:first-child,
+.shortpath-list-inner ul li:last-child {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.shortpath-list-inner ul li .glyphicon {
+    color:  rgb(12, 214, 220);
+}
+
+.shortpath-list-title {
+    height: 34px;
+    line-height: 34px;
+    background-color: rgb(12, 214, 220);
+    padding-left: 10px;
+    color: #fff;
+    font-weight: 600;
+}
+
+.search-wrap,
+.button-collapse,
+.button-relation {
+    width: 100%;
+    border-radius: 0;
+}
+
+.input-wrapper {
+    min-height: 150px;
+}
+
+.split-line {
+    height: 2px;
+    background-color: rgb(12, 214, 220);
+}
+
+.split-line.transparent {
+    background-color: rgb(237, 240, 239);
+}
+
+
+.button-collapse span.chevron {
+    float: right;
+    top: 3px;
+}
+
+.button-collapse span.collapse-text {
+    margin-left: 6px;
+    font-weight: 600;
+}
+
+.button-collapse,
+.button-collapse.highlight,
+.button-collapse:focus {
+    padding: 2px 12px;
+    font-size: 14px;
+    height: 32px;
+    line-height: 1.42857143;
+    border-radius: 0;
+    color: #fff;
+    background-color: rgb(16, 209, 219);
+    border-color: rgb(16, 209, 219);
+    outline: none;
+}
+
+.button-relation,
+.button-relation:focus,
+.button-relation:hover {
+    border: 0;
+    background: linear-gradient(to right, rgb(7, 96, 172), rgb(15, 201, 190)); 
+}
+
+
+.grp-msg {
+    color: rgb(255, 82, 20);
+    float: right;
+}
+
+.grp-split {
+    height: 4px;
+    background: rgb(12, 214, 220);
+}
+
+/* 
+.found-tab .highlight {
+    color: #fff;
+    background-color: rgb(15, 118, 183);
+    border-color: rgb(7, 98, 173);
+}
+
+.found-tab .behind,
+.found-tab .shortpath {
+    width: 50%;
+}
+
+.found-tab .behind.active,
+.found-tab .shortpath.active {
+    color: #fff;
+    background-color: rgb(15, 118, 183);
+    border-color: rgb(7, 98, 173);
+} 
+*/

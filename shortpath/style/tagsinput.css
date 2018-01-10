@@ -1,0 +1,129 @@
+.bootstrap-tagsinput {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 0 5px;
+    border-radius: 0;
+}
+
+.tags-input-label {
+    width: 92%;
+    height: 34px;
+    font-size: 14px;
+    color: #000;
+    line-height: 34px;
+    vertical-align: middle;
+    margin: 0 10px;
+}
+
+.tags-input-label::before {
+    content: " ";
+    display: block;
+    float: left;
+    width: 3px;
+    height: 18px;
+    background:rgb(12, 214, 220);
+    margin-top: 8px;
+    margin-right: 5px;
+}
+
+.bootstrap-tagsinput input {
+    margin-top: 2px;
+}
+
+.bootstrap-tagsinput .tag {
+    position: relative;
+    text-align: left;
+    margin-right: 2px;
+    margin-bottom: 2px;
+    padding: 6px;
+    color: white;
+    white-space: nowrap;
+    text-overflow: ellipsis; 
+    overflow: hidden;
+}
+
+.tag-fill {
+    width: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    background-color: rgb(12, 214, 220);
+}
+
+.bootstrap-tagsinput .tag [data-role="remove"]:after {
+    position: absolute;
+    top: 3px;
+    right: 5px;
+    content: "×";
+    font-size: 18px;
+}
+
+.accordion {
+    margin-bottom: -3px;
+}
+
+.accordion-group {
+    border: none;
+}
+
+.twitter-typeahead .tt-query,
+.twitter-typeahead .tt-hint {
+    margin-bottom: 0;
+}
+
+.twitter-typeahead .tt-hint {
+    display: none;
+}
+
+.tt-input {
+    width: 244px !important;
+}
+
+.tt-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 278px;
+    width: 100%;
+    padding: 5px 0;
+    margin: 5px -7px;
+    list-style: none;
+    font-size: 14px;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 0;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    background-clip: padding-box;
+    cursor: pointer;
+}
+
+.tt-suggestion {
+    display: block;
+    padding: 3px 10px;
+    clear: both;
+    font-weight: normal;
+    line-height: 1.428571429;
+    color: #333333;
+    white-space: nowrap;
+    text-overflow: ellipsis; 
+    overflow:hidden;
+}
+
+.tt-suggestion:hover,
+.tt-suggestion:focus {
+    color: #ffffff;
+    text-decoration: none;
+    outline: 0;
+    background-color: #428bca;
+}
+
+.focus-class {
+    outline: 0;
+    border-color: rgba(82, 168, 236, 0.8);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 2px rgba(82, 168, 236, 0.6);
+}

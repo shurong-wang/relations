@@ -1,0 +1,311 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: rgb(255, 255, 255);
+}
+
+main {
+    position: relative;
+    width: 1162px;
+    height: 100%;
+    line-height: 1;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-size: 14px;
+}
+
+#canvasArea {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    margin: 0;
+    width: 100%;
+}
+
+#canvasArea #graph {
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    margin: 0 0 2px 0;
+    padding: 0;
+    overflow: hidden;
+    user-select: none;
+    background-color: #ecf0f1;
+}
+
+#canvasArea svg {
+    box-sizing: border-box;
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+}
+
+text {
+    font: Microsoft YaHei;
+    pointer-events: none;
+    user-select: none;
+}
+
+.link {
+    stroke-opacity: 1;
+    stroke-width: .8;
+}
+
+.link-active {
+    stroke-opacity: 1;
+    stroke-width: 3;
+}
+
+.linetext {
+    font-family: Microsoft YaHei;
+    text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+
+
+.graph-legends {
+    position: absolute;
+    right: 6px;
+    top: 6px
+}
+
+.graph-legends .legend-search {
+    background: #fff;
+    border: 1px solid #ececec;
+    padding: 5px 0;
+    cursor: pointer
+}
+
+.graph-legends .legend-search .fa {
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 100
+}
+
+.graph-legends .legend-node {
+    padding: 10px 5px 5px;
+    margin-top: 5px;
+    background: #fff;
+    border: 1px solid #ececec;
+    box-shadow: 2px 2px 4px #888888;
+    pointer-events: none;
+    user-select: none;
+}
+
+.graph-legends .legend-node .fa {
+    font-size: 18px
+}
+
+.graph-legends .legend-node .node-item+.node-item {
+    margin-top: 5px;
+    border-top: 1px solid #ececec;
+    padding-top: 5px
+}
+
+.graph-legends .legend-node .node-item .node-name {
+    margin-top: 5px;
+    padding-bottom: 5px
+}
+
+.graph-legends .legend-link {
+    margin-top: 5px;
+    background: #fff;
+    padding: 0 5px 10px;
+    border: 1px solid #ececec
+}
+
+.graph-legends .legend-link .link-title {
+    margin: 0 -5px 5px;
+    border-bottom: 1px solid #ececec;
+    padding: 3px 0;
+    display: inline-block
+}
+
+.graph-legends .legend-link .link-icon {
+    font-size: 18px
+}
+
+.graph-legends .legend-link .link-item+.link-item {
+    margin-top: 5px;
+    border-top: 1px solid #ececec;
+    padding-top: 5px
+}
+
+.graph-legends .legend-min {
+    width: 40px;
+    text-align: center
+}
+
+.graph-legends .legend-max {
+    width: 246px;
+    position: absolute;
+    right: 39px;
+    top: 1px
+}
+
+.graph-legends .legend-max .search-warp {
+    height: 30px;
+    margin-bottom: 5px;
+    background: #fff
+}
+
+.graph-legends .legend-max .search-warp input {
+    width: 246px;
+    height: 30px
+}
+
+.graph-legends .legend-max .search-warp .search-icon {
+    height: 30px;
+    width: 30px;
+    line-height: 30px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #ececec;
+    cursor: pointer
+}
+
+.graph-legends .legend-max .legend-node-content {
+    width: 246px;
+    border: 1px solid #ebebeb;
+    height: calc(100vh - 260px);
+    background: #fff
+}
+
+.graph-legends .legend-max .legend-node-content .node-item {
+    height: 30px
+}
+
+.graph-legends .legend-max .legend-node-content .node-item:hover {
+    background: #00a9be;
+    color: #fff
+}
+
+.graph-legends .legend-max .legend-node-content .node-item .fa {
+    display: inline-block;
+    width: 20px;
+    height: 30px;
+    float: right;
+    padding-top: 5px
+}
+
+.graph-legends .legend-max .legend-node-content .legend-node-name {
+    display: inline-block;
+    margin: 0;
+    line-height: 14px;
+    padding: 7px 0 7px 14px;
+    font-size: 14px;
+    width: 200px;
+    cursor: pointer
+}
+
+.node-info-warp {
+    position: absolute;
+    top: 11px;
+    right: 48px;
+    width: 230px;
+    margin: 0;
+    background: #fff;
+    font-size: 14px;
+    padding: 10px;
+    border: 1px solid #ececec;
+    box-shadow: 2px 2px 4px #888888;
+}
+
+.node-info-warp .company-title {
+    display: flex;
+    align-items: center;
+    height: 45px;
+    line-height: 45px;
+    color: #171717;
+}
+
+.node-info-warp .close-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 0;
+    right: 5px;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.node-info-warp .company-title .company-name {
+    display: inline-block;
+    width: 180px;
+    overflow: hidden;
+    word-break: keep-all;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 18px;
+}
+
+.node-info-warp .company-title .company-name .company-link {
+	cursor: pointer;
+    text-decoration: none;
+    color: #1A1A1B;
+}
+
+
+.node-info-warp .company-title .company-reg-status {
+    float: right;
+    line-height: 12px;
+    padding: 2px;
+    border: 1px solid #00aae2;
+    border-radius: 2px;
+    white-space: nowrap;
+    font-size: 12px;
+    color: #00aae2;
+}
+
+.node-info-warp .company-info>div {
+    font-size: 13px;
+    color: #777;
+    position: relative;
+    line-height: 20px;
+}
+
+.node-info-warp .company-info>div:before {
+    width: 5px;
+    height: 5px;
+    background: #e4e4e4;
+    position: absolute;
+    left: 0;
+    top: 10px
+}
+
+#loading-mask {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(180, 180, 180, .6);
+    z-index: 999;
+    filter: alpha(opacity=60);
+}
+
+.loader {
+    box-sizing: border-box;
+    display: flex;
+    flex: 0 1 auto;
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-basis: 25%;
+    max-width: 25%;
+    height: 150px;
+    align-items: center;
+    justify-content: center;
+    transform: scale(0.8);
+}
+
+input::-webkit-search-cancel-button {
+    display: none;
+}

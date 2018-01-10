@@ -27,6 +27,7 @@ let drawinData = {};
 let hoverCompanyId = 0;
 const initScale = .7;
 let draging = false;
+let selecting = false;
 
 const nodeConf = {
     fillColor: {
@@ -306,6 +307,7 @@ function initialize(ids = '') {
             if (draging) {
                 return;
             }
+            selecting = false;
             highlightNode(false);
         });
 
@@ -927,14 +929,17 @@ const suggestHash = {};
 const $searchInput = $('#searchInputText');
 const $searchContainer = $('#searchEntryContainer');
 $searchInput.on("focus input", userInput);
+$searchContainer.on("mouseleave", () => !selecting && highlightNode(false));
 
 
 function genSuggest(nodes) {
     const html = nodes.map(node => {
         const { id, name, ntype } = node;
         suggestHash[name] = node;
-        return `<li data-cid="${id}" class="dbEntry company-${id}" title="${name}" 
-            onmouseenter="onSelectSuggest('${id}')" onclick="hideSuggestList()">${name}</li>`;
+        return `` + 
+        `<li data-cid="${id}" class="dbEntry company-${id}" title="${name}" 
+            onmouseenter="onSelectSuggest('${id}')"
+            onclick="hideSuggestList()">${name}</li>`;
     });
     $searchContainer.html(html.join(''));
 }
@@ -979,6 +984,7 @@ function toggleSuggestList(inputText) {
 }
 
 function hideSuggestList() {
+    selecting = true;
     $searchInput.val('');
     $searchContainer.hide();
 }
@@ -1032,6 +1038,7 @@ function genFilter() {
 }
 
 function onChangeFilter(o) {
+    selecting = false;
     highlightNode(false);
 
     const checked = $(o).prop('checked');

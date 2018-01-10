@@ -682,7 +682,7 @@ function handleWheelMenu(d) {
 function highlightNode(bool = false, node = null) {
     toggleNode(nodeCircle, node, bool);
     // 关系发现不显示环形菜单（临时接口企业 ID 不匹配）
-    companyId && toggleMenu(wheelMenu, node, bool);
+    toggleMenu(wheelMenu, node, bool);
     toggleLine(linkLine, node, bool);
     toggleMarker(marker, node, bool);
     toggleLineText(lineText, node, bool);
@@ -926,14 +926,15 @@ function formatDate(timestamp) {
 const suggestHash = {};
 const $searchInput = $('#searchInputText');
 const $searchContainer = $('#searchEntryContainer');
-$searchInput.on("input", userInput);
+$searchInput.on("focus input", userInput);
 
 
 function genSuggest(nodes) {
     const html = nodes.map(node => {
         const { id, name, ntype } = node;
         suggestHash[name] = node;
-        return `<li data-cid="${id}" class="dbEntry company-${id}" title="${name}" onclick="onSelectSuggest(this)">${name}</li>`
+        return `<li data-cid="${id}" class="dbEntry company-${id}" title="${name}" 
+            onmouseenter="onSelectSuggest('${id}')" onclick="hideSuggestList()">${name}</li>`;
     });
     $searchContainer.html(html.join(''));
 }
@@ -943,21 +944,16 @@ function userInput() {
     let inputText = this.value;
     if (inputText.length === 0) {
         $suggestItems.show();
+        $searchContainer.show();
     } else {
         toggleSuggestList(inputText);
     }
 }
 
-function onSelectSuggest(o) {
-    const { nodesMap, linkMap } = drawinData;
-    const cid = $(o).data('cid');
-    const cname = $(o).text();
-    // 填充输入框，关闭搜索列表
-    $searchInput.val(cname);
-    toggleSuggestList(cname);
+function onSelectSuggest(cid) {
+    const { nodesMap } = drawinData;
     // 高亮显示搜索节点
     highlightNode(true, nodesMap[cid]);
-
 }
 
 function toggleSuggestList(inputText) {
@@ -980,7 +976,11 @@ function toggleSuggestList(inputText) {
     } else {
         $searchContainer.hide();
     }
+}
 
+function hideSuggestList() {
+    $searchInput.val('');
+    $searchContainer.hide();
 }
 
 // 关系筛选

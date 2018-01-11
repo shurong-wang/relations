@@ -25,11 +25,12 @@ main {
 .head-rel-found {
     width: 100%;
     height: 68px;
-    background: url("../images/mainpage-header-bg.png") no-repeat;
+    /*background: url("../images/mainpage-header-bg.png") no-repeat;*/
     position: fixed;
     top: 0;
     left: 0;
     z-index: 16;
+    background-color: #379af0;
 }
 
 .head-rel-found nav {
@@ -58,13 +59,13 @@ main {
 
 .search-container {
     position: fixed;
-    top: 65px;
+    top: 70px;
     left: 0;
     width: 280px;
-    padding: 0;
+    padding: 0 0 5px 0;
     margin-bottom: 0;
     background-color: #fff;
-    border: 1px solid rgb(12, 214, 220);
+    border: 1px solid rgb(25, 146, 246);
     border-radius: 0;
 }
 
@@ -74,7 +75,7 @@ main {
 }
 
 .shortpath-list-wraper {
-    height: 193px;
+    height: 182px;
 }
 
 .shortpath-list-inner {
@@ -121,13 +122,13 @@ main {
 }
 
 .shortpath-list-inner ul li .glyphicon {
-    color:  rgb(12, 214, 220);
+    color:  rgb(25, 146, 246);
 }
 
 .shortpath-list-title {
     height: 34px;
     line-height: 34px;
-    background-color: rgb(12, 214, 220);
+    background-color: rgb(25, 146, 246);
     padding-left: 10px;
     color: #fff;
     font-weight: 600;
@@ -146,7 +147,7 @@ main {
 
 .split-line {
     height: 2px;
-    background-color: rgb(12, 214, 220);
+    background-color: rgb(25, 146, 246);
 }
 
 .split-line.transparent {
@@ -173,8 +174,8 @@ main {
     line-height: 1.42857143;
     border-radius: 0;
     color: #fff;
-    background-color: rgb(16, 209, 219);
-    border-color: rgb(16, 209, 219);
+    background-color: rgb(25, 146, 246);
+    border-color: rgb(25, 146, 246);
     outline: none;
 }
 
@@ -182,7 +183,15 @@ main {
 .button-relation:focus,
 .button-relation:hover {
     border: 0;
-    background: linear-gradient(to right, rgb(7, 96, 172), rgb(15, 201, 190)); 
+    background: linear-gradient(to right,rgb(25, 146, 246), rgb(16, 209, 219));
+    width: 50%;
+    margin-left: 126px;
+    opacity: 1!important;
+}
+
+.button-relation:focus,
+.button-relation:hover {
+    opacity: .8!important;
 }
 
 
@@ -193,7 +202,7 @@ main {
 
 .grp-split {
     height: 4px;
-    background: rgb(12, 214, 220);
+    background: rgb(25, 146, 246);
 }
 
 /* 

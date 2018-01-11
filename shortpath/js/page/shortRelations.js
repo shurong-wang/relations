@@ -154,14 +154,7 @@ feMerge.append('feMergeNode')
 
 // 请求数据，绘制图表
 function renderForce(resp = {}, ids = '') {
-    let pureNodes = resp.nodes || [];
-    let relations = resp.relations || resp.relationships || [];
     ids = (typeof ids === 'string') ? ids.split(',') : ids;
-
-    // 统一接口数据格式（格式固定后可删除）
-    [pureNodes, relations] = formatApiData(pureNodes, relations);
-    resp.nodes = pureNodes;
-    resp.relations = relations;
 
     // 生成绘图数据
     genDrawinData(resp);
@@ -172,14 +165,11 @@ function renderForce(resp = {}, ids = '') {
 
 // 生成画图数据
 function genDrawinData(resp) {
-    let { idsFrom, idsTo, coord, nodes, relations } = resp;
+    let { idsFrom, idsTo, nodes, relations, coord = null } = resp;
     // 生成 nodes map
     const [nodesMap, { Human: hnum = 0, Company: cnum = 0 }] = genNodesMap(nodes);
     // 起点和终点相同的关系映射
     const [linkMap] = genLinkMap(relations);
-
-    // 构建 nodes, links
-    nodes = genNodes(nodes, coord);
 
     // 构建 links
     links = genLinks(relations, linkMap, nodesMap);
@@ -446,26 +436,27 @@ function genLinks(relations, linkMap, nodesMap) {
 }
 
 function genNodesMap(nodes) {
-    const nodeHash = {};
-    const countHash = {};
-    nodes = nodes.map(function (node) {
+    const nodeMap = {};
+    const countMap = {};
+    nodes.map(function (node) {
         const { id, name, ntype } = node;
-        nodeHash[id] = node;
-        countHash[ntype] = countHash[ntype] ? countHash[ntype] + 1 : 1;
-        return node;
+        if (!nodeMap[id]) {
+            nodeMap[id] = node;
+            countMap[ntype] = countMap[ntype] ? countMap[ntype] + 1 : 1;
+        }
     });
-    return [nodeHash, countHash];
+    nodes = [...Object.values(nodeMap)];  // 节点去重
+    return [nodeMap, countMap];
 }
 
 function genLinkMap(relations) {
-    const linkHash = {};
-    const countHash = {};
+    const linkMap = {};
     relations.map(function (item) {
         const { startNode, endNode, type, id } = item;
         const k = startNode + '-' + endNode;
-        linkHash[k] = linkHash[k] ? linkHash[k] + 1 : 1;
+        linkMap[k] = linkMap[k] ? linkMap[k] + 1 : 1;
     });
-    return [linkHash];
+    return [linkMap];
 }
 
 // 生成关系连线路径
@@ -1101,40 +1092,4 @@ function updateDrawinData(nodes, relations) {
 
     // 将画图数据保存到全局变量
     return { relations, nodes, links, nodesMap, linkMap, hnum, cnum };
-}
-
-
-// 统一接口数据格式（格式固定后可删除）
-function formatApiData(pureNodes, relations) {
-    const idsMap = {};
-    const nodesMap = {};
-    pureNodes.map(node => {
-        const id = (node.properties && node.properties.id)
-            ? node.properties.id
-            : node.id;
-        if (!idsMap[id]) {
-            idsMap[node.id] = id;
-            nodesMap[id] = {
-                id,
-                name: node.properties ? node.properties.name : node.name,
-                ntype: node.labels ? node.labels + '' : node.ntype
-            };
-        }
-    });
-
-    const uniqueNodes = [...Object.values(nodesMap)];
-
-    relations = relations.map(item => {
-        const startNode = idsMap[item.startNode] || item.startNode;
-        const endNode = idsMap[item.endNode] || item.endNode;
-        return {
-            id: item.id,
-            startNode,
-            endNode,
-            type: item.type,
-            label: label = item.properties ? item.properties.labels + '' : item.label
-        };
-    });
-
-    return [uniqueNodes, relations];
 }

@@ -170,7 +170,9 @@ d3.json(RELATIONS_MAP, (error, resp) => {
     genDrawinData(pureNodes, relations);
 
     // 绘图
-    initialize();
+	setTimeout(function() {
+		initialize();
+	}, 10);
 });
 
 // 生成画图数据
@@ -384,9 +386,7 @@ function initialize() {
     // 更新力导向图
     // 注意1：必须调用一次 tick （否则，节点会堆积在左上角）
     // 注意2：调用位置必须在 nodeCircle, nodeText, linkLine, lineText 后
-    setTimeout(function() {
-        tick();
-    }, 10);
+    tick();
 
     // 设置节点数目
     setNum(cnum, hnum);

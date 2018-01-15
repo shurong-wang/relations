@@ -155,12 +155,12 @@ feMerge.append('feMergeNode')
 // 请求数据，绘制图表
 function renderForce(resp = {}, ids = '') {
     ids = (typeof ids === 'string') ? ids.split(',') : ids;
-
-    // 生成绘图数据
-    genDrawinData(resp);
-
-    // 绘图
-    initialize(ids);
+	setTimeout(function() {
+        // 生成绘图数据
+        genDrawinData(resp);
+        // 绘图
+        initialize(ids);
+    }, 10);
 }
 
 // 生成画图数据

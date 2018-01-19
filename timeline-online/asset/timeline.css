@@ -1,0 +1,233 @@
+circle {
+    /* fill-opacity: 0.2; */
+    transition: fill-opacity 250ms linear;
+}
+
+circle.active {
+    stroke: #f00;
+}
+
+body,
+html {
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+div {
+    box-sizing: border-box
+}
+
+#timeline {
+    height: 120px;
+    padding-top: 6px;
+    border-top: 1px solid #ccc;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    background-color: #fff;
+}
+
+#relation {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    width: 100%;
+    padding-bottom: 84px;
+}
+
+.timeline-chart .axis path {
+    fill: none;
+    stroke: none;
+}
+
+.timeline-chart line {
+    stroke: black;
+}
+
+.timeline-chart .vertical-marker {
+    stroke-width: 1;
+}
+
+.timeline-chart rect,
+.timeline-chart rect.chart-bounds {
+    fill: transparent;
+}
+
+.timeline-chart rect.chart-bounds:hover,
+.timeline-chart rect.interval:hover {
+    cursor: -webkit-grab;
+    cursor: grab;
+}
+
+.timeline-chart rect.chart-bounds:active,
+.timeline-chart rect.interval:active {
+    cursor: -webkit-grabbing;
+    cursor: grabbing;
+}
+
+.timeline-chart .dot:hover {
+    cursor: pointer;
+}
+
+.timeline-chart .interval-text {
+    pointer-events: none;
+}
+
+.timeline-chart rect.interval {
+    ry: 5;
+    rx: 5;
+    fill: black;
+    stroke: #2b2b2b;
+}
+
+.timeline-chart .extent {
+    fill: #000;
+    stroke: #929292;
+    fill-opacity: .125;
+    shape-rendering: crispEdges;
+}
+
+.timeline-chart i.active {
+    background-color: #ccc;
+}
+
+.node {
+    stroke: #fff;
+    stroke-width: 1.5px;
+}
+
+.node .selected {
+    stroke: red;
+}
+
+.link {
+    stroke: #999;
+}
+
+.brush .extent {
+    fill-opacity: .1;
+    stroke: #fff;
+    shape-rendering: crispEdges;
+}
+
+.Company {
+    fill: #018cff;
+    stroke: #00559a;
+    stroke-width: 3px;
+}
+
+.Human {
+    fill: #d04e06;
+    stroke: #883000;
+    stroke-width: 3px;
+}
+
+.Company text {
+    font-size: 12px;
+    fill: #fff;
+    stroke-width: 0;
+    text-anchor: middle
+}
+
+.Human text {
+    font-size: 12px;
+    fill: #fff;
+    stroke-width: 0;
+    text-anchor: middle
+}
+
+.link .SERVE {
+    fill: red;
+    stroke: red;
+    stroke-width: 2px;
+}
+
+.link .INVEST_C {
+    fill: #ffa406;
+    stroke: #ffa406;
+    stroke-width: 2px;
+}
+
+.link .OWN {
+    fill: #036ae4;
+    stroke: #036ae4;
+    stroke-width: 2px;
+}
+
+.link .TELPHONE {
+    fill: green;
+    stroke: green;
+    stroke-width: 2px;
+}
+
+.link text {
+    font-size: 14px;
+    fill: #000;
+    stroke-width: 0;
+    text-anchor: middle
+}
+
+#TELPHONE {
+    fill: green;
+}
+
+#SERVE {
+    fill: red;
+}
+
+#INVEST_C {
+    fill: #ffa406;
+}
+
+#OWN {
+    fill: #036ae4;
+}
+
+.behavior {
+    fill: #ffa406;
+    stroke-width: 0;
+}
+
+.link .filter {
+    fill: #ccc;
+    stroke: #ccc
+}
+
+.node.filter circle {
+    fill: #ccc;
+    stroke: #ccc;
+}
+
+.tl-legend {
+    position: absolute;
+    bottom: 100px;
+    left: 50px;
+    width: 100px;
+    height: 100px;
+}
+
+.tl-legend>div>i {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+}
+
+.tl-legend>.tl-legend-company>i {
+    background-color: #018cff;
+    margin-left: 38px
+}
+
+.tl-legend>.tl-legend-investor>i {
+    background-color: #d04e06;
+    margin-left: 24px
+}
+
+.tl-legend>.tl-legend-flows>i {
+    background-color: #ffa406;
+    margin-left: 10px
+}

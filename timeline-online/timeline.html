@@ -6,7 +6,7 @@
 
     <link rel="shortcut icon" href="/favicon.ico">
     <link href="./asset/bootstrap.css" rel="stylesheet">
-    <link rel="stylesheet" href="./asset/iconfont.css">
+    <link rel="stylesheet" href="./asset/iconfont/iconfont.css">
     <link rel="stylesheet" href="./asset/1.css">
     <link rel="stylesheet" href="./asset/detail.css">
     <link rel="stylesheet" href="./asset/relations.css">
@@ -64,19 +64,26 @@
         </div>
     </div>
 
-    <div id="relation" style="width:100%;height:100%;"></div>
-    <div id="timeline">
+    <div id="relation"></div>
 
+    <div id="timeline">
         <div id="timelineBox"></div>
-        <input type="checkbox" onchange="selectChange(this)">选择范围
-        <button onclick="clearChange()">清除选择</button>
+        <div id="timelineHandle">
+            <label class="switch">
+                <input type="checkbox" onchange="selectChange(this)">
+                <span data-on="选择范围" data-off="固定范围"></span>
+            </label>
+            <a href="###" onclick="clearChange()" class="button-clear green-clear">
+                清除范围<i class="icon iconfont icon-clear"></i>
+            </a>
+        </div>
     </div>
 
     <script src="asset/jquery.min.js"></script>
     <script src="asset/bootstrap.min.js"></script>
     <script src="asset/animation.js"></script>
     <script src="asset/d3.v3.min.js"></script>
-    <script src="asset/toolbar.js"></script>
+    <script src="asset/TimelineBar.js"></script>
     <script src="asset/timeline.js"></script>
 
 </body>

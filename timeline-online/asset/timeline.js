@@ -1,7 +1,9 @@
-var tl = new TimelineChart(d3.select('#timelineBox').node())
-function selectChange(element) {
-    element.checked ? tl.showSelect() : tl.hideSelect();
+var tl = new TimelineBar(d3.select('#timelineBox').node())
+
+function selectChange(el) {
+    el.checked ? tl.showSelect() : tl.hideSelect();
 }
+
 function clearChange() {
     tl.clearBrush()
 }
@@ -43,14 +45,21 @@ var nodesList, linksList;
 
     toggleMask(true);
 
-    d3.json(api('getTimeLine', { companyId: companyId }), function (error, graph) {
+    // var url = api('getTimeLine', {companyId: companyId});
+    var url = 'asset/data.json';
+
+    d3.json(url, function (error, graph) {
         if (error) {
             toggleMask(false);
             return console.error(error);
         }
         var data = [],
-            obj = {}
-        graph = JSON.parse(graph);
+            obj = {};
+
+        if (typeof graph === 'string') {
+            graph = JSON.parse(graph);
+        }
+
         if (graph.relations) graph.relations.forEach(function (d) {
             obj[d.starDate] = obj[d.starDate] ? obj[d.starDate] + 1 : 1;
         })
@@ -75,7 +84,8 @@ var nodesList, linksList;
             {
                 label: 'bar',
                 data: data
-            }]
+            }
+        ]
         tl.reDraw(d, tlOptions);
         // tl.showSelect()
     })
@@ -126,9 +136,15 @@ var nodesList, linksList;
         .append('path')
         .attr('d', 'M2,2 L10,6 L2,10 L6,6 L2,2');
 
-    var amoutIdentity
-    d3.json(api('getTimeLine', { companyId: companyId }), function (error, graph) {
-        graph = JSON.parse(graph);
+    var amoutIdentity;
+
+    // var url = api('getTimeLine', {companyId: companyId});
+    var url = 'asset/data.json';
+
+    d3.json(url, function (error, graph) {
+        if (typeof graph === 'string') {
+            graph = JSON.parse(graph);
+        }
         nodesList = JSON.parse(JSON.stringify(graph.nodes));
         var nodesObj = {};
         linksList = [];
@@ -202,17 +218,17 @@ var nodesList, linksList;
             .attr("class", "node");
         var s = span.node();
         node.each(function (d) {
-            var node = d3.select(this).append('circle').call(circle);
-            var text = d3.select(this).append('text').text(function (d) {
-                var s = d.name
-                if (s.length > 6) return s.substr(0, 6);
-                return s;
-            }).attr('transform', function () {
-                s.innerText = d.name;
-                return 'translate(' + [0, s.offsetHeight / 4] + ')'
+                var node = d3.select(this).append('circle').call(circle);
+                var text = d3.select(this).append('text').text(function (d) {
+                    var s = d.name
+                    if (s.length > 6) return s.substr(0, 6);
+                    return s;
+                }).attr('transform', function () {
+                    s.innerText = d.name;
+                    return 'translate(' + [0, s.offsetHeight / 4] + ')'
+                })
+                d3.select(this).classed(d.ntype, true)
             })
-            d3.select(this).classed(d.ntype, true)
-        })
             .on("dblclick", dblclick)
             .call(drag);
         reStatus();
@@ -224,6 +240,7 @@ var nodesList, linksList;
 
 
     var newList, oldList;
+
     function reStatus() {
         newList = link.data().map(function (d) {
             return d.relation.filter(function (d) {
@@ -248,67 +265,77 @@ var nodesList, linksList;
 
     function tick() {
         link.each(function (link) {
-            var r = link.source.r;
-            var b1 = link.target.x - link.source.x;
-            var b2 = link.target.y - link.source.y;
-            var b3 = Math.sqrt(b1 * b1 + b2 * b2);
-            link.angle = 180 * Math.asin(b1 / b3) / Math.PI;
-            link.textAngle = b2 > 0 ? 90 - link.angle : link.angle - 90;
+                var r = link.source.r;
+                var b1 = link.target.x - link.source.x;
+                var b2 = link.target.y - link.source.y;
+                var b3 = Math.sqrt(b1 * b1 + b2 * b2);
+                link.angle = 180 * Math.asin(b1 / b3) / Math.PI;
+                link.textAngle = b2 > 0 ? 90 - link.angle : link.angle - 90;
 
-            var a = Math.cos(link.angle * Math.PI / 180) * r;
-            var b = Math.sin(link.angle * Math.PI / 180) * r;
-            link.sourceX = link.source.x + b;
-            link.targetX = link.target.x - b;
-            link.sourceY = b2 < 0 ? link.source.y - a : link.source.y + a;
-            link.targetY = b2 < 0 ? link.target.y + a : link.target.y - a;
-
-
-            var maxCount = 4; // 最大连线数
-            var count = link.relation.length; // 连线条数
-            var minStart = count === 1 ? 0 : -r / 2 + padding;
-            var start = minStart * (count / maxCount); // 连线线开始位置
-            var space = count === 1 ? 0 : Math.abs(minStart * 2 / (maxCount - 1)); // 连线间隔
+                var a = Math.cos(link.angle * Math.PI / 180) * r;
+                var b = Math.sin(link.angle * Math.PI / 180) * r;
+                link.sourceX = link.source.x + b;
+                link.targetX = link.target.x - b;
+                link.sourceY = b2 < 0 ? link.source.y - a : link.source.y + a;
+                link.targetY = b2 < 0 ? link.target.y + a : link.target.y - a;
 
 
-            var index = 0;
+                var maxCount = 4; // 最大连线数
+                var count = link.relation.length; // 连线条数
+                var minStart = count === 1 ? 0 : -r / 2 + padding;
+                var start = minStart * (count / maxCount); // 连线线开始位置
+                var space = count === 1 ? 0 : Math.abs(minStart * 2 / (maxCount - 1)); // 连线间隔
 
-            d3.select(this).selectAll('line').each(function (d, i) {
+
+                var index = 0;
+
+                d3.select(this).selectAll('line').each(function (d, i) {
 
 
-                // 生成 20 0 -20 的 position 模式
-                var position = start + space * index++;
-                // 可以按间隔为 10 去生成 0 10 -10 20 -20 模式
+                    // 生成 20 0 -20 的 position 模式
+                    var position = start + space * index++;
+                    // 可以按间隔为 10 去生成 0 10 -10 20 -20 模式
 
-                var position = setLinePath(
-                    d,
-                    link.sourceX,
-                    link.sourceY,
-                    link.targetX,
-                    link.targetY,
-                    link.angle,
-                    position,
-                    r,
-                    b2 < 0
-                );
+                    var position = setLinePath(
+                        d,
+                        link.sourceX,
+                        link.sourceY,
+                        link.targetX,
+                        link.targetY,
+                        link.angle,
+                        position,
+                        r,
+                        b2 < 0
+                    );
 
-                d3.select(this).attr('x1', d.sourceX = position.source[0]);
-                d3.select(this).attr('y1', d.sourceY = position.source[1]);
-                d3.select(this).attr('x2', d.targetX = position.target[0]);
-                d3.select(this).attr('y2', d.targetY = position.target[1]);
+                    d3.select(this).attr('x1', d.sourceX = position.source[0]);
+                    d3.select(this).attr('y1', d.sourceY = position.source[1]);
+                    d3.select(this).attr('x2', d.targetX = position.target[0]);
+                    d3.select(this).attr('y2', d.targetY = position.target[1]);
+                })
+                d3.select(this).selectAll('text').attr('transform', function (d) {
+                    var x = d.sourceX + (d.targetX - d.sourceX) / 2;
+
+                    var y = d.sourceY + (d.targetY - d.sourceY) / 2;
+                    var textAngle = d.parent.textAngle;
+                    return ['translate(' + [x, y] + ')', 'rotate(' + ((textAngle > 90 || textAngle < -90) ? (180 + textAngle) : textAngle) + ')'].join(' ');
+                })
             })
-            d3.select(this).selectAll('text').attr('transform', function (d) {
-                var x = d.sourceX + (d.targetX - d.sourceX) / 2;
-
-                var y = d.sourceY + (d.targetY - d.sourceY) / 2;
-                var textAngle = d.parent.textAngle;
-                return ['translate(' + [x, y] + ')', 'rotate(' + ((textAngle > 90 || textAngle < -90) ? (180 + textAngle) : textAngle) + ')'].join(' ');
+            .attr("x1", function (d) {
+                return d.source.x;
             })
+            .attr("y1", function (d) {
+                return d.source.y;
+            })
+            .attr("x2", function (d) {
+                return d.target.x;
+            })
+            .attr("y2", function (d) {
+                return d.target.y;
+            });
+        node.attr("transform", function (d) {
+            return "translate(" + [d.x, d.y] + ")"
         })
-            .attr("x1", function (d) { return d.source.x; })
-            .attr("y1", function (d) { return d.source.y; })
-            .attr("x2", function (d) { return d.target.x; })
-            .attr("y2", function (d) { return d.target.y; });
-        node.attr("transform", function (d) { return "translate(" + [d.x, d.y] + ")" })
     }
 
     function dblclick(d) {
@@ -322,6 +349,7 @@ var nodesList, linksList;
     function keyflip() {
         shiftKey = d3.event.shiftKey || d3.event.metaKey;
     }
+
     function circle() {
         this.each(function (d, i) {
             var style = circleStyle[d.ntype];
@@ -384,6 +412,7 @@ var nodesList, linksList;
             })
         })
     }
+
     function d3render(link) {
         clearAni();
         link.filter(function (d) {

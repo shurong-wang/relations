@@ -1,5 +1,4 @@
-
-var TimelineChart = function (element) {
+var TimelineBar = function (element) {
     var that = this;
     this.margin = {
         top: 0,
@@ -21,7 +20,7 @@ var TimelineChart = function (element) {
     return this;
 };
 
-TimelineChart.prototype.reDraw = function (data, opts, redraw) {
+TimelineBar.prototype.reDraw = function (data, opts, redraw) {
     this.options = this.extendOptions(opts);
     if (!data) data = this.data;
     if (!data) return;
@@ -50,19 +49,37 @@ TimelineChart.prototype.reDraw = function (data, opts, redraw) {
     var xRange = [this.groupWidth, this.width];
     this.x = d3.time.scale().domain(xDomain).range(xRange);
     var f = d3.time.format.multi([
-        [".%L毫秒", function (d) { return d.getMilliseconds(); }],
-        [":%S秒", function (d) { return d.getSeconds(); }],
-        ["%H点:%M分", function (d) { return d.getMinutes(); }],
-        ["%H点", function (d) { return d.getHours(); }],
-        ["%m月%d日", function (d) { return d.getDay() && d.getDate() != 1; }],
-        ["%m月%d日", function (d) { return d.getDate() != 1; }],
-        ["%Y-%m", function (d) { return d.getMonth(); }],
-        ["%Y-%m", function () { return true; }]
+        [".%L毫秒", function (d) {
+            return d.getMilliseconds();
+        }],
+        [":%S秒", function (d) {
+            return d.getSeconds();
+        }],
+        ["%H点:%M分", function (d) {
+            return d.getMinutes();
+        }],
+        ["%H点", function (d) {
+            return d.getHours();
+        }],
+        ["%m月%d日", function (d) {
+            return d.getDay() && d.getDate() != 1;
+        }],
+        ["%m月%d日", function (d) {
+            return d.getDate() != 1;
+        }],
+        ["%Y-%m", function (d) {
+            return d.getMonth();
+        }],
+        ["%Y-%m", function () {
+            return true;
+        }]
     ]);
     this.xAxis = d3.svg.axis().scale(this.x).orient('bottom').tickSize(-this.height).tickFormat(function (d) {
         return f(d);
     });
-    this.zoom = d3.behavior.zoom().x(this.x).scaleExtent(this.options.zoom || [1.5, 1.5]).on('zoom', function () { that.zoomed() }).scale(this.options.startZoom || 1.5);
+    this.zoom = d3.behavior.zoom().x(this.x).scaleExtent(this.options.zoom || [1.5, 1.5]).on('zoom', function () {
+        that.zoomed()
+    }).scale(this.options.startZoom || 1.5);
 
     var extent = this.brush && this.brush.extent && this.brush.extent();
     this.brush = d3.svg.brush().x(this.x).on('brushend', function () {
@@ -94,7 +111,9 @@ TimelineChart.prototype.reDraw = function (data, opts, redraw) {
             .innerRadius(0)
             .outerRadius(this.height / 2)
             .startAngle(0)
-            .endAngle(function (d, i) { return i ? -Math.PI : Math.PI; }))
+            .endAngle(function (d, i) {
+                return i ? -Math.PI : Math.PI;
+            }))
         .attr("transform", "translate(" + [0, this.height / 2] + ")");
 
     this.chart_bounds = this.chart_bounds || this.svg.append('rect');
@@ -217,15 +236,12 @@ TimelineChart.prototype.reDraw = function (data, opts, redraw) {
         return that.x(d.at);
     }).attr('cy', this.groupHeight / 2).attr('r', 5);
 
-
-
     this._groupBarItems = this.group.selectAll('.bar')
         .data(function (d) {
             return d.data.filter(function (_) {
                 return _.type === 'bar';
             })
-        })
-
+        });
 
     this.groupDotItems = this._groupBarItems.enter();
     var dots = this.groupDotItems.append('rect').attr('class', this.withCustom('bar')).attr('x', function (d) {
@@ -240,24 +256,26 @@ TimelineChart.prototype.reDraw = function (data, opts, redraw) {
     this.zoomed();
 
     if (this.options.enableLiveTimer) {
-        this.enableLiveTimerTime = setInterval(function () { that.updateNowMarker() }, this.options.timerTickInterval);
+        this.enableLiveTimerTime = setInterval(function () {
+            that.updateNowMarker()
+        }, this.options.timerTickInterval);
     }
 
 }
 
-TimelineChart.prototype.withCustom = function (defaultClass) {
+TimelineBar.prototype.withCustom = function (defaultClass) {
     return function (d) {
         return d.customClass ? [d.customClass, defaultClass].join(' ') : defaultClass;
     };
 }
 
-TimelineChart.prototype.updateNowMarker = function () {
+TimelineBar.prototype.updateNowMarker = function () {
     var nowX = this.x(new Date());
 
     this.now.attr('x1', nowX).attr('x2', nowX);
 }
 
-TimelineChart.prototype.zoomed = function () {
+TimelineBar.prototype.zoomed = function () {
     var that = this;
     if (this.onVizChangeFn && d3.event) {
         this.onVizChangeFn.call(this, {
@@ -333,14 +351,14 @@ TimelineChart.prototype.zoomed = function () {
     this.chart_brush.call(this.brush.extent(this.brush.extent()));
 }
 
-TimelineChart.prototype.extendOptions = function (ext) {
+TimelineBar.prototype.extendOptions = function (ext) {
     var ol = [];
     for (var i in ext) ol.push(i);
     for (var i in ol) this.options[ol[i]] = ext[ol[i]];
     return this.options;
 }
 
-TimelineChart.prototype.getTextPositionData = function (t, d) {
+TimelineBar.prototype.getTextPositionData = function (t, d) {
     t.textSizeInPx = t.textSizeInPx || t.getComputedTextLength();
     var from = this.x(d.from);
     var to = this.x(d.to);
@@ -352,7 +370,7 @@ TimelineChart.prototype.getTextPositionData = function (t, d) {
     };
 }
 
-TimelineChart.prototype.getPointMinDt = function (p) {
+TimelineBar.prototype.getPointMinDt = function (p) {
     if (p.type == 'point') {
         return p.at
     } else if (p.type == 'bar') {
@@ -361,7 +379,7 @@ TimelineChart.prototype.getPointMinDt = function (p) {
         return p.form
     }
 }
-TimelineChart.prototype.getPointMaxDt = function (p) {
+TimelineBar.prototype.getPointMaxDt = function (p) {
     if (p.type == 'point') {
         return p.at
     } else if (p.type == 'bar') {
@@ -370,25 +388,25 @@ TimelineChart.prototype.getPointMaxDt = function (p) {
         return p.to
     }
 }
-TimelineChart.prototype.onVizChange = function (fn) {
+TimelineBar.prototype.onVizChange = function (fn) {
     this.onVizChangeFn = fn;
     return this;
 }
 
-TimelineChart.prototype.showSelect = function () {
+TimelineBar.prototype.showSelect = function () {
     this.chart_bounds.style('display', 'none');
 }
-TimelineChart.prototype.hideSelect = function () {
+TimelineBar.prototype.hideSelect = function () {
     this.chart_bounds.style('display', 'block');
 }
-TimelineChart.prototype.clearBrush = function () {
+TimelineBar.prototype.clearBrush = function () {
     this.chart_brush.call(this.brush.clear());
     this.broadcastBrush();
 }
-TimelineChart.prototype.setBrush = function (start, end) {
+TimelineBar.prototype.setBrush = function (start, end) {
     this.chart_brush.call(this.brush.extent(arguments));
     this.broadcastBrush();
 }
-TimelineChart.prototype.broadcastBrush = function () {
+TimelineBar.prototype.broadcastBrush = function () {
     this.brush.event(this.chart_brush);
 }

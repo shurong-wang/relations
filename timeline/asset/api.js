@@ -1,6 +1,7 @@
-//const HOST = 'http://47.93.45.8:8080/';
+const HOST = 'http://47.93.45.8:8080/';
+
 //const HOST = 'http://127.0.0.1:8080/';
-const HOST = 'http://192.168.1.27:8080/';
+//const HOST = 'http://192.168.1.27:8080/';
 
 function getQueryVariable(key) {
     var query = window.location.search.substring(1);
@@ -18,7 +19,7 @@ function api(req, params) {
 	        companyDetail: 'jstx/findCompanyDetail.do',
 	        relations: 'jstx/getRelationNode.do',
 	        findCompany: 'jstx/findCompany.do',
-	        invertTree: 'jstx/getOutBoundInvest.do',
+	        investTree: 'jstx/getOutBoundInvest.do',
 	        companyInfo: 'jstx/findCompanyDetailInfo.do',
 			Business: 'jstx/getAllBusiness.do',
 			Tax:'jstx/finaCompanyOwnTax.do',
@@ -27,12 +28,12 @@ function api(req, params) {
 			BoundForArea:'jstx/getOutBoundForArea.do',
 			searchCompany: 'jstx/searchCompany.do',
 			findRelations: 'jstx/getRelationFind.do',
-			shortPath: 'jstx/shortPathRelation.do',
+			shortPath: 'jstx/getShortPath.do',
 			getTimeLine: 'jstx/getTimeLine.do'
 	    };
 	    const API = APIS[req];
 	    if (!API) {
-	        throw new CommonException('调用了非法的 api.');
+	        throw '调用了非法的 api: ' + req;
 	        return;
 	    }
 

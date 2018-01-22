@@ -1,6 +1,8 @@
 (function (window) {
 	window.animation = function(fps){
-		if(fps) this.fps = fps;
+		if(fps) {
+			this.fps = fps;
+		}
 	}
 	animation.prototype.animationList = [];
 	animation.prototype.fps = 60;
@@ -19,4 +21,4 @@
 		})
 		this.animationList.splice(0);
 	}
-})(window)
+})(window);

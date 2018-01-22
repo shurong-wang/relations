@@ -1,394 +1,518 @@
+var tl = new TimelineBar(d3.select('#timelineBox').node())
 
-    var TimelineChart = function (element) {
-        var that = this;
-        this.margin = {
-            top: 0,
-            right: 10,
-            bottom: 20,
-            left: 30
-        };
-        this.options = {
-            intervalMinWidth: 8, // px
-            tip: undefined,
-            textTruncateThreshold: 30,
-            enableLiveTimer: false,
-            timerTickInterval: 1000
-        };
-        this.element = element;
+function selectChange(el) {
+    el.checked ? tl.showSelect() : tl.hideSelect();
+}
 
-        element.classList.add('timeline-chart');
+function clearChange() {
+    tl.clearBrush();
+}
 
-        return this;
+var nodesList, linksList;
+
+(function (window) {
+
+    var tlOptions = {
+        event: {
+            onBrush: function (start, end) {
+                start = start.getTime();
+                end = end.getTime();
+                if (start == end) {
+                    linksList.forEach(function (link) {
+                        link.relation.forEach(function (l) {
+                            l.filter = false;
+                        })
+                        link.source.filter = false;
+                    })
+                } else {
+                    linksList.forEach(function (link, index) {
+                        link.relation.forEach(function (l, i) {
+                            var time = new Date(l.starDate).getTime();
+                            l.filter = !(time > start && time < end);
+                        })
+                        link.source.filter = !link.relation.filter(function (d) {
+                            return !d.filter
+                        }).length
+                    })
+                }
+                reStatus();
+            }
+        },
+        height: 80,
+        zoom: [0.5, 0.5],
+        startZoom: 0.5
+        // ,enableLiveTimer:true
     };
 
-    TimelineChart.prototype.reDraw = function(data, opts, redraw){
-        this.options = this.extendOptions(opts);
-        if(!data) data = this.data;
-        if(!data) return;
-        this.data = data;
-        var that = this;
 
+    toggleMask(true);
 
-        this.allElements = data.reduce(function (agg, e) {
-            return agg.concat(e.data);
-        }, []);
+    // var url = api('getTimeLine', {companyId: companyId});
+    var url = 'asset/data.json';
 
-        this.minDt = d3.min(this.allElements, this.getPointMinDt) || this.minDt;
-        this.maxDt = d3.max(this.allElements, this.getPointMaxDt) || this.maxDt;
+    d3.json(url, function (error, graph) {
+        if (error) {
+            toggleMask(false);
+            return console.error(error);
+        }
+        var data = [],
+            obj = {};
 
-        this.elementWidth = this.options.width || this.element.clientWidth || this.element.parentElement.parentElement.clientWidth;
-        this.elementHeight = this.options.height || this.element.clientHeight || this.element.parentElement.parentElement.clientHeight;
-
-        this.width = this.elementWidth - this.margin.left - this.margin.right;
-        this.height = this.elementHeight - this.margin.top - this.margin.bottom;
-
-        this.groupWidth = 0;
-
-        if(!this.minDt) return;
-
-        var xDomain = this.x && !redraw ? this.x.domain() : [new Date(this.minDt.getTime() - 25920000000), new Date(this.maxDt.getTime() + 25920000000)];
-        var xRange = [this.groupWidth, this.width];
-        this.x = d3.time.scale().domain(xDomain).range(xRange);
-        var f = d3.time.format.multi([
-          [".%L毫秒", function(d) { return d.getMilliseconds(); }],
-          [":%S秒", function(d) { return d.getSeconds(); }],
-          ["%H点:%M分", function(d) { return d.getMinutes(); }],
-          ["%H点", function(d) { return d.getHours(); }],
-          ["%m月%d日", function(d) { return d.getDay() && d.getDate() != 1; }],
-          ["%m月%d日", function(d) { return d.getDate() != 1; }],
-          ["%Y-%m", function(d) { return d.getMonth(); }],
-          ["%Y-%m", function() { return true; }]
-        ]);
-        this.xAxis = d3.svg.axis().scale(this.x).orient('bottom').tickSize(-this.height).tickFormat(function(d){
-            return f(d);
-        });
-        this.zoom = d3.behavior.zoom().x(this.x).scaleExtent(this.options.zoom || [1.5, 1.5]).on('zoom', function(){that.zoomed()}).scale(this.options.startZoom || 1.5);
-
-        var extent = this.brush && this.brush.extent && this.brush.extent();
-        this.brush = d3.svg.brush().x(this.x).on('brushend', function(){
-            if(that.options && that.options.event && that.options.event.onBrushEnd)that.options.event.onBrushEnd.apply(that, that.brush.extent());
-        }).on('brush', function(){
-            if(that.options && that.options.event && that.options.event.onBrush)that.options.event.onBrush.apply(that, that.brush.extent());
-        });
-        if(extent) this.brush.extent(extent);
-
-
-        this._svg = this._svg || d3.select(this.element).append('svg');
-        this._svg.style('width', '100%').attr('width', this.width + this.margin.left + this.margin.right).attr('height', this.height + this.margin.top + this.margin.bottom);
-        this.svg = this.svg || this._svg.append('g');
-        this.svg.attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
-
-        this.chart_brush = this.chart_brush || this.svg.append('g')
-            .attr('class', 'chart-brush');
-        var brush = this.chart_brush.call(this.brush);
-        brush.selectAll("rect")
-            .attr('height', this.height);
-        brush.selectAll(".resize").append('path')
-            .attr("class", "handle--custom")
-            .attr("fill", "#666")
-            .attr("fill-opacity", 0.8)
-            .attr("stroke", "#000")
-            .attr("stroke-width", 1.5)
-            .attr("cursor", "ew-resize")
-            .attr("d", d3.svg.arc()
-                .innerRadius(0)
-                .outerRadius(this.height /2)
-                .startAngle(0)
-                .endAngle(function(d, i) { return i ? -Math.PI : Math.PI; }))
-            .attr("transform", "translate(" + [0, this.height / 2]+ ")");
-
-        this.chart_bounds = this.chart_bounds || this.svg.append('rect');
-        this.chart_bounds.attr('class', 'chart-bounds')
-            .attr('x', this.groupWidth)
-            .attr('y', 0)
-            .attr('height', this.height)
-            .attr('width', this.width - this.groupWidth)
-            .call(this.zoom);
-
-        this.xDom = this.xDom || this.svg.append('g')
-            .attr('class', 'x axis')
-            .attr('transform', 'translate(0,' + this.height + ')');
-        this.xDom.call(this.xAxis);
-
-        if (this.options.enableLiveTimer) {
-            this.now = this.now || this.svg.append('line')
-                .attr('clip-path', 'url(#chart-content)')
-                .attr('class', 'vertical-marker now')
-                .attr("y1", 0)
-                .attr("y2", this.height);
-        }else{
-            clearInterval(this.enableLiveTimerTime);
-            if(this.now && this.now.remove)this.now.remove();
-            this.now = false;
+        if (typeof graph === 'string') {
+            graph = JSON.parse(graph);
         }
 
-        this.groupHeight = this.height / data.length;
-        this.groupSection = this.groupSection || this.svg.selectAll('.group-section')
-            .data(data)
-            .enter()
-            .append('line');
+        if (graph.relations) graph.relations.forEach(function (d) {
+            obj[d.starDate] = obj[d.starDate] ? obj[d.starDate] + 1 : 1;
+        })
 
-        this.groupSection.attr('class', 'group-section')
-            .attr('x1', 0)
-            .attr('x2', this.width)
-            .attr('y1', function (d, i) {
-                return that.groupHeight * (i + 1);
-            }).attr('y2', function (d, i) {
-                return that.groupHeight * (i + 1);
-            });
+        for (var i in obj) {
 
-        // var groupLabels = svg.selectAll('.group-label')
-        //     .data(data)
-        //     .enter()
-        //     .append('text')
-        //     .attr('class', 'group-label')
-        //     .attr('x', 0)
-        //     .attr('y', function (d, i) {
-        //         return that.groupHeight * i + that.groupHeight / 2 + 5.5;
-        //     })
-        //     .attr('dx', '0.5em').text(function (d) {
-        //         return d.label;
-        //     });
-
-        this.topLine = this.topLine || this.svg.append('line');
-        this.leftLine = this.leftLine || this.svg.append('line');
-        this.rightLine = this.rightLine || this.svg.append('line')
-
-        this.topLine.attr('x1', 0).attr('x2', this.width).attr('y1', 0).attr('y2', 0).attr('stroke', 'black');
-        this.leftLine.attr('x1', this.groupWidth).attr('x2', this.groupWidth).attr('y1', 0).attr('y2', this.height).attr('stroke', 'black');
-        this.rightLine.attr('x1', this.width).attr('x2', this.width).attr('y1', 0).attr('y2', this.height).attr('stroke', 'black');
-
-        this._svg.selectAll('.item').remove();
-
-        this._groupIntervalItems = this.svg.selectAll('.group-interval-item')
-            .data(data)
-            .enter()
-            .append('g')
-            .attr('clip-path', 'url(#chart-content)')
-            .attr('class', 'item')
-            .attr('transform', function (d, i) {
-                return 'translate(0, ' + that.groupHeight * i + ')';
+            data.push({
+                at: new Date(i),
+                value: obj[i],
+                type: 'bar'
             })
-            .selectAll('.dot')
-            .data(function (d) {
-                return d.data.filter(function (_) {
-                    return _.type === 'interval';
+        }
+        var d = [
+            // {
+            //   label: 'Name',
+            //   data:[{
+            //     at: new Date(),
+            //     type: 'point',
+            //     key: '123'
+            //   }]
+            // },
+            {
+                label: 'bar',
+                data: data
+            }
+        ];
+        tl.reDraw(d, tlOptions);
+        // tl.showSelect()
+    });
+
+
+    var padding = -10;
+    var ani = new animation();
+
+    var width = d3.select('#relation').node().clientWidth;
+    var height = d3.select('#relation').node().clientHeight;
+    var force = d3.layout.force()
+        .size([width, height])
+        .charge(-400)
+        .linkDistance(200)
+        .charge(-800)
+        .on("tick", tick);
+
+    var drag = force.drag()
+        .on("dragstart", dragstart);
+
+    var zoom = d3.behavior.zoom()
+        .scaleExtent([0.25, 2])
+        .on('zoom', zoomFn);
+
+    var svg = d3.select("#relation").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append('g')
+        .call(zoom)
+        .on('dblclick.zoom', null);
+
+    // zoomOverlay must be placed in front of the container
+    const zoomOverlay = svg.append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .style('fill', 'none')
+        .style('pointer-events', 'all');
+
+    const container = svg.append('g')
+        .attr('class', 'container')
+        .attr('opacity', 0);
+
+    var link = container.selectAll(".link"),
+        node = container.selectAll(".node");
+
+    var span = d3.select('body').append('span')
+        .style('font-size', '12px')
+        .style('line-height', '12px');
+
+    var markerList = [];
+    var markerStyle = {
+        markerUnits: "strokeWidth",
+        markerWidth: "12",
+        markerHeight: "12",
+        viewBox: "0 0 12 12",
+        refX: "10",
+        refY: "6",
+        orient: "auto"
+    };
+
+    container.selectAll('.marker').data(['SERVE', 'INVEST_C', 'OWN', 'TELPHONE']).enter()
+        .append('marker')
+        .attr('id', function (d) {
+            var dom = d3.select(this);
+            for (var i in markerStyle) dom.attr(i, markerStyle[i])
+            return d
+        })
+        .append('path')
+        .attr('d', 'M2,2 L10,6 L2,10 L6,6 L2,2');
+
+    var amoutIdentity;
+
+    // var url = api('getTimeLine', {companyId: companyId});
+    var url = 'asset/data.json';
+
+    d3.json(url, function (error, graph) {
+        if (typeof graph === 'string') {
+            graph = JSON.parse(graph);
+        }
+        nodesList = JSON.parse(JSON.stringify(graph.nodes));
+        var nodesObj = {};
+        linksList = [];
+        var linksObj = {};
+        var amoutList = [];
+        nodesList.forEach(function (d) {
+            nodesObj[d.id] = d;
+        });
+
+        graph.relations.forEach(function (d) {
+            var l;
+            if (linksObj[[d.startNode, d.endNode]]) {
+                l = linksObj[[d.startNode, d.endNode]];
+            } else {
+                l = linksObj[[d.startNode, d.endNode]] = {
+                    relation: [],
+                    startNode: d.startNode,
+                    endNode: d.endNode
+                }
+            }
+            l.relation.push({
+                type: d.type,
+                id: d.id,
+                label: d.label,
+                parent: l,
+                amout: d.amout,
+                starDate: d.starDate
+            });
+            if (d.amout) amoutList.push(d.amout);
+        });
+        amoutIdentity = d3.scale.linear().range([8, 15]).domain(d3.extent(amoutList))
+        for (var i in linksObj) {
+            linksList.push(linksObj[i]);
+        }
+        linksList.forEach(function (d) {
+            d.source = nodesObj[d.startNode]
+            d.target = nodesObj[d.endNode]
+        });
+
+        force.on('end', function () {
+            // 固定所有节点
+            nodesList.forEach(node => {
+                node.fixed = true;
+            });
+            container.attr('opacity', 1);
+            toggleMask(false);
+        });
+
+        force
+            .nodes(nodesList)
+            .links(linksList)
+            .start();
+
+        link = link.data(linksList)
+            .enter().append("g")
+            .attr("class", "link")
+            .each(function (link) {
+                var g = d3.select(this);
+                var lineEnter = g.selectAll('.line').data(link.relation).enter();
+                lineEnter.append('line').each(function (d) {
+                    d3.select(this).classed(d.type, true).attr("marker-end", "url(#" + d.type + ")");;
+                });
+                lineEnter.append('text').text(function (d) {
+                    return d.label
                 });
             });
 
-        this.groupIntervalItems = this._groupIntervalItems.enter();
+        node = node.data(nodesList)
+            .enter().append("g")
+            .attr("class", "node");
 
-        var intervalBarHeight = 0.8 * this.groupHeight;
-        var intervalBarMargin = (this.groupHeight - intervalBarHeight) / 2;
-        var intervals = this.groupIntervalItems.append('rect').attr('class', this.withCustom('interval')).attr('width', function (d) {
-            return Math.max(that.options.intervalMinWidth, that.x(d.to) - that.x(d.from));
-        }).attr('height', intervalBarHeight).attr('y', intervalBarMargin).attr('x', function (d) {
-            return that.x(d.from);
-        });
+        var s = span.node();
 
-        var intervalTexts = this.groupIntervalItems.append('text').text(function (d) {
-            return d.label;
-        }).attr('fill', 'white').attr('class', this.withCustom('interval-text')).attr('y', this.groupHeight / 2 + 5).attr('x', function (d) {
-            return that.x(d.from);
-        });
-
-        this.group = this.svg.selectAll('.group-dot-item').data(data).enter().append('g').attr('clip-path', 'url(#chart-content)').attr('class', 'item').attr('transform', function (d, i) {
-            return 'translate(0, ' + that.groupHeight * i + ')';
-        });
-  			this.yScale = this.yScale || d3.scale.linear();
-  			this.yScale.domain([d3.max(data[0].data, function(d){
-          return d.value;
-        }), 0]).range([0, this.groupHeight]);
-
-        this.yAxis = this.yAxis || d3.svg.axis();
-        this.yAxis.scale(this.yScale).orient("left").ticks(2)
-        this.yax = this.yax || this.svg.append("g");
-        this.yax.attr("class","axis").call(this.yAxis);
-
-
-        this._groupDotItems = this.group.selectAll('.dot')
-          .data(function (d) {
-              return d.data.filter(function (_) {
-                  return _.type === 'point';
-              });
-          });
-        this.groupDotItems = this._groupDotItems.enter();
-        var dots = this.groupDotItems.append('circle').attr('class', this.withCustom('dot')).attr('cx', function (d) {
-            return that.x(d.at);
-        }).attr('cy', this.groupHeight / 2).attr('r', 5);
-
-
-
-        this._groupBarItems = this.group.selectAll('.bar')
-        .data(function(d){
-          return d.data.filter(function(_){
-            return _.type === 'bar';
-          })
+        node.each(function (d) {
+            var node = d3.select(this).append('circle')
+                .call(circle);
+            var text = d3.select(this).append('text')
+                .text(function (d) {
+                    var s = d.name
+                    if (s.length > 6) return s.substr(0, 6);
+                    return s;
+                })
+                .attr('transform', function () {
+                    s.innerText = d.name;
+                    return 'translate(' + [0, s.offsetHeight / 4] + ')';
+                });
+            d3.select(this).classed(d.ntype, true);
         })
+            .on("dblclick", dblclick)
+            .call(drag);
+
+        reStatus();
+
+        setTimeout(function () {
+            force.stop();
+        }, 3000);
+    });
 
 
-        this.groupDotItems = this._groupBarItems.enter();
-        var dots = this.groupDotItems.append('rect').attr('class', this.withCustom('bar')).attr('x', function (d) {
-            return that.x(d.at) - 2.5;
-        }).attr('y', function(d){
-          return that.yScale(d.value) + 1
-        }).attr('width', 5).attr('height', function(d){
-          return that.groupHeight - that.yScale(d.value) -  1
-        }).style('fill', '#ffa406');
 
+    var newList, oldList;
 
-        this.zoomed();
-
-        if (this.options.enableLiveTimer) {
-            this.enableLiveTimerTime = setInterval(function(){that.updateNowMarker()}, this.options.timerTickInterval);
-        }
-
-    }
-
-    TimelineChart.prototype.withCustom = function(defaultClass) {
-        return function (d) {
-            return d.customClass ? [d.customClass, defaultClass].join(' ') : defaultClass;
-        };
-    }
-
-    TimelineChart.prototype.updateNowMarker = function() {
-        var nowX = this.x(new Date());
-
-        this.now.attr('x1', nowX).attr('x2', nowX);
-    }
-
-    TimelineChart.prototype.zoomed = function() {
-        var that = this;
-        if (this.onVizChangeFn && d3.event) {
-            this.onVizChangeFn.call(this, {
-                scale: d3.event.scale,
-                translate: d3.event.translate,
-                domain: this.x.domain()
+    function reStatus() {
+        newList = link.data().map(function (d) {
+            return d.relation.filter(function (d) {
+                return d.filter
+            }).map(function (d) {
+                return d;
+            }).join();
+        }).sort().join();
+        node.each(function (d) {
+            d3.select(this).classed('filter', d.filter);
+            d3.select(this).classed('selected', d.selected);
+        });
+        link.each(function (d) {
+            d3.select(this).selectAll('line').each(function (d) {
+                d3.select(this).classed('filter', d.filter);
+                d3.select(this).classed('selected', d.selected);
             });
-        }
-
-        if (this.options.enableLiveTimer) {
-            this.updateNowMarker();
-        }
-
-        // var max = new Date().getTime() + 1000*60*60*24*365;
-        // var start = this.x.domain()[0].getTime();
-        // var end = this.x.domain()[1].getTime();
-        // var qj = end - start;
-        // if(end > max) {
-        //     this.x.domain([new Date(max - qj), new Date(max)]);
-        //     this.zoom.x(this.x)
-        //     console.log(this.zoom.scaleExtent(), d3.event.scale)
-        //     this.chart_bounds.call(this.zoom)
-        // }
-
-        this.svg.select('.x.axis').call(this.xAxis);
-
-        this.svg.selectAll('circle.dot').attr('cx', function (d) {
-            return that.x(d.at);
         });
-        this.svg.selectAll('rect.bar').attr('x', function (d) {
-            return that.x(d.at) - 2.5;
+        if (oldList != newList) d3render(link);
+        oldList = newList;
+    }
+
+    function tick() {
+        link.each(function (link) {
+            var r = link.source.r;
+            var b1 = link.target.x - link.source.x;
+            var b2 = link.target.y - link.source.y;
+            var b3 = Math.sqrt(b1 * b1 + b2 * b2);
+            link.angle = 180 * Math.asin(b1 / b3) / Math.PI;
+            link.textAngle = b2 > 0 ? 90 - link.angle : link.angle - 90;
+
+            var a = Math.cos(link.angle * Math.PI / 180) * r;
+            var b = Math.sin(link.angle * Math.PI / 180) * r;
+            link.sourceX = link.source.x + b;
+            link.targetX = link.target.x - b;
+            link.sourceY = b2 < 0 ? link.source.y - a : link.source.y + a;
+            link.targetY = b2 < 0 ? link.target.y + a : link.target.y - a;
+
+            var maxCount = 4; // 最大连线数
+            var count = link.relation.length; // 连线条数
+            var minStart = count === 1 ? 0 : -r / 2 + padding;
+            var start = minStart * (count / maxCount); // 连线线开始位置
+            var space = count === 1 ? 0 : Math.abs(minStart * 2 / (maxCount - 1)); // 连线间隔
+
+            var index = 0;
+
+            d3.select(this).selectAll('line').each(function (d, i) {
+
+                // 生成 20 0 -20 的 position 模式
+                var position = start + space * index++;
+
+                // 可以按间隔为 10 去生成 0 10 -10 20 -20 模式
+                var position = setLinePath(
+                    d,
+                    link.sourceX,
+                    link.sourceY,
+                    link.targetX,
+                    link.targetY,
+                    link.angle,
+                    position,
+                    r,
+                    b2 < 0
+                );
+
+                d3.select(this).attr('x1', d.sourceX = position.source[0]);
+                d3.select(this).attr('y1', d.sourceY = position.source[1]);
+                d3.select(this).attr('x2', d.targetX = position.target[0]);
+                d3.select(this).attr('y2', d.targetY = position.target[1]);
+            });
+            d3.select(this).selectAll('text').attr('transform', function (d) {
+                var x = d.sourceX + (d.targetX - d.sourceX) / 2;
+
+                var y = d.sourceY + (d.targetY - d.sourceY) / 2;
+                var textAngle = d.parent.textAngle;
+                var textRotate = (textAngle > 90 || textAngle < -90) ? (180 + textAngle) : textAngle;
+                return ['translate(' + [x, y] + ')', 'rotate(' + textRotate + ')'].join(' ');
+            });
         })
-        this.svg.selectAll('rect.interval').attr('x', function (d) {
-            return that.x(d.from);
-        }).attr('width', function (d) {
-            return Math.max(that.options.intervalMinWidth, that.x(d.to) - that.x(d.from));
+            .attr("x1", function (d) {
+                return d.source.x;
+            })
+            .attr("y1", function (d) {
+                return d.source.y;
+            })
+            .attr("x2", function (d) {
+                return d.target.x;
+            })
+            .attr("y2", function (d) {
+                return d.target.y;
+            });
+        node.attr("transform", function (d) {
+            return "translate(" + [d.x, d.y] + ")"
         });
-
-        this.svg.selectAll('.interval-text').attr('x', function (d) {
-            var positionData = that.getTextPositionData(this, d);
-            if (positionData.upToPosition - groupWidth - 10 < positionData.textWidth) {
-                return positionData.upToPosition;
-            } else if (positionData.xPosition < groupWidth && positionData.upToPosition > groupWidth) {
-                return groupWidth;
-            }
-            return positionData.xPosition;
-        }).attr('text-anchor', function (d) {
-            var positionData = that.getTextPositionData(this, d);
-            if (positionData.upToPosition - groupWidth - 10 < positionData.textWidth) {
-                return 'end';
-            }
-            return 'start';
-        }).attr('dx', function (d) {
-            var positionData = that.getTextPositionData(this, d);
-            if (positionData.upToPosition - groupWidth - 10 < positionData.textWidth) {
-                return '-0.5em';
-            }
-            return '0.5em';
-        }).text(function (d) {
-            var positionData = that.getTextPositionData(this, d);
-            var percent = (positionData.width - that.options.textTruncateThreshold) / positionData.textWidth;
-            if (percent < 1) {
-                if (positionData.width > that.options.textTruncateThreshold) {
-                    return d.label.substr(0, Math.floor(d.label.length * percent)) + '...';
-                } else {
-                    return '';
-                }
-            }
-
-            return d.label;
-        });
-
-        this.chart_brush.call(this.brush.extent(this.brush.extent()));
     }
 
-    TimelineChart.prototype.extendOptions = function(ext){
-        var ol = [];
-        for(var i in ext) ol.push(i);
-        for(var i in ol) this.options[ol[i]] = ext[ol[i]];
-        return this.options;
+    function dblclick(d) {
+        d3.select(this).classed("fixed", d.fixed = false);
     }
 
-    TimelineChart.prototype.getTextPositionData = function(t, d) {
-        t.textSizeInPx = t.textSizeInPx || t.getComputedTextLength();
-        var from = this.x(d.from);
-        var to = this.x(d.to);
+    function dragstart(d) {
+        d3.select(this).classed("fixed", d.fixed = true);
+        d3.event.sourceEvent.stopPropagation();
+    }
+
+    function zoomFn() {
+        var { translate, scale } = d3.event;
+        container.attr('transform', 'translate(' + translate + ')scale(' + scale + ')');
+    }
+
+    function keyflip() {
+        shiftKey = d3.event.shiftKey || d3.event.metaKey;
+    }
+
+    function circle() {
+        this.each(function (d, i) {
+            var style = circleStyle[d.ntype];
+            var dom = d3.select(this);
+            for (var i in style) {
+                dom.attr(i, style[i]);
+            }
+            d.r = dom.attr('r');
+        });
+    }
+
+    function setLinePath(
+        link,
+        sourceX,
+        sourceY,
+        targetX,
+        targetY,
+        angle,
+        position,
+        r,
+        isY
+    ) {
+        if (position > r) {
+            return;
+        }
+        // s 两次三角函数计算的值
+        var s = r - Math.sin(180 * Math.acos(position / r) / Math.PI * Math.PI / 180) * r;
+
+        // _a 和 _b 是拿到 ang 角度的基准值
+        var _a = Math.cos(angle * Math.PI / 180);
+        var _b = Math.sin(angle * Math.PI / 180);
+
+        // a 和 b 是得到垂直于原点平行 position 长度的偏移量。 两个偏移量按照下面的逻辑相加就是平行线的位置
+        var a = _a * position;
+        var b = _b * position;
+        var rx = _b * s;
+        var ry = _a * s;
+
         return {
-            xPosition: from,
-            upToPosition: to,
-            width: to - from,
-            textWidth: t.textSizeInPx
+            source: [(isY ? sourceX + a : sourceX - a) - rx, (isY ? sourceY + ry : sourceY - ry) + b],
+            target: [(isY ? targetX + a : targetX - a) + rx, (isY ? targetY - ry : targetY + ry) + b]
         };
     }
 
-    TimelineChart.prototype.getPointMinDt = function(p) {
-        if(p.type =='point'){
-          return p.at
-        }else if(p.type == 'bar'){
-          return p.at
-        }else{
-          return p.form
+    var circleStyle = {
+        Human: {
+            r: 30
+        },
+        Company: {
+            r: 50
         }
-    }
-    TimelineChart.prototype.getPointMaxDt = function(p) {
-        if(p.type =='point'){
-          return p.at
-        }else if(p.type == 'bar'){
-          return p.at
-        }else{
-          return p.to
-        }
-    }
-    TimelineChart.prototype.onVizChange = function(fn) {
-        this.onVizChangeFn = fn;
-        return this;
     }
 
-    TimelineChart.prototype.showSelect = function(){
-        this.chart_bounds.style('display', 'none');
+    function clearAni() {
+        ani.stopAll();
+        d3.selectAll('.behavior').remove();
+        link.each(function (d) {
+            d.relation.forEach(function (d) {
+                delete d.behavior;
+            });
+        });
     }
-    TimelineChart.prototype.hideSelect = function(){
-        this.chart_bounds.style('display', 'block');
+
+    function d3render(link) {
+        clearAni();
+
+        link.filter(function (d) {
+            return !d.filter;
+        }).each(function (link) {
+            var i = 0;
+            var _dom = d3.select(this);
+
+            var dom = _dom.selectAll('line').filter(function (d) {
+                return (!d.filter) && (d.type == 'INVEST_C' || d.type == 'TELPHONE');
+            });
+
+            dom.each(function (d) {
+                d.behavior = _dom.append('circle').attr('r', function (d, i) {
+                    return amoutIdentity(d.relation[i].amout) || 5
+                }).classed('behavior', true);
+            });
+
+            ani.start(function () {
+                dom.each(function (d, index) {
+                    var dom = d3.select(this);
+                    var x1 = parseInt(dom.attr('x1'));
+                    var y1 = parseInt(dom.attr('y1'));
+                    var x2 = parseInt(dom.attr('x2'));
+                    var y2 = parseInt(dom.attr('y2'));
+
+                    var x = x1 + ((i % 200) / 199) * (x2 - x1);
+                    var y = y1 + ((i % 200) / 199) * (y2 - y1);
+
+                    if (x && y)
+                        d.behavior.attr('cx', x).attr('cy', y)
+                });
+                i++;
+            }, 90);
+        });
     }
-    TimelineChart.prototype.clearBrush = function(){
-        this.chart_brush.call(this.brush.clear());
-        this.broadcastBrush();
+
+    function toggleMask(isShow = true) {
+        let loadingMask = document.querySelector('#timeline-mask');
+        if (isShow) {
+            if (!loadingMask) {
+                const graph = document.querySelector('#relation');
+                loadingMask = document.createElement('div');
+                loadingMask.setAttribute('id', 'timeline-mask');
+                graph.appendChild(loadingMask);
+            }
+            const mask = `` +
+                `<div class="loader">
+                    <div class="loading-anim">
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                    </div>
+                </div>`;
+            loadingMask.innerHTML = mask;
+            loadingMask.style.cssText = 'display: flex';
+        } else {
+            if (loadingMask) {
+                loadingMask.innerHTML = '';
+                loadingMask.style.cssText = 'display: none';
+            }
+        }
     }
-    TimelineChart.prototype.setBrush = function(start, end){
-        this.chart_brush.call(this.brush.extent(arguments));
-        this.broadcastBrush();
-    }
-    TimelineChart.prototype.broadcastBrush = function(){
-        this.brush.event(this.chart_brush);
-    }
+
+})(window);

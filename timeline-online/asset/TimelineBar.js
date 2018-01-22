@@ -15,7 +15,7 @@ var TimelineBar = function (element) {
     };
     this.element = element;
 
-    element.classList.add('timeline-chart');
+    element.classList.add('timeline-bar');
 
     return this;
 };
@@ -35,19 +35,30 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
     this.minDt = d3.min(this.allElements, this.getPointMinDt) || this.minDt;
     this.maxDt = d3.max(this.allElements, this.getPointMaxDt) || this.maxDt;
 
-    this.elementWidth = this.options.width || this.element.clientWidth || this.element.parentElement.parentElement.clientWidth;
-    this.elementHeight = this.options.height || this.element.clientHeight || this.element.parentElement.parentElement.clientHeight;
+    this.elementWidth = this.options.width || this.element.clientWidth
+        || this.element.parentElement.parentElement.clientWidth;
+    this.elementHeight = this.options.height || this.element.clientHeight
+        || this.element.parentElement.parentElement.clientHeight;
 
     this.width = this.elementWidth - this.margin.left - this.margin.right;
     this.height = this.elementHeight - this.margin.top - this.margin.bottom;
 
     this.groupWidth = 0;
 
-    if (!this.minDt) return;
+    if (!this.minDt)
+        return;
 
-    var xDomain = this.x && !redraw ? this.x.domain() : [new Date(this.minDt.getTime() - 25920000000), new Date(this.maxDt.getTime() + 25920000000)];
+    var startDate = new Date(this.minDt.getTime() - 25920000000);
+    var endDate = new Date(this.maxDt.getTime() + 25920000000);
+    var xDomain = this.x && !redraw ? this.x.domain() : [startDate, endDate];
     var xRange = [this.groupWidth, this.width];
-    this.x = d3.time.scale().domain(xDomain).range(xRange);
+
+    // 创建一个时间比例尺
+    this.x = d3.time.scale()
+        .domain(xDomain)
+        .range(xRange);
+
+    // 时间解析器
     var f = d3.time.format.multi([
         [".%L毫秒", function (d) {
             return d.getMilliseconds();
@@ -74,32 +85,56 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
             return true;
         }]
     ]);
-    this.xAxis = d3.svg.axis().scale(this.x).orient('bottom').tickSize(-this.height).tickFormat(function (d) {
-        return f(d);
-    });
-    this.zoom = d3.behavior.zoom().x(this.x).scaleExtent(this.options.zoom || [1.5, 1.5]).on('zoom', function () {
-        that.zoomed()
-    }).scale(this.options.startZoom || 1.5);
+
+    // 新建坐标轴
+    this.xAxis = d3.svg.axis()
+        .scale(this.x)
+        .orient('bottom')
+        .tickSize(-this.height)
+        .tickFormat(function (d) {
+            return f(d);
+        });
+
+    // 缩放/平移动作
+    this.zoom = d3.behavior.zoom()
+        .x(this.x)
+        .scaleExtent(this.options.zoom || [1.5, 1.5])
+        .on('zoom', function () {
+            that.zoomed()
+        })
+        .scale(this.options.startZoom || 1.5);
 
     var extent = this.brush && this.brush.extent && this.brush.extent();
-    this.brush = d3.svg.brush().x(this.x).on('brushend', function () {
-        if (that.options && that.options.event && that.options.event.onBrushEnd) that.options.event.onBrushEnd.apply(that, that.brush.extent());
-    }).on('brush', function () {
-        if (that.options && that.options.event && that.options.event.onBrush) that.options.event.onBrush.apply(that, that.brush.extent());
-    });
-    if (extent) this.brush.extent(extent);
 
+    // 区域选择
+    this.brush = d3.svg.brush()
+        .x(this.x)
+        .on('brushend', function () {
+            if (that.options && that.options.event && that.options.event.onBrushEnd)
+                that.options.event.onBrushEnd.apply(that, that.brush.extent());
+        })
+        .on('brush', function () {
+            if (that.options && that.options.event && that.options.event.onBrush)
+                that.options.event.onBrush.apply(that, that.brush.extent());
+        });
+
+    if (extent)
+        this.brush.extent(extent);
 
     this._svg = this._svg || d3.select(this.element).append('svg');
-    this._svg.style('width', '100%').attr('width', this.width + this.margin.left + this.margin.right).attr('height', this.height + this.margin.top + this.margin.bottom);
+    this._svg.style('width', '100%')
+        .attr('width', this.width + this.margin.left + this.margin.right)
+        .attr('height', this.height + this.margin.top + this.margin.bottom);
     this.svg = this.svg || this._svg.append('g');
     this.svg.attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
 
     this.chart_brush = this.chart_brush || this.svg.append('g')
         .attr('class', 'chart-brush');
     var brush = this.chart_brush.call(this.brush);
+
     brush.selectAll("rect")
         .attr('height', this.height);
+        
     brush.selectAll(".resize").append('path')
         .attr("class", "handle--custom")
         .attr("fill", "#666")
@@ -173,9 +208,24 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
     this.leftLine = this.leftLine || this.svg.append('line');
     this.rightLine = this.rightLine || this.svg.append('line')
 
-    this.topLine.attr('x1', 0).attr('x2', this.width).attr('y1', 0).attr('y2', 0).attr('stroke', 'black');
-    this.leftLine.attr('x1', this.groupWidth).attr('x2', this.groupWidth).attr('y1', 0).attr('y2', this.height).attr('stroke', 'black');
-    this.rightLine.attr('x1', this.width).attr('x2', this.width).attr('y1', 0).attr('y2', this.height).attr('stroke', 'black');
+    this.topLine
+        .attr('x1', 0)
+        .attr('x2', this.width)
+        .attr('y1', 0)
+        .attr('y2', 0)
+        .attr('stroke', 'black');
+    this.leftLine
+        .attr('x1', this.groupWidth)
+        .attr('x2', this.groupWidth)
+        .attr('y1', 0)
+        .attr('y2', this.height)
+        .attr('stroke', 'black');
+    this.rightLine
+        .attr('x1', this.width)
+        .attr('x2', this.width)
+        .attr('y1', 0)
+        .attr('y2', this.height)
+        .attr('stroke', 'black');
 
     this._svg.selectAll('.item').remove();
 
@@ -199,21 +249,37 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
 
     var intervalBarHeight = 0.8 * this.groupHeight;
     var intervalBarMargin = (this.groupHeight - intervalBarHeight) / 2;
-    var intervals = this.groupIntervalItems.append('rect').attr('class', this.withCustom('interval')).attr('width', function (d) {
-        return Math.max(that.options.intervalMinWidth, that.x(d.to) - that.x(d.from));
-    }).attr('height', intervalBarHeight).attr('y', intervalBarMargin).attr('x', function (d) {
-        return that.x(d.from);
-    });
+    var intervals = this.groupIntervalItems.append('rect')
+        .attr('class', this.withCustom('interval'))
+        .attr('dx', 5)
+        .attr('dy', 5)
+        .attr('width', function (d) {
+            return Math.max(that.options.intervalMinWidth, that.x(d.to) - that.x(d.from));
+        })
+        .attr('height', intervalBarHeight).attr('y', intervalBarMargin).attr('x', function (d) {
+            return that.x(d.from);
+        });
 
-    var intervalTexts = this.groupIntervalItems.append('text').text(function (d) {
-        return d.label;
-    }).attr('fill', 'white').attr('class', this.withCustom('interval-text')).attr('y', this.groupHeight / 2 + 5).attr('x', function (d) {
-        return that.x(d.from);
-    });
+    var intervalTexts = this.groupIntervalItems.append('text')
+        .text(function (d) {
+            return d.label;
+        })
+        .attr('fill', 'white')
+        .attr('class', this.withCustom('interval-text'))
+        .attr('y', this.groupHeight / 2 + 5)
+        .attr('x', function (d) {
+            return that.x(d.from);
+        });
 
-    this.group = this.svg.selectAll('.group-dot-item').data(data).enter().append('g').attr('clip-path', 'url(#chart-content)').attr('class', 'item').attr('transform', function (d, i) {
-        return 'translate(0, ' + that.groupHeight * i + ')';
-    });
+    this.group = this.svg.selectAll('.group-dot-item')
+        .data(data)
+        .enter()
+        .append('g')
+        .attr('clip-path', 'url(#chart-content)')
+        .attr('class', 'item')
+        .attr('transform', function (d, i) {
+            return 'translate(0, ' + that.groupHeight * i + ')';
+        });
     this.yScale = this.yScale || d3.scale.linear();
     this.yScale.domain([d3.max(data[0].data, function (d) {
         return d.value;
@@ -232,9 +298,13 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
             });
         });
     this.groupDotItems = this._groupDotItems.enter();
-    var dots = this.groupDotItems.append('circle').attr('class', this.withCustom('dot')).attr('cx', function (d) {
-        return that.x(d.at);
-    }).attr('cy', this.groupHeight / 2).attr('r', 5);
+    var dots = this.groupDotItems.append('circle')
+        .attr('class', this.withCustom('dot'))
+        .attr('cx', function (d) {
+            return that.x(d.at);
+        })
+        .attr('cy', this.groupHeight / 2)
+        .attr('r', 5);
 
     this._groupBarItems = this.group.selectAll('.bar')
         .data(function (d) {
@@ -244,13 +314,19 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
         });
 
     this.groupDotItems = this._groupBarItems.enter();
-    var dots = this.groupDotItems.append('rect').attr('class', this.withCustom('bar')).attr('x', function (d) {
-        return that.x(d.at) - 2.5;
-    }).attr('y', function (d) {
-        return that.yScale(d.value) + 1
-    }).attr('width', 5).attr('height', function (d) {
-        return that.groupHeight - that.yScale(d.value) - 1
-    }).style('fill', '#ffa406');
+    var dots = this.groupDotItems.append('rect')
+        .attr('class', this.withCustom('bar'))
+        .attr('x', function (d) {
+            return that.x(d.at) - 2.5;
+        })
+        .attr('y', function (d) {
+            return that.yScale(d.value) + 1
+        })
+        .attr('width', 5)
+        .attr('height', function (d) {
+            return that.groupHeight - that.yScale(d.value) - 1
+        })
+        .style('fill', '#ffa406');
 
 
     this.zoomed();
@@ -302,51 +378,58 @@ TimelineBar.prototype.zoomed = function () {
 
     this.svg.select('.x.axis').call(this.xAxis);
 
-    this.svg.selectAll('circle.dot').attr('cx', function (d) {
-        return that.x(d.at);
-    });
-    this.svg.selectAll('rect.bar').attr('x', function (d) {
-        return that.x(d.at) - 2.5;
-    })
-    this.svg.selectAll('rect.interval').attr('x', function (d) {
-        return that.x(d.from);
-    }).attr('width', function (d) {
-        return Math.max(that.options.intervalMinWidth, that.x(d.to) - that.x(d.from));
-    });
+    this.svg.selectAll('circle.dot')
+        .attr('cx', function (d) {
+            return that.x(d.at);
+        });
+    this.svg.selectAll('rect.bar')
+        .attr('x', function (d) {
+            return that.x(d.at) - 2.5;
+        })
+    this.svg.selectAll('rect.interval')
+        .attr('x', function (d) {
+            return that.x(d.from);
+        }).attr('width', function (d) {
+            return Math.max(that.options.intervalMinWidth, that.x(d.to) - that.x(d.from));
+        });
 
-    this.svg.selectAll('.interval-text').attr('x', function (d) {
-        var positionData = that.getTextPositionData(this, d);
-        if (positionData.upToPosition - groupWidth - 10 < positionData.textWidth) {
-            return positionData.upToPosition;
-        } else if (positionData.xPosition < groupWidth && positionData.upToPosition > groupWidth) {
-            return groupWidth;
-        }
-        return positionData.xPosition;
-    }).attr('text-anchor', function (d) {
-        var positionData = that.getTextPositionData(this, d);
-        if (positionData.upToPosition - groupWidth - 10 < positionData.textWidth) {
-            return 'end';
-        }
-        return 'start';
-    }).attr('dx', function (d) {
-        var positionData = that.getTextPositionData(this, d);
-        if (positionData.upToPosition - groupWidth - 10 < positionData.textWidth) {
-            return '-0.5em';
-        }
-        return '0.5em';
-    }).text(function (d) {
-        var positionData = that.getTextPositionData(this, d);
-        var percent = (positionData.width - that.options.textTruncateThreshold) / positionData.textWidth;
-        if (percent < 1) {
-            if (positionData.width > that.options.textTruncateThreshold) {
-                return d.label.substr(0, Math.floor(d.label.length * percent)) + '...';
-            } else {
-                return '';
+    this.svg.selectAll('.interval-text')
+        .attr('x', function (d) {
+            var positionData = that.getTextPositionData(this, d);
+            if (positionData.upToPosition - groupWidth - 10 < positionData.textWidth) {
+                return positionData.upToPosition;
+            } else if (positionData.xPosition < groupWidth && positionData.upToPosition > groupWidth) {
+                return groupWidth;
             }
-        }
+            return positionData.xPosition;
+        })
+        .attr('text-anchor', function (d) {
+            var positionData = that.getTextPositionData(this, d);
+            if (positionData.upToPosition - groupWidth - 10 < positionData.textWidth) {
+                return 'end';
+            }
+            return 'start';
+        })
+        .attr('dx', function (d) {
+            var positionData = that.getTextPositionData(this, d);
+            if (positionData.upToPosition - groupWidth - 10 < positionData.textWidth) {
+                return '-0.5em';
+            }
+            return '0.5em';
+        })
+        .text(function (d) {
+            var positionData = that.getTextPositionData(this, d);
+            var percent = (positionData.width - that.options.textTruncateThreshold) / positionData.textWidth;
+            if (percent < 1) {
+                if (positionData.width > that.options.textTruncateThreshold) {
+                    return d.label.substr(0, Math.floor(d.label.length * percent)) + '...';
+                } else {
+                    return '';
+                }
+            }
 
-        return d.label;
-    });
+            return d.label;
+        });
 
     this.chart_brush.call(this.brush.extent(this.brush.extent()));
 }

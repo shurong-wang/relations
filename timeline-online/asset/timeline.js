@@ -318,7 +318,8 @@ var nodesList, linksList;
 
                     var y = d.sourceY + (d.targetY - d.sourceY) / 2;
                     var textAngle = d.parent.textAngle;
-                    return ['translate(' + [x, y] + ')', 'rotate(' + ((textAngle > 90 || textAngle < -90) ? (180 + textAngle) : textAngle) + ')'].join(' ');
+                    var textRotate = (textAngle > 90 || textAngle < -90) ? (180 + textAngle) : textAngle;
+                    return ['translate(' + [x, y] + ')', 'rotate(' + textRotate + ')'].join(' ');
                 })
             })
             .attr("x1", function (d) {
@@ -375,14 +376,14 @@ var nodesList, linksList;
         if (position > r) {
             return;
         }
-        // s 两次三角函数计算的值 -- 参考 doc/两次三角函数计算的值.jpg 标识的红色部分
+        // s 两次三角函数计算的值
         var s = r - Math.sin(180 * Math.acos(position / r) / Math.PI * Math.PI / 180) * r;
 
         // _a 和 _b 是拿到 ang 角度的基准值
         var _a = Math.cos(angle * Math.PI / 180);
         var _b = Math.sin(angle * Math.PI / 180);
 
-        // a 和 b 是得到垂直于原点平行 position 长度的偏移量。 两个偏移量按照下面的逻辑相加就是平行线的位置了
+        // a 和 b 是得到垂直于原点平行 position 长度的偏移量。 两个偏移量按照下面的逻辑相加就是平行线的位置
         var a = _a * position;
         var b = _b * position;
         var rx = _b * s;

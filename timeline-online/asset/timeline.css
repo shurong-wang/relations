@@ -1,12 +1,3 @@
-circle {
-    /* fill-opacity: 0.2; */
-    transition: fill-opacity 250ms linear;
-}
-
-circle.active {
-    stroke: #f00;
-}
-
 body,
 html {
     margin: 0;
@@ -19,87 +10,11 @@ div {
     box-sizing: border-box
 }
 
-#timeline {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 120px;
-    padding-top: 6px;
-    border-top: 1px solid #ccc;
-    position: absolute;
-    width: 100%;
-    bottom: 0;
-    background-color: #fff;
+circle {
+    /* fill-opacity: 0.2; */
+    transition: fill-opacity 250ms linear;
 }
 
-#relation {
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 100%;
-    width: 100%;
-    padding-bottom: 84px;
-}
-
-.timeline-chart .axis path {
-    fill: none;
-    stroke: none;
-}
-
-.timeline-chart line {
-    stroke: black;
-}
-
-.timeline-chart .vertical-marker {
-    stroke-width: 1;
-}
-
-.timeline-chart rect,
-.timeline-chart rect.chart-bounds {
-    fill: transparent;
-}
-
-.timeline-chart rect.chart-bounds:hover,
-.timeline-chart rect.interval:hover {
-    cursor: -webkit-grab;
-    cursor: grab;
-}
-
-.timeline-chart rect.chart-bounds:active,
-.timeline-chart rect.interval:active {
-    cursor: -webkit-grabbing;
-    cursor: grabbing;
-}
-
-.timeline-chart .dot:hover {
-    cursor: pointer;
-}
-
-.timeline-chart .interval-text {
-    pointer-events: none;
-}
-
-.timeline-chart rect.interval {
-    ry: 5;
-    rx: 5;
-    fill: black;
-    stroke: #2b2b2b;
-}
-
-.timeline-chart .extent {
-    fill: #000;
-    stroke: #929292;
-    fill-opacity: .125;
-    shape-rendering: crispEdges;
-}
-
-.timeline-chart i.active {
-    background-color: #ccc;
-}
 
 .node {
     stroke: #fff;
@@ -208,7 +123,87 @@ div {
     stroke: #ccc;
 }
 
-.tl-legend {
+#relation {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    width: 100%;
+    padding-bottom: 84px;
+}
+
+#timeline {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 120px;
+    padding-top: 6px;
+    border-top: 1px solid #ccc;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    background-color: #fff;
+}
+
+.timeline-bar .axis path {
+    fill: none;
+    stroke: none;
+}
+
+.timeline-bar line {
+    stroke: black;
+}
+
+.timeline-bar .vertical-marker {
+    stroke-width: 1;
+}
+
+.timeline-bar rect,
+.timeline-bar rect.chart-bounds {
+    fill: transparent;
+}
+
+.timeline-bar rect.chart-bounds:hover,
+.timeline-bar rect.interval:hover {
+    cursor: -webkit-grab;
+    cursor: grab;
+}
+
+.timeline-bar rect.chart-bounds:active,
+.timeline-bar rect.interval:active {
+    cursor: -webkit-grabbing;
+    cursor: grabbing;
+}
+
+.timeline-bar .dot:hover {
+    cursor: pointer;
+}
+
+.timeline-bar .interval-text {
+    pointer-events: none;
+}
+
+.timeline-bar rect.interval {
+    fill: black;
+    stroke: #2b2b2b;
+}
+
+.timeline-bar .extent {
+    fill: #000;
+    stroke: #929292;
+    fill-opacity: .125;
+    shape-rendering: crispEdges;
+}
+
+.timeline-bar i.active {
+    background-color: #ccc;
+}
+
+.timeline-legend {
     position: absolute;
     bottom: 100px;
     left: 50px;
@@ -216,24 +211,24 @@ div {
     height: 100px;
 }
 
-.tl-legend>div>i {
+.timeline-legend>div>i {
     display: inline-block;
     width: 10px;
     height: 10px;
     border-radius: 5px;
 }
 
-.tl-legend>.tl-legend-company>i {
+.timeline-legend>.timeline-legend-company>i {
     background-color: #018cff;
     margin-left: 38px
 }
 
-.tl-legend>.tl-legend-investor>i {
+.timeline-legend>.timeline-legend-investor>i {
     background-color: #d04e06;
     margin-left: 24px
 }
 
-.tl-legend>.tl-legend-flows>i {
+.timeline-legend>.timeline-legend-flows>i {
     background-color: #ffa406;
     margin-left: 10px
 }

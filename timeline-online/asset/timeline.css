@@ -1,5 +1,5 @@
-body,
-html {
+html,
+body {
     margin: 0;
     height: 100%;
     width: 100%;
@@ -7,14 +7,13 @@ html {
 }
 
 div {
-    box-sizing: border-box
+    box-sizing: border-box;
 }
 
 circle {
     /* fill-opacity: 0.2; */
     transition: fill-opacity 250ms linear;
 }
-
 
 .node {
     stroke: #fff;
@@ -36,14 +35,14 @@ circle {
 }
 
 .Company {
-    fill: #018cff;
-    stroke: #00559a;
+    fill: rgb(8, 147, 228);
+    stroke: rgb(7, 117, 180);
     stroke-width: 3px;
 }
 
 .Human {
-    fill: #d04e06;
-    stroke: #883000;
+    fill: rgb(255, 150, 107);
+    stroke: rgb(247, 115, 62);
     stroke-width: 3px;
 }
 
@@ -62,26 +61,26 @@ circle {
 }
 
 .link .SERVE {
-    fill: red;
-    stroke: red;
+    fill: rgb(106, 220, 254);
+    stroke: rgb(106, 220, 254);
     stroke-width: 2px;
 }
 
 .link .INVEST_C {
-    fill: #ffa406;
-    stroke: #ffa406;
+    fill: rgb(141, 149, 250);
+    stroke: rgb(141, 149, 250);
     stroke-width: 2px;
 }
 
 .link .OWN {
-    fill: #036ae4;
-    stroke: #036ae4;
+    fill: rgb(249, 225, 105);
+    stroke: rgb(249, 225, 105);
     stroke-width: 2px;
 }
 
 .link .TELPHONE {
-    fill: green;
-    stroke: green;
+    fill: rgb(1, 194, 106);
+    stroke:rgb(1, 194, 106);
     stroke-width: 2px;
 }
 
@@ -93,23 +92,23 @@ circle {
 }
 
 #TELPHONE {
-    fill: green;
+    fill: rgb(1, 194, 106);
 }
 
 #SERVE {
-    fill: red;
+    fill:rgb(106, 220, 254);
 }
 
 #INVEST_C {
-    fill: #ffa406;
+    fill: rgb(141, 149, 250);
 }
 
 #OWN {
-    fill: #036ae4;
+    fill: rgb(249, 225, 105);
 }
 
 .behavior {
-    fill: #ffa406;
+    fill: rgb(141, 149, 250);
     stroke-width: 0;
 }
 
@@ -219,26 +218,28 @@ circle {
 }
 
 .timeline-legend>.timeline-legend-company>i {
-    background-color: #018cff;
+    background-color: rgb(8, 147, 228);
     margin-left: 38px
 }
 
 .timeline-legend>.timeline-legend-investor>i {
-    background-color: #d04e06;
+    background-color: rgb(255, 150, 107);
     margin-left: 24px
 }
 
 .timeline-legend>.timeline-legend-flows>i {
-    background-color: #ffa406;
+    background-color: rgb(141, 149, 250);
     margin-left: 10px
 }
 
 
 /* Switch Toggle */
+
 #timelineHandle {
     margin: 0;
     padding: 0;
 }
+
 #timelineHandle .switch {
     position: relative;
     outline: 0;
@@ -311,7 +312,7 @@ circle {
 }
 
 #timelineHandle .switch input[type="checkbox"]:checked+span {
-    background: linear-gradient(to bottom right, rgb(62,155,237), rgb(79, 165, 240));
+    background: linear-gradient(to bottom right, rgb(62, 155, 237), rgb(79, 165, 240));
     color: #fff;
     padding-left: 0.4em;
     padding-right: 1.6em;
@@ -373,5 +374,5 @@ circle {
 
 #timelineHandle .green-clear {
     color: #fff;
-    background: linear-gradient(to bottom right, rgb(62,155,237), rgb(79, 165, 240));
+    background: linear-gradient(to bottom right, rgb(62, 155, 237), rgb(79, 165, 240));
 }

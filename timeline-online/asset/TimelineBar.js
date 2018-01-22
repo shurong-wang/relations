@@ -256,7 +256,9 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
         .attr('width', function (d) {
             return Math.max(that.options.intervalMinWidth, that.x(d.to) - that.x(d.from));
         })
-        .attr('height', intervalBarHeight).attr('y', intervalBarMargin).attr('x', function (d) {
+        .attr('height', intervalBarHeight)
+        .attr('y', intervalBarMargin)
+        .attr('x', function (d) {
             return that.x(d.from);
         });
 

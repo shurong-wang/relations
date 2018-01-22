@@ -7,7 +7,29 @@ function selectChange(el) {
 function clearChange() {
     tl.clearBrush()
 }
+
 var nodesList, linksList;
+var nodeConf = {
+    fillColor: {
+        Human: 'rgb(255, 150, 107)',// 个人
+        Company: 'rgb(8, 147, 228)' // 公司
+    },
+    strokeColor: {
+        Human: 'rgb(255, 150, 107)',
+        Company: 'rgb(8, 147, 228)'
+    }
+};
+
+var lineConf = {
+    strokeColor: {
+        SERVE: 'rgb(106, 220, 254)',    // 任职 [ 执行董事, 监事, 经理, 总经理 ]
+        OWN: 'rgb(249, 225, 105)',      // 法人 [ 法人 ] 
+        INVEST_C: 'rgb(141, 149, 250)', // 企业投资 [ 参股 ]
+        INVEST_H: 'rgb(141, 149, 250)', // 个人投资 [ 参股 ]
+        BRANCH: 'rgb(129, 204, 198)'    // 分支 [ 企业分支 ]
+    }
+};
+
 (function (window) {
 
     var tlOptions = {

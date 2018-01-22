@@ -328,7 +328,7 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
         .attr('height', function (d) {
             return that.groupHeight - that.yScale(d.value) - 1
         })
-        .style('fill', '#ffa406');
+        .style('fill', 'rgb(141, 149, 250)');
 
 
     this.zoomed();

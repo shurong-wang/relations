@@ -21,7 +21,7 @@ circle {
 }
 
 .node .selected {
-    stroke: red;
+    stroke: rgb(255, 150, 107);
 }
 
 .link {
@@ -37,13 +37,13 @@ circle {
 .Company {
     fill: rgb(8, 147, 228);
     stroke: rgb(7, 117, 180);
-    stroke-width: 3px;
+    stroke-width: .3px;
 }
 
 .Human {
     fill: rgb(255, 150, 107);
     stroke: rgb(247, 115, 62);
-    stroke-width: 3px;
+    stroke-width: .3px;
 }
 
 .Company text {
@@ -241,6 +241,7 @@ circle {
 #timelineHandle {
     margin: 0;
     padding: 0;
+    margin-bottom: 10px;
 }
 
 #timelineHandle .switch {

@@ -147,8 +147,8 @@ circle {
     position: absolute;
     width: 100%;
     bottom: 0;
-    background-color:rgba(237, 240, 239, 1);
-    
+    user-select: none;
+    background-color:rgba(237, 240, 239, .7);
 }
 
 .timeline-bar .axis path {

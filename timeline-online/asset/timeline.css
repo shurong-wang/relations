@@ -376,3 +376,115 @@ circle {
     color: #fff;
     background: linear-gradient(to bottom right, rgb(62, 155, 237), rgb(79, 165, 240));
 }
+
+
+/* loading  animation */
+
+#timeline-mask {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(180, 180, 180, .2);
+    z-index: 999;
+    filter: alpha(opacity=60);
+}
+
+#timeline-mask {
+    top: 68px;
+}
+
+.loader {
+    box-sizing: border-box;
+    display: flex;
+    flex: 0 1 auto;
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-basis: 25%;
+    max-width: 25%;
+    height: 150px;
+    align-items: center;
+    justify-content: center;
+    transform: scale(0.6);
+}
+
+#timeline-mask .loader {
+    margin-top: -68px;
+}
+
+@keyframes loading-anim {
+    50% {
+        transform: scale(0.3);
+        opacity: 0.3;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.loading-anim {
+    position: relative;
+}
+
+.loading-anim i {
+    display: block;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background-color: #333;
+    position: absolute;
+}
+
+.loading-anim i:nth-child(1) {
+    top: 25px;
+    left: 0;
+    animation: loading-anim 2s ease 0s infinite;
+}
+
+.loading-anim i:nth-child(2) {
+    top: 17px;
+    left: 17px;
+    animation: loading-anim 2s ease -0.25s infinite;
+}
+
+.loading-anim i:nth-child(3) {
+    top: 0;
+    left: 25px;
+    animation: loading-anim 2s ease -0.50s infinite;
+}
+
+.loading-anim i:nth-child(4) {
+    top: -17px;
+    left: 17px;
+    animation: loading-anim 2s ease -0.75s infinite;
+}
+
+.loading-anim i:nth-child(5) {
+    top: -25px;
+    left: 0;
+    animation: loading-anim 2s ease -1.00s infinite;
+}
+
+.loading-anim i:nth-child(6) {
+    top: -17px;
+    left: -17px;
+    animation: loading-anim 2s ease -1.25s infinite;
+}
+
+.loading-anim i:nth-child(7) {
+    top: 0;
+    left: -25px;
+    animation: loading-anim 2s ease -1.50s infinite;
+}
+
+.loading-anim i:nth-child(8) {
+    top: 17px;
+    left: -17px;
+    animation: loading-anim 2s ease -1.75s infinite;
+}

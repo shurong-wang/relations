@@ -86,7 +86,7 @@ circle {
 
 .link text {
     font-size: 14px;
-    fill: #000;
+    fill: rgb(0, 0, 0);
     stroke-width: 0;
     text-anchor: middle
 }
@@ -132,6 +132,8 @@ circle {
     height: 100%;
     width: 100%;
     padding-bottom: 84px;
+    user-select: none;
+    background-color: #ecf0f1;
 }
 
 #timeline {
@@ -145,7 +147,8 @@ circle {
     position: absolute;
     width: 100%;
     bottom: 0;
-    background-color: #fff;
+    background-color:rgba(237, 240, 239, 1);
+    
 }
 
 .timeline-bar .axis path {

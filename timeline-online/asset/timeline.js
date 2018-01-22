@@ -5,30 +5,10 @@ function selectChange(el) {
 }
 
 function clearChange() {
-    tl.clearBrush()
+    tl.clearBrush();
 }
 
 var nodesList, linksList;
-var nodeConf = {
-    fillColor: {
-        Human: 'rgb(255, 150, 107)',// 个人
-        Company: 'rgb(8, 147, 228)' // 公司
-    },
-    strokeColor: {
-        Human: 'rgb(255, 150, 107)',
-        Company: 'rgb(8, 147, 228)'
-    }
-};
-
-var lineConf = {
-    strokeColor: {
-        SERVE: 'rgb(106, 220, 254)',    // 任职 [ 执行董事, 监事, 经理, 总经理 ]
-        OWN: 'rgb(249, 225, 105)',      // 法人 [ 法人 ] 
-        INVEST_C: 'rgb(141, 149, 250)', // 企业投资 [ 参股 ]
-        INVEST_H: 'rgb(141, 149, 250)', // 个人投资 [ 参股 ]
-        BRANCH: 'rgb(129, 204, 198)'    // 分支 [ 企业分支 ]
-    }
-};
 
 (function (window) {
 
@@ -55,14 +35,14 @@ var lineConf = {
                         }).length
                     })
                 }
-                reStatus()
+                reStatus();
             }
         },
         height: 80,
         zoom: [0.5, 0.5],
         startZoom: 0.5
         // ,enableLiveTimer:true
-    }
+    };
 
 
     toggleMask(true);
@@ -107,10 +87,10 @@ var lineConf = {
                 label: 'bar',
                 data: data
             }
-        ]
+        ];
         tl.reDraw(d, tlOptions);
         // tl.showSelect()
-    })
+    });
 
 
     var padding = -10;
@@ -128,15 +108,34 @@ var lineConf = {
     var drag = force.drag()
         .on("dragstart", dragstart);
 
+    var zoom = d3.behavior.zoom()
+        .scaleExtent([0.25, 2])
+        .on('zoom', zoomFn);
+
     var svg = d3.select("#relation").append("svg")
         .attr("width", width)
         .attr("height", height)
+        .append('g')
+        .call(zoom)
+        .on('dblclick.zoom', null);
+
+    // zoomOverlay must be placed in front of the container
+    const zoomOverlay = svg.append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .style('fill', 'none')
+        .style('pointer-events', 'all');
+
+    const container = svg.append('g')
+        .attr('class', 'container')
         .attr('opacity', 0);
 
-    var link = svg.selectAll(".link"),
-        node = svg.selectAll(".node");
+    var link = container.selectAll(".link"),
+        node = container.selectAll(".node");
 
-    var span = d3.select('body').append('span').style('font-size', '12px').style('line-height', '12px');
+    var span = d3.select('body').append('span')
+        .style('font-size', '12px')
+        .style('line-height', '12px');
 
     var markerList = [];
     var markerStyle = {
@@ -147,8 +146,9 @@ var lineConf = {
         refX: "10",
         refY: "6",
         orient: "auto"
-    }
-    svg.selectAll('.marker').data(['SERVE', 'INVEST_C', 'OWN', 'TELPHONE']).enter()
+    };
+
+    container.selectAll('.marker').data(['SERVE', 'INVEST_C', 'OWN', 'TELPHONE']).enter()
         .append('marker')
         .attr('id', function (d) {
             var dom = d3.select(this);
@@ -174,7 +174,7 @@ var lineConf = {
         var amoutList = [];
         nodesList.forEach(function (d) {
             nodesObj[d.id] = d;
-        })
+        });
 
         graph.relations.forEach(function (d) {
             var l;
@@ -204,14 +204,14 @@ var lineConf = {
         linksList.forEach(function (d) {
             d.source = nodesObj[d.startNode]
             d.target = nodesObj[d.endNode]
-        })
+        });
 
         force.on('end', function () {
             // 固定所有节点
             nodesList.forEach(node => {
                 node.fixed = true;
             });
-            svg.attr('opacity', 1);
+            container.attr('opacity', 1);
             toggleMask(false);
         });
 
@@ -224,40 +224,46 @@ var lineConf = {
             .enter().append("g")
             .attr("class", "link")
             .each(function (link) {
-
                 var g = d3.select(this);
                 var lineEnter = g.selectAll('.line').data(link.relation).enter();
                 lineEnter.append('line').each(function (d) {
                     d3.select(this).classed(d.type, true).attr("marker-end", "url(#" + d.type + ")");;
-                })
+                });
                 lineEnter.append('text').text(function (d) {
                     return d.label
-                })
+                });
             });
 
         node = node.data(nodesList)
             .enter().append("g")
             .attr("class", "node");
+
         var s = span.node();
+
         node.each(function (d) {
-                var node = d3.select(this).append('circle').call(circle);
-                var text = d3.select(this).append('text').text(function (d) {
+            var node = d3.select(this).append('circle')
+                .call(circle);
+            var text = d3.select(this).append('text')
+                .text(function (d) {
                     var s = d.name
                     if (s.length > 6) return s.substr(0, 6);
                     return s;
-                }).attr('transform', function () {
-                    s.innerText = d.name;
-                    return 'translate(' + [0, s.offsetHeight / 4] + ')'
                 })
-                d3.select(this).classed(d.ntype, true)
-            })
+                .attr('transform', function () {
+                    s.innerText = d.name;
+                    return 'translate(' + [0, s.offsetHeight / 4] + ')';
+                });
+            d3.select(this).classed(d.ntype, true);
+        })
             .on("dblclick", dblclick)
             .call(drag);
+
         reStatus();
+
         setTimeout(function () {
             force.stop();
-        }, 3000)
-    })
+        }, 3000);
+    });
 
 
 
@@ -268,7 +274,7 @@ var lineConf = {
             return d.relation.filter(function (d) {
                 return d.filter
             }).map(function (d) {
-                return d
+                return d;
             }).join();
         }).sort().join();
         node.each(function (d) {
@@ -279,71 +285,68 @@ var lineConf = {
             d3.select(this).selectAll('line').each(function (d) {
                 d3.select(this).classed('filter', d.filter);
                 d3.select(this).classed('selected', d.selected);
-            })
+            });
         });
         if (oldList != newList) d3render(link);
-        oldList = newList
+        oldList = newList;
     }
 
     function tick() {
         link.each(function (link) {
-                var r = link.source.r;
-                var b1 = link.target.x - link.source.x;
-                var b2 = link.target.y - link.source.y;
-                var b3 = Math.sqrt(b1 * b1 + b2 * b2);
-                link.angle = 180 * Math.asin(b1 / b3) / Math.PI;
-                link.textAngle = b2 > 0 ? 90 - link.angle : link.angle - 90;
+            var r = link.source.r;
+            var b1 = link.target.x - link.source.x;
+            var b2 = link.target.y - link.source.y;
+            var b3 = Math.sqrt(b1 * b1 + b2 * b2);
+            link.angle = 180 * Math.asin(b1 / b3) / Math.PI;
+            link.textAngle = b2 > 0 ? 90 - link.angle : link.angle - 90;
 
-                var a = Math.cos(link.angle * Math.PI / 180) * r;
-                var b = Math.sin(link.angle * Math.PI / 180) * r;
-                link.sourceX = link.source.x + b;
-                link.targetX = link.target.x - b;
-                link.sourceY = b2 < 0 ? link.source.y - a : link.source.y + a;
-                link.targetY = b2 < 0 ? link.target.y + a : link.target.y - a;
+            var a = Math.cos(link.angle * Math.PI / 180) * r;
+            var b = Math.sin(link.angle * Math.PI / 180) * r;
+            link.sourceX = link.source.x + b;
+            link.targetX = link.target.x - b;
+            link.sourceY = b2 < 0 ? link.source.y - a : link.source.y + a;
+            link.targetY = b2 < 0 ? link.target.y + a : link.target.y - a;
 
+            var maxCount = 4; // 最大连线数
+            var count = link.relation.length; // 连线条数
+            var minStart = count === 1 ? 0 : -r / 2 + padding;
+            var start = minStart * (count / maxCount); // 连线线开始位置
+            var space = count === 1 ? 0 : Math.abs(minStart * 2 / (maxCount - 1)); // 连线间隔
 
-                var maxCount = 4; // 最大连线数
-                var count = link.relation.length; // 连线条数
-                var minStart = count === 1 ? 0 : -r / 2 + padding;
-                var start = minStart * (count / maxCount); // 连线线开始位置
-                var space = count === 1 ? 0 : Math.abs(minStart * 2 / (maxCount - 1)); // 连线间隔
+            var index = 0;
 
+            d3.select(this).selectAll('line').each(function (d, i) {
 
-                var index = 0;
+                // 生成 20 0 -20 的 position 模式
+                var position = start + space * index++;
 
-                d3.select(this).selectAll('line').each(function (d, i) {
+                // 可以按间隔为 10 去生成 0 10 -10 20 -20 模式
+                var position = setLinePath(
+                    d,
+                    link.sourceX,
+                    link.sourceY,
+                    link.targetX,
+                    link.targetY,
+                    link.angle,
+                    position,
+                    r,
+                    b2 < 0
+                );
 
+                d3.select(this).attr('x1', d.sourceX = position.source[0]);
+                d3.select(this).attr('y1', d.sourceY = position.source[1]);
+                d3.select(this).attr('x2', d.targetX = position.target[0]);
+                d3.select(this).attr('y2', d.targetY = position.target[1]);
+            });
+            d3.select(this).selectAll('text').attr('transform', function (d) {
+                var x = d.sourceX + (d.targetX - d.sourceX) / 2;
 
-                    // 生成 20 0 -20 的 position 模式
-                    var position = start + space * index++;
-                    // 可以按间隔为 10 去生成 0 10 -10 20 -20 模式
-
-                    var position = setLinePath(
-                        d,
-                        link.sourceX,
-                        link.sourceY,
-                        link.targetX,
-                        link.targetY,
-                        link.angle,
-                        position,
-                        r,
-                        b2 < 0
-                    );
-
-                    d3.select(this).attr('x1', d.sourceX = position.source[0]);
-                    d3.select(this).attr('y1', d.sourceY = position.source[1]);
-                    d3.select(this).attr('x2', d.targetX = position.target[0]);
-                    d3.select(this).attr('y2', d.targetY = position.target[1]);
-                })
-                d3.select(this).selectAll('text').attr('transform', function (d) {
-                    var x = d.sourceX + (d.targetX - d.sourceX) / 2;
-
-                    var y = d.sourceY + (d.targetY - d.sourceY) / 2;
-                    var textAngle = d.parent.textAngle;
-                    var textRotate = (textAngle > 90 || textAngle < -90) ? (180 + textAngle) : textAngle;
-                    return ['translate(' + [x, y] + ')', 'rotate(' + textRotate + ')'].join(' ');
-                })
-            })
+                var y = d.sourceY + (d.targetY - d.sourceY) / 2;
+                var textAngle = d.parent.textAngle;
+                var textRotate = (textAngle > 90 || textAngle < -90) ? (180 + textAngle) : textAngle;
+                return ['translate(' + [x, y] + ')', 'rotate(' + textRotate + ')'].join(' ');
+            });
+        })
             .attr("x1", function (d) {
                 return d.source.x;
             })
@@ -358,7 +361,7 @@ var lineConf = {
             });
         node.attr("transform", function (d) {
             return "translate(" + [d.x, d.y] + ")"
-        })
+        });
     }
 
     function dblclick(d) {
@@ -367,6 +370,12 @@ var lineConf = {
 
     function dragstart(d) {
         d3.select(this).classed("fixed", d.fixed = true);
+        d3.event.sourceEvent.stopPropagation();
+    }
+
+    function zoomFn() {
+        var { translate, scale } = d3.event;
+        container.attr('transform', 'translate(' + translate + ')scale(' + scale + ')');
     }
 
     function keyflip() {
@@ -376,12 +385,12 @@ var lineConf = {
     function circle() {
         this.each(function (d, i) {
             var style = circleStyle[d.ntype];
-            var dom = d3.select(this)
+            var dom = d3.select(this);
             for (var i in style) {
-                dom.attr(i, style[i])
+                dom.attr(i, style[i]);
             }
-            d.r = dom.attr('r')
-        })
+            d.r = dom.attr('r');
+        });
     }
 
     function setLinePath(
@@ -414,7 +423,7 @@ var lineConf = {
         return {
             source: [(isY ? sourceX + a : sourceX - a) - rx, (isY ? sourceY + ry : sourceY - ry) + b],
             target: [(isY ? targetX + a : targetX - a) + rx, (isY ? targetY - ry : targetY + ry) + b]
-        }
+        };
     }
 
     var circleStyle = {
@@ -432,30 +441,31 @@ var lineConf = {
         link.each(function (d) {
             d.relation.forEach(function (d) {
                 delete d.behavior;
-            })
-        })
+            });
+        });
     }
 
     function d3render(link) {
         clearAni();
+
         link.filter(function (d) {
             return !d.filter;
         }).each(function (link) {
             var i = 0;
             var _dom = d3.select(this);
+
             var dom = _dom.selectAll('line').filter(function (d) {
                 return (!d.filter) && (d.type == 'INVEST_C' || d.type == 'TELPHONE');
             });
+
             dom.each(function (d) {
                 d.behavior = _dom.append('circle').attr('r', function (d, i) {
                     return amoutIdentity(d.relation[i].amout) || 5
                 }).classed('behavior', true);
-            })
+            });
+
             ani.start(function () {
-
-
                 dom.each(function (d, index) {
-
                     var dom = d3.select(this);
                     var x1 = parseInt(dom.attr('x1'));
                     var y1 = parseInt(dom.attr('y1'));
@@ -465,12 +475,12 @@ var lineConf = {
                     var x = x1 + ((i % 200) / 199) * (x2 - x1);
                     var y = y1 + ((i % 200) / 199) * (y2 - y1);
 
-                    if (x && y) d.behavior.attr('cx', x).attr('cy', y)
-                })
-
-                i++
-            }, 90)
-        })
+                    if (x && y)
+                        d.behavior.attr('cx', x).attr('cy', y)
+                });
+                i++;
+            }, 90);
+        });
     }
 
     function toggleMask(isShow = true) {
@@ -483,20 +493,18 @@ var lineConf = {
                 graph.appendChild(loadingMask);
             }
             const mask = `` +
-                `
-              <div class="loader">
-                <div class="loading-anim">
-                  <i></i>
-                  <i></i>
-                  <i></i>
-                  <i></i>
-                  <i></i>
-                  <i></i>
-                  <i></i>
-                  <i></i>
-                </div>
-              </div>
-          `;
+                `<div class="loader">
+                    <div class="loading-anim">
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                    </div>
+                </div>`;
             loadingMask.innerHTML = mask;
             loadingMask.style.cssText = 'display: flex';
         } else {
@@ -507,4 +515,4 @@ var lineConf = {
         }
     }
 
-})(window)
+})(window);

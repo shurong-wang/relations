@@ -48,7 +48,7 @@ var nodesList, linksList;
     toggleMask(true);
 
     // var url = api('getTimeLine', {companyId: companyId});
-    var url = 'asset/data.json';
+    var url = 'asset/timeline.json';
 
     d3.json(url, function (error, graph) {
         if (error) {
@@ -161,7 +161,7 @@ var nodesList, linksList;
     var amoutIdentity;
 
     // var url = api('getTimeLine', {companyId: companyId});
-    var url = 'asset/data.json';
+    var url = 'asset/timeline.json';
 
     d3.json(url, function (error, graph) {
         if (typeof graph === 'string') {

@@ -86,10 +86,10 @@ var nodesList, linksList;
         .attr('class', 'container')
         .attr('opacity', 0);
 
-    var link = container.selectAll(".link"),
-        node = container.selectAll(".node");
-
-    var span = d3.select('body').append('span')
+    var link = container.selectAll(".link");
+    var marker = container.selectAll('.marker');
+    var node = container.selectAll(".node");
+    var textSpan = d3.select('body').append('span')
         .style('font-size', '12px')
         .style('line-height', '12px');
 
@@ -104,12 +104,16 @@ var nodesList, linksList;
         orient: "auto"
     };
 
-    container.selectAll('.marker').data(['SERVE', 'INVEST_C', 'OWN', 'TELPHONE']).enter()
+    marker
+        .data(['SERVE', 'INVEST_C', 'OWN', 'TELPHONE'])
+        .enter()
         .append('marker')
-        .attr('id', function (d) {
-            var dom = d3.select(this);
-            for (var i in markerStyle) dom.attr(i, markerStyle[i])
-            return d
+        .attr('id', function (linkType) {
+            var thisMarker = d3.select(this);
+            for (var styleKey in markerStyle) {
+                thisMarker.attr(styleKey, markerStyle[styleKey]);
+            }
+            return linkType;
         })
         .append('path')
         .attr('d', 'M2,2 L10,6 L2,10 L6,6 L2,2');
@@ -180,9 +184,16 @@ var nodesList, linksList;
                 amout: d.amout,
                 starDate: d.starDate
             });
-            if (d.amout) amoutList.push(d.amout);
+            if (d.amout) {
+                amoutList.push(d.amout);
+            }
         });
-        amoutIdentity = d3.scale.linear().range([8, 15]).domain(d3.extent(amoutList))
+
+        // 比例尺
+        amoutIdentity = d3.scale.linear()
+            .range([8, 15])
+            .domain(d3.extent(amoutList));
+
         for (var i in linksObj) {
             linksList.push(linksObj[i]);
         }
@@ -209,13 +220,12 @@ var nodesList, linksList;
             .enter().append("g")
             .attr("class", "link")
             .each(function (link) {
-                var g = d3.select(this);
-                var lineEnter = g.selectAll('.line').data(link.relation).enter();
+                var lineEnter = d3.select(this).selectAll('.line').data(link.relation).enter();
                 lineEnter.append('line').each(function (d) {
                     d3.select(this).classed(d.type, true).attr("marker-end", "url(#" + d.type + ")");;
                 });
                 lineEnter.append('text').text(function (d) {
-                    return d.label
+                    return d.label;
                 });
             });
 
@@ -223,20 +233,22 @@ var nodesList, linksList;
             .enter().append("g")
             .attr("class", "node");
 
-        var s = span.node();
+        var nodeText = textSpan.node();
 
         node.each(function (d) {
             var node = d3.select(this).append('circle')
                 .call(circle);
             var text = d3.select(this).append('text')
                 .text(function (d) {
-                    var s = d.name
-                    if (s.length > 6) return s.substr(0, 6);
-                    return s;
+                    var nodeName = d.name;
+                    if (nodeName.length > 6) {
+                        return nodeName.substr(0, 6);
+                    }
+                    return nodeName;
                 })
                 .attr('transform', function () {
-                    s.innerText = d.name;
-                    return 'translate(' + [0, s.offsetHeight / 4] + ')';
+                    nodeText.innerText = d.name;
+                    return 'translate(' + [0, nodeText.offsetHeight / 4] + ')';
                 });
             d3.select(this).classed(d.ntype, true);
         })
@@ -258,27 +270,41 @@ var nodesList, linksList;
         newList = link.data().map(function (d) {
             return d.relation.filter(function (d) {
                 return d.filter
-            }).map(function (d) {
-                return d;
-            }).join();
+            })
+                .map(function (d) {
+                    return d;
+                }).join();
         }).sort().join();
+
         node.each(function (d) {
             d3.select(this).classed('filter', d.filter);
             d3.select(this).classed('selected', d.selected);
         });
+
         link.each(function (d) {
             d3.select(this).selectAll('line').each(function (d) {
                 d3.select(this).classed('filter', d.filter);
                 d3.select(this).classed('selected', d.selected);
             });
         });
-        if (oldList != newList) d3render(link);
+
+        if (oldList != newList) {
+            d3render(link);
+        }
+
         oldList = newList;
     }
 
     function tick() {
+        node.attr("transform", function (d) {
+            return "translate(" + [d.x, d.y] + ")"
+        });
+
         link.each(function (link) {
-            var r = link.source.r;
+            var sr = +link.source.r;
+            var tr = +link.target.r;
+            var r = sr;
+
             var b1 = link.target.x - link.source.x;
             var b2 = link.target.y - link.source.y;
             var b3 = Math.sqrt(b1 * b1 + b2 * b2);
@@ -301,7 +327,6 @@ var nodesList, linksList;
             var index = 0;
 
             d3.select(this).selectAll('line').each(function (d, i) {
-
                 // 生成 20 0 -20 的 position 模式
                 var position = start + space * index++;
 
@@ -323,16 +348,17 @@ var nodesList, linksList;
                 d3.select(this).attr('x2', d.targetX = position.target[0]);
                 d3.select(this).attr('y2', d.targetY = position.target[1]);
             });
+
             d3.select(this).selectAll('text').attr('transform', function (d) {
                 var x = d.sourceX + (d.targetX - d.sourceX) / 2;
-
                 var y = d.sourceY + (d.targetY - d.sourceY) / 2;
                 var textAngle = d.parent.textAngle;
                 var textRotate = (textAngle > 90 || textAngle < -90) ? (180 + textAngle) : textAngle;
                 return ['translate(' + [x, y] + ')', 'rotate(' + textRotate + ')'].join(' ');
             });
-        })
-            .attr("x1", function (d) {
+        });
+
+        link.attr("x1", function (d) {
                 return d.source.x;
             })
             .attr("y1", function (d) {
@@ -344,9 +370,6 @@ var nodesList, linksList;
             .attr("y2", function (d) {
                 return d.target.y;
             });
-        node.attr("transform", function (d) {
-            return "translate(" + [d.x, d.y] + ")"
-        });
     }
 
     function dblclick(d) {
@@ -368,13 +391,13 @@ var nodesList, linksList;
     }
 
     function circle() {
-        this.each(function (d, i) {
-            var style = circleStyle[d.ntype];
-            var dom = d3.select(this);
-            for (var i in style) {
-                dom.attr(i, style[i]);
+        this.each(function (node, i) {
+            var style = circleStyle[node.ntype];
+            var thisNode = d3.select(this);
+            for (var styleKey in style) {
+                thisNode.attr(styleKey, style[styleKey]);
             }
-            d.r = dom.attr('r');
+            node.r = thisNode.attr('r');
         });
     }
 
@@ -460,8 +483,9 @@ var nodesList, linksList;
                     var x = x1 + ((i % 200) / 199) * (x2 - x1);
                     var y = y1 + ((i % 200) / 199) * (y2 - y1);
 
-                    if (x && y)
-                        d.behavior.attr('cx', x).attr('cy', y)
+                    if (x && y) {
+                        d.behavior.attr('cx', x).attr('cy', y);
+                    }
                 });
                 i++;
             }, 90);

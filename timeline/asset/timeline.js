@@ -8,7 +8,7 @@ function clearChange() {
     tl.clearBrush();
 }
 
-// var url = api('getTimeLine', {companyId: companyId});
+// var url = api('getTimeLine', {companyId: 1000});
 var url = 'asset/timeline.json';
 
 var nodesList, linksList;

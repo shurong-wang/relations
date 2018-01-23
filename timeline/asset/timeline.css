@@ -80,7 +80,7 @@ circle {
 
 .link .TELPHONE {
     fill: rgb(1, 194, 106);
-    stroke:rgb(1, 194, 106);
+    stroke: rgb(1, 194, 106);
     stroke-width: 2px;
 }
 
@@ -96,7 +96,7 @@ circle {
 }
 
 #SERVE {
-    fill:rgb(106, 220, 254);
+    fill: rgb(106, 220, 254);
 }
 
 #INVEST_C {
@@ -148,7 +148,7 @@ circle {
     width: 100%;
     bottom: 0;
     user-select: none;
-    background-color:rgba(237, 240, 239, .7);
+    background-color: rgba(237, 240, 239, .7);
 }
 
 .timeline-bar .axis path {
@@ -195,9 +195,9 @@ circle {
 }
 
 .timeline-bar .extent {
-    fill: #000;
-    stroke: #929292;
-    fill-opacity: .125;
+    fill: rgb(8, 147, 228);
+    stroke: rgb(7, 117, 180);
+    fill-opacity: .25;
     shape-rendering: crispEdges;
 }
 
@@ -396,10 +396,6 @@ circle {
     background-color: rgba(180, 180, 180, .2);
     z-index: 999;
     filter: alpha(opacity=60);
-}
-
-#timeline-mask {
-    top: 68px;
 }
 
 .loader {

@@ -134,12 +134,12 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
 
     brush.selectAll("rect")
         .attr('height', this.height);
-        
+
     brush.selectAll(".resize").append('path')
         .attr("class", "handle--custom")
-        .attr("fill", "#666")
+        .attr("fill", "rgb(8, 147, 228)")
         .attr("fill-opacity", 0.8)
-        .attr("stroke", "#000")
+        .attr("stroke", "rgb(7, 117, 180)")
         .attr("stroke-width", 1.5)
         .attr("cursor", "ew-resize")
         .attr("d", d3.svg.arc()
@@ -485,12 +485,16 @@ TimelineBar.prototype.hideSelect = function () {
     this.chart_bounds.style('display', 'block');
 }
 TimelineBar.prototype.clearBrush = function () {
-    this.chart_brush.call(this.brush.clear());
-    this.broadcastBrush();
+    if (this.chart_brush) {
+        this.chart_brush.call(this.brush.clear());
+        this.broadcastBrush();
+    }
 }
 TimelineBar.prototype.setBrush = function (start, end) {
-    this.chart_brush.call(this.brush.extent(arguments));
-    this.broadcastBrush();
+    if (this.chart_brush) {
+        this.chart_brush.call(this.brush.extent(arguments));
+        this.broadcastBrush();
+    }
 }
 TimelineBar.prototype.broadcastBrush = function () {
     this.brush.event(this.chart_brush);

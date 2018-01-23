@@ -41,11 +41,6 @@
             "ntype": "Company"
         },
         {
-            "id": 1000049591,
-            "name": "张燕燕",
-            "ntype": "Human"
-        },
-        {
             "id": 1000054620,
             "name": "张凯",
             "ntype": "Human"
@@ -91,11 +86,6 @@
             "ntype": "Human"
         },
         {
-            "id": 1000572142,
-            "name": "陈朝",
-            "ntype": "Human"
-        },
-        {
             "id": 1000576618,
             "name": "何戬",
             "ntype": "Human"
@@ -123,11 +113,6 @@
         {
             "id": 1000042649,
             "name": "李玉琢",
-            "ntype": "Human"
-        },
-        {
-            "id": 1000687991,
-            "name": "李国贤",
             "ntype": "Human"
         },
         {
@@ -479,6 +464,46 @@
             "label": "副总经理",
             "starDate": "2014-02-01",
             "type": "SERVE"
+        },
+        {
+            "id": 10000000037,
+            "startNode": 1000572142,
+            "endNode": 1000687991,
+            "label": "通话",
+            "starDate": "2014-02-01",
+            "type": "TELPHONE"
+        },
+        {
+            "id": 10000000037,
+            "startNode": 1000055424,
+            "endNode": 1000049591,
+            "label": "通话",
+            "starDate": "2014-02-01",
+            "type": "TELPHONE"
+        },
+        {
+            "id": 10000000037,
+            "startNode": 1000687991,
+            "endNode": 1000049591,
+            "label": "通话",
+            "starDate": "2014-02-01",
+            "type": "TELPHONE"
+        },
+        {
+            "id": 10000000037,
+            "startNode": 1000687991,
+            "endNode": 1000054620,
+            "label": "通话",
+            "starDate": "2014-02-01",
+            "type": "TELPHONE"
+        },
+        {
+            "id": 10000000037,
+            "startNode": 1000054620,
+            "endNode": 1000687991,
+            "label": "通话",
+            "starDate": "2014-02-01",
+            "type": "TELPHONE"
         }
     ]
 }

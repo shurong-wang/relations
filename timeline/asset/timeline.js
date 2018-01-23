@@ -8,6 +8,9 @@ function clearChange() {
     tl.clearBrush();
 }
 
+// var url = api('getTimeLine', {companyId: companyId});
+var url = 'asset/timeline.json';
+
 var nodesList, linksList;
 
 (function (window) {
@@ -44,54 +47,7 @@ var nodesList, linksList;
         // ,enableLiveTimer:true
     };
 
-
     toggleMask(true);
-
-    // var url = api('getTimeLine', {companyId: companyId});
-    var url = 'asset/timeline.json';
-
-    d3.json(url, function (error, graph) {
-        if (error) {
-            toggleMask(false);
-            return console.error(error);
-        }
-        var data = [],
-            obj = {};
-
-        if (typeof graph === 'string') {
-            graph = JSON.parse(graph);
-        }
-
-        if (graph.relations) graph.relations.forEach(function (d) {
-            obj[d.starDate] = obj[d.starDate] ? obj[d.starDate] + 1 : 1;
-        })
-
-        for (var i in obj) {
-
-            data.push({
-                at: new Date(i),
-                value: obj[i],
-                type: 'bar'
-            })
-        }
-        var d = [
-            // {
-            //   label: 'Name',
-            //   data:[{
-            //     at: new Date(),
-            //     type: 'point',
-            //     key: '123'
-            //   }]
-            // },
-            {
-                label: 'bar',
-                data: data
-            }
-        ];
-        tl.reDraw(d, tlOptions);
-        // tl.showSelect()
-    });
-
 
     var padding = -10;
     var ani = new animation();
@@ -164,9 +120,38 @@ var nodesList, linksList;
     var url = 'asset/timeline.json';
 
     d3.json(url, function (error, graph) {
+
+        if (error) {
+            toggleMask(false);
+            return console.error(error);
+        }
+
         if (typeof graph === 'string') {
             graph = JSON.parse(graph);
         }
+
+        // --> 时间轴工具条
+        var data = [];
+        var obj = {};
+        if (graph.relations) graph.relations.forEach(function (d) {
+            obj[d.starDate] = obj[d.starDate] ? obj[d.starDate] + 1 : 1;
+        })
+
+        for (var i in obj) {
+            data.push({
+                at: new Date(i),
+                value: obj[i],
+                type: 'bar'
+            })
+        }
+        var d = [{
+            label: 'bar',
+            data: data
+        }];
+        tl.reDraw(d, tlOptions);
+        // tl.showSelect()
+
+        // --> 时间轴工具条
         nodesList = JSON.parse(JSON.stringify(graph.nodes));
         var nodesObj = {};
         linksList = [];

@@ -210,8 +210,12 @@
                         <div id="timelineBox"></div>
                         <div id="timelineHandle">
                             <label class="switch">
+                                <input id="offZoom" type="checkbox" checked onchange="zoomChange(this)">
+                                <span data-on="选取节点" data-off="平移缩放"></span>
+                            </label>
+                            <label class="switch">
                                 <input type="checkbox" onchange="selectChange(this)">
-                                <span data-on="选择范围" data-off="固定范围"></span>
+                                <span data-on="选取范围" data-off="滑动刻度"></span>
                             </label>
                             <a href="javascript:void(0);" onclick="clearChange()" class="button-clear green-clear">
                                 清除范围

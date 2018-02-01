@@ -1,5 +1,9 @@
 var tl = new TimelineBar(d3.select('#timelineBox').node());
 
+function zoomChange(el) {
+    d3.select('.zoom-overlay').style('display', el.checked ? 'none' : 'block');
+}
+
 function selectChange(el) {
     el.checked ? tl.showSelect() : tl.hideSelect();
 }
@@ -50,6 +54,7 @@ function fetchTimeLine(companyId) {
     // var url = '../js/config/data/timeline.json';
     var url = api('getTimeLine', { companyId: companyId });
 
+    var isOnGraphElement = false;
     var padding = -10;
     var ani = new animation();
 
@@ -60,29 +65,32 @@ function fetchTimeLine(companyId) {
         .charge(-400)
         .linkDistance(200)
         .charge(-800)
-        .on("tick", tick);
+        .on('tick', tick);
 
     var drag = force.drag()
-        .on("dragstart", dragstart);
+        .on('dragstart', dragstart);
 
     var zoom = d3.behavior.zoom()
         .scaleExtent([0.25, 2])
         .on('zoom', zoomFn);
 
-    var svg = d3.select("#relation").append("svg")
-        .attr("class", 'svgCanvas')
-        .attr("width", width)
-        .attr("height", height)
+    var svg = d3.select('#relation').append('svg')
+        .attr('class', 'svgCanvas')
+        .attr('width', width)
+        .attr('height', height)
         .append('g')
         .call(zoom)
         .on('dblclick.zoom', null);
-        
+
+    const zoomOverlay = svg.append('rect')
+        .attr('class', 'zoom-overlay');
+
     const container = svg.append('g')
         .attr('class', 'container')
         .attr('opacity', 0);
 
-    var link = container.selectAll(".link"),
-        node = container.selectAll(".node");
+    var link = container.selectAll('.link'),
+        node = container.selectAll('.node');
 
     var span = d3.select('body').append('span')
         .style('font-size', '12px')
@@ -90,13 +98,13 @@ function fetchTimeLine(companyId) {
 
     var markerList = [];
     var markerStyle = {
-        markerUnits: "strokeWidth",
-        markerWidth: "12",
-        markerHeight: "12",
-        viewBox: "0 0 12 12",
-        refX: "10",
-        refY: "6",
-        orient: "auto"
+        markerUnits: 'strokeWidth',
+        markerWidth: '12',
+        markerHeight: '12',
+        viewBox: '0 0 12 12',
+        refX: '10',
+        refY: '6',
+        orient: 'auto'
     };
 
     container.selectAll('.marker').data(['SERVE', 'INVEST_C', 'OWN', 'TELPHONE']).enter()
@@ -226,22 +234,30 @@ function fetchTimeLine(companyId) {
             .start();
 
         link = link.data(linksList)
-            .enter().append("g")
-            .attr("class", "link")
+            .enter().append('g')
+            .attr('class', 'link')
             .each(function (link) {
                 var g = d3.select(this);
                 var lineEnter = g.selectAll('.line').data(link.relation).enter();
                 lineEnter.append('line').each(function (d) {
-                    d3.select(this).classed(d.type, true).attr("marker-end", "url(#" + d.type + ")");;
+                    d3.select(this).classed(d.type, true).attr('marker-end', 'url(#' + d.type + ')');;
                 });
                 lineEnter.append('text').text(function (d) {
                     return d.label
                 });
             });
 
+        link
+            .on('mouseenter', function () {
+                isOnGraphElement = true;
+            })
+            .on('mouseleave', function () {
+                isOnGraphElement = false;
+            });
+
         node = node.data(nodesList)
-            .enter().append("g")
-            .attr("class", "node");
+            .enter().append('g')
+            .attr('class', 'node');
 
         var s = span.node();
 
@@ -259,12 +275,20 @@ function fetchTimeLine(companyId) {
                     return 'translate(' + [0, s.offsetHeight / 4] + ')';
                 });
             d3.select(this).classed(d.ntype, true);
-        })
-            .on("dblclick", dblclick)
+        });
+
+        node
+            .on('dblclick', dblclick)
+            .on('mouseenter', function () {
+                isOnGraphElement = true;
+            })
+            .on('mouseleave', function () {
+                isOnGraphElement = false;
+            })
             .call(drag);
 
-        const zoomOverlay = svg.append('rect')
-            .attr('class', 'zoom-overlay');
+        // const zoomOverlay = svg.append('rect')
+        //     .attr('class', 'zoom-overlay');
 
         reStatus();
 
@@ -353,33 +377,37 @@ function fetchTimeLine(companyId) {
                 return ['translate(' + [x, y] + ')', 'rotate(' + textRotate + ')'].join(' ');
             });
         })
-            .attr("x1", function (d) {
+            .attr('x1', function (d) {
                 return d.source.x;
             })
-            .attr("y1", function (d) {
+            .attr('y1', function (d) {
                 return d.source.y;
             })
-            .attr("x2", function (d) {
+            .attr('x2', function (d) {
                 return d.target.x;
             })
-            .attr("y2", function (d) {
+            .attr('y2', function (d) {
                 return d.target.y;
             });
-        node.attr("transform", function (d) {
-            return "translate(" + [d.x, d.y] + ")"
+        node.attr('transform', function (d) {
+            return 'translate(' + [d.x, d.y] + ')'
         });
     }
 
     function dblclick(d) {
-        d3.select(this).classed("fixed", d.fixed = false);
+        d3.select(this).classed('fixed', d.fixed = false);
     }
 
     function dragstart(d) {
-        d3.select(this).classed("fixed", d.fixed = true);
+        d3.select(this).classed('fixed', d.fixed = true);
         d3.event.sourceEvent.stopPropagation();
     }
 
     function zoomFn() {
+        var off = d3.select('#offZoom').property('checked');
+        if (off) {
+            return;
+        }
         var { translate, scale } = d3.event;
         container.attr('transform', 'translate(' + translate + ')scale(' + scale + ')');
     }

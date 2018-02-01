@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Dashboard Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./asset/iconfont/iconfont.css">
+    <link rel="stylesheet" href="./asset/updateRelation.css">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+    <div class="content">
+        <aside class="sidebar">
+            <div class="logo"></div>
+            <div class="left-menu">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="-active">
+                        <a href="#search" aria-controls="search" role="tab" data-toggle="tab">
+                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                            <label>搜索</label>
+                        </a>
+                    </li>
+                    <li role="presentation" class="active">
+                        <a href="#import" aria-controls="import" role="tab" data-toggle="tab">
+                            <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+                            <label>导入</label>
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane -active search-pane" id="search">
+                        <div class="input-group search-input-group">
+                            <input type="text" class="form-control" placeholder="请输入公司名">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button">
+                                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                                </button>
+                            </span>
+                        </div>
+
+                        <dl class="search-list">
+                            <dt>搜索结果：</dt>
+                            <dd>
+                                <ul>
+                                    <li>
+                                        <a href="">中国科学技术信息研究所</a>
+                                        <a role="button" href="javascript:void;">
+                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                        </a>
+
+                                    </li>
+                                    <li>注册资本：未知</li>
+                                    <li>法人： 未知</li>
+                                    <li>注册时间： 0000-00-00 00:00:00:00</li>
+                                </ul>
+                            </dd>
+                            <dd>
+                                <ul>
+                                    <li>
+                                        <a href="">科学技术文献出版社</a>
+                                        <a role="button" href="javascript:void;">
+                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                        </a>
+                                        <span class="pull-right">[北京]</span>
+                                    </li>
+                                    <li>注册资本：300万</li>
+                                    <li>法人： 胡红亮</li>
+                                    <li>注册时间： 1998-07-07 00:00:00:00</li>
+                                </ul>
+                            </dd>
+                        </dl>
+                    </div>
+                    <div role="tabpanel" class="tab-pane active import-pane" id="import">
+                        <ul class="import-list">
+                            <li>
+                                <dl>
+                                    <dt>
+                                        企业工商信息库（已公开）
+                                        <button type="button" class="btn btn-primary btn-xs pull-right" disabled="disabled">导入</button>
+                                    </dt>
+                                    <dd>
+                                        <small class="hidden">涵盖全国各省市企业机构的工商信息</small>
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="80" aria-valuemin="0"
+                                                aria-valuemax="100" style="width: 80%">
+                                                <span class="-sr-only">Progress: 80%</span>
+                                            </div>
+                                        </div>
+                                    </dd>
+                                </dl>
+                            </li>
+                            <li>
+                                <dl>
+                                    <dt>
+                                        诉讼信息数据库（已公开）
+                                        <button type="button" class="btn btn-primary btn-xs pull-right" disabled="disabled">导入</button>
+                                    </dt>
+                                    <dd>
+                                        <small>主要包含各省市各级法院一级最高人民法院的民事/刑事判决书以及涉事方关系</small>
+                                        <div class="progress hidden">
+                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="80" aria-valuemin="0"
+                                                aria-valuemax="100" style="width: 80%">
+                                                <span class="-sr-only">Progress: 80%</span>
+                                            </div>
+                                        </div>
+                                    </dd>
+                                </dl>
+                            </li>
+                            <li>
+                                <dl>
+                                    <dt>
+                                        银行交易信息数据库
+                                        <button type="button" class="btn btn-primary btn-xs pull-right">导入</button>
+                                    </dt>
+                                    <dd>
+                                        <small>主要包含人员、账号信息、以及账号之间的转账信息信息</small>
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="80" aria-valuemin="0"
+                                                aria-valuemax="100" style="width: 80%">
+                                                <span class="-sr-only">Progress: 80%</span>
+                                            </div>
+                                        </div>
+                                    </dd>
+                                </dl>
+                            </li>
+                            <li>
+                                <dl>
+                                    <dt>
+                                        通信记录数据库
+                                        <button type="button" class="btn btn-primary btn-xs pull-right">导入</button>
+                                    </dt>
+                                    <dd>
+                                        <small>主要包含人员手机通信记录</small>
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="80" aria-valuemin="0"
+                                                aria-valuemax="100" style="width: 80%">
+                                                <span class="-sr-only">Progress: 80%</span>
+                                            </div>
+                                        </div>
+                                    </dd>
+                                </dl>
+                            </li>
+                            <li>
+                                <dl>
+                                    <dt>
+                                        户籍信息数据库
+                                        <button type="button" class="btn btn-primary btn-xs pull-right">导入</button>
+                                    </dt>
+                                    <dd>
+                                        <small>主要包含人会员的户籍详细信息及户籍关系信息</small>
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="80" aria-valuemin="0"
+                                                aria-valuemax="100" style="width: 80%">
+                                                <span class="-sr-only">Progress: 80%</span>
+                                            </div>
+                                        </div>
+                                    </dd>
+                                </dl>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div id="main" class="main">
+            <div class="poster hidden"></div>
+            <div class="graph">
+                <div class="graph-tools">
+                    <span id="fullScreen" role="button" class="icon iconfont icon-full-screen"></span>
+                    <span id="exitScreen" role="button" class="icon iconfont icon-exit-full-screen hidden"></span>
+                </div>
+                <div class="graph-canvas"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="asset/screenfull.js"></script>
+    <script src="asset/updateRelation.js"></script>
+</body>
+
+</html>

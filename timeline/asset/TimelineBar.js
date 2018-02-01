@@ -122,7 +122,7 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
         this.brush.extent(extent);
 
     this._svg = this._svg || d3.select(this.element).append('svg');
-    this._svg.style('width', '100%')
+    this._svg
         .attr('width', this.width + this.margin.left + this.margin.right)
         .attr('height', this.height + this.margin.top + this.margin.bottom);
     this.svg = this.svg || this._svg.append('g');
@@ -134,7 +134,7 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
 
     brush.selectAll("rect")
         .attr('height', this.height);
-
+        
     brush.selectAll(".resize").append('path')
         .attr("class", "handle--custom")
         .attr("fill", "rgb(8, 147, 228)")

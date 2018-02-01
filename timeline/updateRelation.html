@@ -9,11 +9,12 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Dashboard Template for Bootstrap</title>
+    <title>动态更新+时间轴</title>
 
     <!-- Bootstrap core CSS -->
     <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./asset/iconfont/iconfont.css">
+    <link rel="stylesheet" href="./asset/timelineV2.css">
     <link rel="stylesheet" href="./asset/updateRelation.css">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -21,6 +22,8 @@
       <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+
+    <script src="./asset/api.js"></script>
 </head>
 
 <body>
@@ -99,8 +102,8 @@
                                     <dd>
                                         <small class="hidden">涵盖全国各省市企业机构的工商信息</small>
                                         <div class="progress">
-                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="80" aria-valuemin="0"
-                                                aria-valuemax="100" style="width: 80%">
+                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"
+                                                style="width: 80%">
                                                 <span class="-sr-only">Progress: 80%</span>
                                             </div>
                                         </div>
@@ -116,8 +119,8 @@
                                     <dd>
                                         <small>主要包含各省市各级法院一级最高人民法院的民事/刑事判决书以及涉事方关系</small>
                                         <div class="progress hidden">
-                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="80" aria-valuemin="0"
-                                                aria-valuemax="100" style="width: 80%">
+                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"
+                                                style="width: 80%">
                                                 <span class="-sr-only">Progress: 80%</span>
                                             </div>
                                         </div>
@@ -133,8 +136,8 @@
                                     <dd>
                                         <small>主要包含人员、账号信息、以及账号之间的转账信息信息</small>
                                         <div class="progress">
-                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="80" aria-valuemin="0"
-                                                aria-valuemax="100" style="width: 80%">
+                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"
+                                                style="width: 80%">
                                                 <span class="-sr-only">Progress: 80%</span>
                                             </div>
                                         </div>
@@ -150,8 +153,8 @@
                                     <dd>
                                         <small>主要包含人员手机通信记录</small>
                                         <div class="progress">
-                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="80" aria-valuemin="0"
-                                                aria-valuemax="100" style="width: 80%">
+                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"
+                                                style="width: 80%">
                                                 <span class="-sr-only">Progress: 80%</span>
                                             </div>
                                         </div>
@@ -167,8 +170,8 @@
                                     <dd>
                                         <small>主要包含人会员的户籍详细信息及户籍关系信息</small>
                                         <div class="progress">
-                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="80" aria-valuemin="0"
-                                                aria-valuemax="100" style="width: 80%">
+                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"
+                                                style="width: 80%">
                                                 <span class="-sr-only">Progress: 80%</span>
                                             </div>
                                         </div>
@@ -182,14 +185,43 @@
         </aside>
 
         <div id="main" class="main">
-            <div class="poster hidden"></div>
             <div class="graph">
                 <div class="graph-tools">
                     <span id="fullScreen" role="button" class="icon iconfont icon-full-screen"></span>
                     <span id="exitScreen" role="button" class="icon iconfont icon-exit-full-screen hidden"></span>
                 </div>
-                <div class="graph-canvas"></div>
+                <div class="graph-canvas">
+                    <div class="timeline-legend">
+                        <div class="timeline-legend-company">
+                            <span>公司</span>
+                            <i></i>
+                        </div>
+                        <div class="timeline-legend-investor">
+                            <span>投资人</span>
+                            <i></i>
+                        </div>
+                        <div class="timeline-legend-flows">
+                            <span>数据流向</span>
+                            <i></i>
+                        </div>
+                    </div>
+                    <div id="relation"></div>
+                    <div id="timeline">
+                        <div id="timelineBox"></div>
+                        <div id="timelineHandle">
+                            <label class="switch">
+                                <input type="checkbox" onchange="selectChange(this)">
+                                <span data-on="选择范围" data-off="固定范围"></span>
+                            </label>
+                            <a href="javascript:void(0);" onclick="clearChange()" class="button-clear green-clear">
+                                清除范围
+                                <i class="icon iconfont icon-clear"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
+            <div class="poster hidden"></div>
         </div>
     </div>
 
@@ -199,6 +231,10 @@
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="asset/screenfull.js"></script>
+    <script src="asset/animation.js"></script>
+    <script src="asset/d3.v3.min.js"></script>
+    <script src="asset/TimelineBar.js"></script>
+    <script src="asset/timelineV2.js"></script>
     <script src="asset/updateRelation.js"></script>
 </body>
 

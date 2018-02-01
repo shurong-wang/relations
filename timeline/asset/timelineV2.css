@@ -10,6 +10,14 @@ div {
     box-sizing: border-box;
 }
 
+.zoom-overlay {
+    fill: rgba(21, 17, 30, .3);
+    width: 150px;
+    height: 100px;
+    pointer-events: fill;
+    cursor: move;
+}
+
 circle {
     /* fill-opacity: 0.2; */
     transition: fill-opacity 250ms linear;
@@ -18,6 +26,7 @@ circle {
 .node {
     stroke: #fff;
     stroke-width: 1.5px;
+    cursor: pointer;
 }
 
 .node .selected {
@@ -80,7 +89,7 @@ circle {
 
 .link .TELPHONE {
     fill: rgb(1, 194, 106);
-    stroke: rgb(1, 194, 106);
+    stroke:rgb(1, 194, 106);
     stroke-width: 2px;
 }
 
@@ -96,7 +105,7 @@ circle {
 }
 
 #SERVE {
-    fill: rgb(106, 220, 254);
+    fill:rgb(106, 220, 254);
 }
 
 #INVEST_C {
@@ -123,8 +132,6 @@ circle {
 }
 
 #relation {
-    width: 100%;
-    height: 100%;
     top: 0;
     left: 0;
     right: 0;
@@ -138,6 +145,8 @@ circle {
 
 #timeline {
     display: flex;
+    opacity: 0;
+    width: 100%;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -145,10 +154,9 @@ circle {
     padding-top: 6px;
     border-top: 1px solid #ccc;
     position: absolute;
-    width: 100%;
     bottom: 0;
     user-select: none;
-    background-color: rgba(237, 240, 239, .7);
+    background-color:rgba(237, 240, 239, .7);
 }
 
 .timeline-bar .axis path {
@@ -206,6 +214,7 @@ circle {
 }
 
 .timeline-legend {
+    opacity: 0;
     position: absolute;
     bottom: 100px;
     left: 50px;
@@ -396,6 +405,10 @@ circle {
     background-color: rgba(180, 180, 180, .2);
     z-index: 999;
     filter: alpha(opacity=60);
+}
+
+#timeline-mask {
+    top: 68px;
 }
 
 .loader {

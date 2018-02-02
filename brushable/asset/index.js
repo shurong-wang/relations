@@ -14,7 +14,7 @@ var brush = svg.append("g").attr("class", "brush");
 
 var node = svg.append("g").attr("class", "node").selectAll("circle");
 
-d3.json("graph.json", function (error, graph) {
+d3.json("asset/graph.json", function (error, graph) {
     if (error) throw error;
 
     graph.links.forEach(function (d) {

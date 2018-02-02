@@ -1,4 +1,7 @@
 $(function () {
+    /**
+     * 全屏切换
+     */
     if (!screenfull.enabled) {
         console.error('您的浏览器不支持全屏操作');
         return false;
@@ -39,12 +42,50 @@ $(function () {
         }
     });
 
+    /* -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- */
+
+    /**
+     * 导入数据
+     */
+    var $importItem = $('#import dl');
+    $importItem.one('click', 'button', function () {
+        $(this).addClass('disabled');
+        var id = $(this).parents('dl').attr('id');
+        var $describe = $('#' + id).find('small');
+        var $progress = $('#' + id).find('.progress');
+        $describe.addClass('hidden');
+        $progress.removeClass('hidden');
+
+        var start = 0;
+        var rate = .61;
+        var end = 100;
+        var progress = start;
+        var text = '0%';
+
+        var step = function () {
+            progress += rate;
+            progress = Math.min(Math.round(progress * 10) / 10, 100.0);
+            text = progress === 100.0 ? 'Complete' : progress + '%';
+            $progress.find('.progress-bar').width(progress + '%');
+            $progress.find('.progress-bar span').text(text);
+            if (progress < 100) {
+                requestAnimationFrame(step);
+            }
+        }
+        requestAnimationFrame(step);
+    });
+
+
+    /* -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- */
+
+    /**
+     * 渲染图形
+    */
     // 获取数据 && 绘制时间轴
     function getTimeLine(event) {
         cleanUpCanvas();
         fetchTimeLine(1);
     }
-
 
     getTimeLine(event);
 });

@@ -265,15 +265,34 @@ body {
     border-radius: 1px;
 }
 
-.import-list .progress-bar-striped,
-.import-list .progress-striped .progress-bar {
-    -webkit-background-size: 20px 20px;
-    background-size: 20px 20px;
+.import-list .progress-bar {
+    /* -webkit-transition: width .017s ease-in-out;
+    -o-transition: width .017s ease-in-out;
+    transition: width .017s ease-in-out; */
+    -webkit-transition: none;
+    -o-transition: none;
+    transition: none;
 }
 
 .import-list .progress-bar {
     font-size: 12px;
     line-height: 14px;
     color: rgba(255, 255, 255, .8);
-    background-color: rgba(16, 120, 176, 1);
+    background-color: hsl(201, 83.33% , 37.65%);
+    /*
+        h：色调 -- 衍生于色盘，可以取其任意值。
+            其中该值除以 360 所得的余数
+             0 表示红色， 60 表示黄色，为 120 表示绿色，为 240 表示蓝色
+        s：饱和度，范围从 0% 到 100%。0% 表示灰度，没有颜色；100% 最鲜艳。
+        l：明亮度，范围从 0% 到 100%。0% 最暗；50% 为均值；100%最亮
+    */
+}
+
+.import-list .btn.disabled,
+.import-list .btn[disabled] {
+    cursor: default;
+    filter: alpha(opacity=65);
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    opacity: .65;
 }

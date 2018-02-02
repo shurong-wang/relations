@@ -51,9 +51,9 @@
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane -active search-pane" id="search">
                         <div class="input-group search-input-group">
-                            <input type="text" class="form-control" placeholder="请输入公司名">
+                            <input id="input-search" type="text" class="form-control" placeholder="请输入公司名">
                             <span class="input-group-btn">
-                                <button class="btn btn-default" type="button">
+                                <button id="btn-search" class="btn btn-default" type="button">
                                     <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
                                 </button>
                             </span>
@@ -61,25 +61,11 @@
 
                         <dl class="search-list">
                             <dt>搜索结果：</dt>
-                            <dd>
+                            <!-- <dd id="company-165556">
                                 <ul>
                                     <li>
-                                        <a href="">中国科学技术信息研究所</a>
-                                        <a role="button" href="javascript:void;">
-                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                                        </a>
-
-                                    </li>
-                                    <li>注册资本：未知</li>
-                                    <li>法人： 未知</li>
-                                    <li>注册时间： 0000-00-00 00:00:00:00</li>
-                                </ul>
-                            </dd>
-                            <dd>
-                                <ul>
-                                    <li>
-                                        <a href="">科学技术文献出版社</a>
-                                        <a role="button" href="javascript:void;">
+                                        <a class="company-name" data-id="165556" href="javascript:void;">科学技术文献出版社</a>
+                                        <a class="btn-company-add" role="button" data-id="165556" href="javascript:void;">
                                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                                         </a>
                                         <span class="pull-right">[北京]</span>
@@ -88,7 +74,7 @@
                                     <li>法人： 胡红亮</li>
                                     <li>注册时间： 1998-07-07 00:00:00:00</li>
                                 </ul>
-                            </dd>
+                            </dd> -->
                         </dl>
                     </div>
                     <div role="tabpanel" class="tab-pane active import-pane" id="import">

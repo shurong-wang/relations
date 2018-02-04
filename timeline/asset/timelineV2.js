@@ -52,7 +52,9 @@ function fetchTimeLine(companyId) {
     };
 
     // var url = '../js/config/data/timeline.json';
-    var url = api('getTimeLine', { companyId: companyId });
+    var url = api('getTimeLine', {
+        companyId: companyId
+    });
 
     var isOnGraphElement = false;
     var padding = -10;
@@ -160,12 +162,10 @@ function fetchTimeLine(companyId) {
                 type: 'bar'
             })
         }
-        var d = [
-            {
-                label: 'bar',
-                data: barData
-            }
-        ];
+        var d = [{
+            label: 'bar',
+            data: barData
+        }];
         tl.reDraw(d, tlOptions);
         // tl.showSelect();
 
@@ -287,9 +287,69 @@ function fetchTimeLine(companyId) {
             })
             .call(drag);
 
-        // const zoomOverlay = svg.append('rect')
-        //     .attr('class', 'zoom-overlay');
+        // 选中聚焦
+        var brushedHalo = node.append('circle')
+            .attr('r', function (d) {
+                return circleStyle[d.ntype].r + 6;
+            })
+            .attr('class', function (d) {
+                return 'halo-' + d.id;
+            })
+            .style('fill', 'rgba(0,0,0,.0)')
+            .style('stroke', 'rgb(0,209,218)')
+            .style('stroke-width', 4)
+            .style('display', 'none');
 
+        // 框选刷
+        var xScale = d3.scale.linear()
+            .domain([0, width])
+            .range([0, width]);
+
+        var yScale = d3.scale.linear()
+            .domain([0, height])
+            .range([0, height]);
+
+        var brush = d3.svg.brush()
+            .x(xScale)
+            .y(yScale)
+            .extent([
+                [0, 0],
+                [0, 0]
+            ])
+            .on("brush", brushed);
+
+        function brushed() {
+            var extent = brush.extent();
+            var xmin = extent[0][0];
+            var xmax = extent[1][0];
+            var ymin = extent[0][1];
+            var ymax = extent[1][1];
+
+            node.each(function (d) {
+
+                var x0 = d.x - d.r;
+                var x1 = d.x + d.r;
+                var y0 = d.y - d.r;
+                var y1 = d.y + d.r;
+              
+                //如果节点的坐标在选择框范围内，则被选中
+                if (xmin <= x0 && xmax >= x1 && ymin <= y0 && ymax >= y1) {
+                    console.log(d.id);
+                    
+                    // brushedHalo.style('display', 'block');
+                } else {
+                    // brushedHalo.style('display', 'none');
+                }
+            });
+        }
+
+        svg.append("g")
+            .call(brush)
+            .selectAll("rect")
+            .style("fill-opacity", 0.3);
+
+
+        // 时间轴范围变化，图元素样式更新
         reStatus();
 
         setTimeout(function () {
@@ -323,60 +383,60 @@ function fetchTimeLine(companyId) {
 
     function tick() {
         link.each(function (link) {
-            var r = link.source.r;
-            var b1 = link.target.x - link.source.x;
-            var b2 = link.target.y - link.source.y;
-            var b3 = Math.sqrt(b1 * b1 + b2 * b2);
-            link.angle = 180 * Math.asin(b1 / b3) / Math.PI;
-            link.textAngle = b2 > 0 ? 90 - link.angle : link.angle - 90;
+                var r = link.source.r;
+                var b1 = link.target.x - link.source.x;
+                var b2 = link.target.y - link.source.y;
+                var b3 = Math.sqrt(b1 * b1 + b2 * b2);
+                link.angle = 180 * Math.asin(b1 / b3) / Math.PI;
+                link.textAngle = b2 > 0 ? 90 - link.angle : link.angle - 90;
 
-            var a = Math.cos(link.angle * Math.PI / 180) * r;
-            var b = Math.sin(link.angle * Math.PI / 180) * r;
-            link.sourceX = link.source.x + b;
-            link.targetX = link.target.x - b;
-            link.sourceY = b2 < 0 ? link.source.y - a : link.source.y + a;
-            link.targetY = b2 < 0 ? link.target.y + a : link.target.y - a;
+                var a = Math.cos(link.angle * Math.PI / 180) * r;
+                var b = Math.sin(link.angle * Math.PI / 180) * r;
+                link.sourceX = link.source.x + b;
+                link.targetX = link.target.x - b;
+                link.sourceY = b2 < 0 ? link.source.y - a : link.source.y + a;
+                link.targetY = b2 < 0 ? link.target.y + a : link.target.y - a;
 
-            var maxCount = 4; // 最大连线数
-            var count = link.relation.length; // 连线条数
-            var minStart = count === 1 ? 0 : -r / 2 + padding;
-            var start = minStart * (count / maxCount); // 连线线开始位置
-            var space = count === 1 ? 0 : Math.abs(minStart * 2 / (maxCount - 1)); // 连线间隔
+                var maxCount = 4; // 最大连线数
+                var count = link.relation.length; // 连线条数
+                var minStart = count === 1 ? 0 : -r / 2 + padding;
+                var start = minStart * (count / maxCount); // 连线线开始位置
+                var space = count === 1 ? 0 : Math.abs(minStart * 2 / (maxCount - 1)); // 连线间隔
 
-            var index = 0;
+                var index = 0;
 
-            d3.select(this).selectAll('line').each(function (d, i) {
+                d3.select(this).selectAll('line').each(function (d, i) {
 
-                // 生成 20 0 -20 的 position 模式
-                var position = start + space * index++;
+                    // 生成 20 0 -20 的 position 模式
+                    var position = start + space * index++;
 
-                // 可以按间隔为 10 去生成 0 10 -10 20 -20 模式
-                var position = setLinePath(
-                    d,
-                    link.sourceX,
-                    link.sourceY,
-                    link.targetX,
-                    link.targetY,
-                    link.angle,
-                    position,
-                    r,
-                    b2 < 0
-                );
+                    // 可以按间隔为 10 去生成 0 10 -10 20 -20 模式
+                    var position = setLinePath(
+                        d,
+                        link.sourceX,
+                        link.sourceY,
+                        link.targetX,
+                        link.targetY,
+                        link.angle,
+                        position,
+                        r,
+                        b2 < 0
+                    );
 
-                d3.select(this).attr('x1', d.sourceX = position.source[0]);
-                d3.select(this).attr('y1', d.sourceY = position.source[1]);
-                d3.select(this).attr('x2', d.targetX = position.target[0]);
-                d3.select(this).attr('y2', d.targetY = position.target[1]);
-            });
-            d3.select(this).selectAll('text').attr('transform', function (d) {
-                var x = d.sourceX + (d.targetX - d.sourceX) / 2;
+                    d3.select(this).attr('x1', d.sourceX = position.source[0]);
+                    d3.select(this).attr('y1', d.sourceY = position.source[1]);
+                    d3.select(this).attr('x2', d.targetX = position.target[0]);
+                    d3.select(this).attr('y2', d.targetY = position.target[1]);
+                });
+                d3.select(this).selectAll('text').attr('transform', function (d) {
+                    var x = d.sourceX + (d.targetX - d.sourceX) / 2;
 
-                var y = d.sourceY + (d.targetY - d.sourceY) / 2;
-                var textAngle = d.parent.textAngle;
-                var textRotate = (textAngle > 90 || textAngle < -90) ? (180 + textAngle) : textAngle;
-                return ['translate(' + [x, y] + ')', 'rotate(' + textRotate + ')'].join(' ');
-            });
-        })
+                    var y = d.sourceY + (d.targetY - d.sourceY) / 2;
+                    var textAngle = d.parent.textAngle;
+                    var textRotate = (textAngle > 90 || textAngle < -90) ? (180 + textAngle) : textAngle;
+                    return ['translate(' + [x, y] + ')', 'rotate(' + textRotate + ')'].join(' ');
+                });
+            })
             .attr('x1', function (d) {
                 return d.source.x;
             })
@@ -408,7 +468,10 @@ function fetchTimeLine(companyId) {
         if (off) {
             return;
         }
-        var { translate, scale } = d3.event;
+        var {
+            translate,
+            scale
+        } = d3.event;
         container.attr('transform', 'translate(' + translate + ')scale(' + scale + ')');
     }
 

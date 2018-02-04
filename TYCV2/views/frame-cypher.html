@@ -1,0 +1,128 @@
+<div ng-controller="CypherResultCtrl" fullscreen="fullscreen">
+    <div class="code-bar">
+        <div class="status" style="display:none;">
+            <div class="label label-{{frame.type | lowercase}}">{{frame.type | uppercase}}</div>
+            <span click-to-code="frame.input" class="code">{{frame.input | uncomment}}</span>
+        </div>
+        <div class="actions">
+            <a exportable="" ng-click="exportJSON(frame.response)" tooltip-placement="bottom" tooltip="Export JSON" ng-show="frame.exportable"
+                class="fa fa-download"></a>
+            <a ng-click="toggleFullscreen(true)" tooltip-placement="bottom" tooltip="Fullscreen" ng-show="frame.fullscreenable"
+                class="fa fa-arrows-alt"></a>
+            <a ng-click="frames.remove(frame)" tooltip-placement="bottom" tooltip="Remove" class="fa fa-trash"></a>
+        </div>
+        <a ng-click="toggleFullscreen(false)" class="close-fullscreen fa fa-chevron-down"></a>
+    </div>
+    <div class="inner">
+        <div ng-class="{error: frame.hasErrors}" class="view-result">
+            <div ng-show="isActive(&quot;graph&quot;)" class="view-result-graph result">
+                <svg area-selecter remove-nodes-and-relations="removeSelectedNodeRelations()" refresh-node-relations="refreshNodeRelations()"
+                    toggle-selection="toggleSelection()" select-node="selectNode()" un-select-node="unSelectNode()" multiple="isMultipleSelect"
+                    find-deep="findRelationsDeep()" open="openNodeRelations()" close="closeNodeRelations()" find="findRelations()"
+                    show="showSelecter" menu='showMenu' sx="location.x1" ex="location.x2" sy="location.y1" ey="location.y2" neo-graph="neo-graph"
+                    graph-data="frame.response.graph" ng-controller="D3GraphCtrl" style="pointer-events:fill;-moz-user-select:none;/*火狐*/-webkit-user-select:none;/*webkit浏览器*/-ms-user-select:none;/*IE10*/-khtml-user-select:none;/*早期浏览器*/user-select:none;"
+                    preserveaspectratio="xMidYMid"></svg>
+                <div ng-controller="LegendCtrl" ng-model="frame.results.graph" class="legend">
+
+                    <!-- <div class="dropdown" style="margin-bottom: 9px;" ng-controller="D3GraphCtrl">
+
+                <button class="btn btn-success btn-sm dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+                    Function
+                    <span class="caret"></span>
+                </button>
+
+                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                    <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" ng-click="discoverCommonFriends()">发现</a></li>
+                    <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" ng-click="discoverCommonFriends()">简化</a></li>
+                    <li class="divider"></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="printSelectedNode()">打印选中节点</a></li>
+                </ul>
+
+            </div> -->
+                    <ul class="unstyled">
+                        <li ng-repeat="rule in rules | filter:isNode">
+                            <a ng-style="{&quot;background-color&quot;: rule.props.color, &quot;border-color&quot;: rule.props[&quot;border-color&quot;]}"
+                                class="preview">
+                                <div class="shade"></div>
+                            </a>
+                            <div class="contents no-condition">
+                                <div class="class-name">{{rule.selector.fakeKlass || 'Default'}}</div>
+                                <div class="condition"></div>
+                            </div>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li ng-repeat="rule in rules | filter:isRelationship">
+                            <a ng-style="{&quot;background-color&quot;: rule.props.color, &quot;border-color&quot;: rule.props[&quot;border-color&quot;]}"
+                                class="previewRelationship">
+                            </a>
+                            <div class="contents no-condition">
+                                <div class="relationship-name">{{rule.selector.fakeKlass || 'Default'}}
+                                    <input type="checkbox" name="selected" ng-checked="showRelationship(rule.selector.klass)"
+                                        ng-click="clickRelationship(rule.selector.klass)" style="margin-top: 0px;" />
+                                </div>
+
+                                <div class="condition"></div>
+                            </div>
+                        </li>
+                    </ul>
+                    <!-- <button type="button" class="btn btn-info" ng-click="discoverCommonFriends()">发现</button> -->
+                </div>
+            </div>
+            <div ng-show="isActive(&quot;table&quot;)" ng-animate="'animate-box'" class="view-result-table result">
+                <neo-table table-data="frame.response.table"></neo-table>
+                <a exportable="" ng-click="exportCSV(frame.response.table)" tooltip-placement="left" tooltip="Download CSV"
+                    class="icon-download-alt"></a>
+            </div>
+            <div ng-show="frame.detailedErrorText" class="view-result-error result">
+                <pre>{{ frame.detailedErrorText }}</pre>
+            </div>
+        </div>
+
+        <div ng-class="{error: frame.hasErrors, loading: frame.isLoading}" class="status-bar">
+            <div ng-hide="frame.hasErrors" style="width:100%;">
+                <div show-timeline="showTimeLine" ng-show="showTimeLine" time-line re-Draw-Time-Line="reDrawTimeLine()" test-test="test"
+                    range-date="rangeData" data="frame.response.graph" length="changeTimeLine"></div>
+            </div>
+            <div ng-hide="frame.isLoading">
+                <span ng-show="frame.hasErrors">
+                    <div class="fa fa-warning"></div>{{frame.errorText}}</span>
+                <div ng-hide="frame.hasErrors">
+                    <div ng-show="frame.response.table">
+                        <div style="color: #70e9b1;" class="fa fa-check"></div>
+                        <span ng-show="frame.hasErrors">Execution error</span>
+                        <span ng-hide="frame.hasErrors">
+                            <span ng-show="isActive(&quot;graph&quot;)">Displaying
+                                <ng-pluralize count="frame.response.graph.nodes().length" when="{one: '1 node', other: '{} nodes'}"></ng-pluralize>,
+                                <ng-pluralize count="frame.response.graph.relationships().length" when="{one: '1 relationship', other: '{} relationships'}"></ng-pluralize>
+                            </span>
+                            <span ng-show="isActive(&quot;table&quot;)">{{resultStatistics(frame)}} in {{frame.runTime}} ms</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div ng-hide="frame.hasErrors" class="btn-group">
+                <a ng-show="showTimeLine" class="btn btn-small" disabled style="color:#3A3E40;padding-right:0px;">显示运动轨迹：</a>
+                <a ng-show="showTimeLine" ng-click="setTracksShow()" class="btn btn-small">
+                    <i ng-show="showTracks" style="color:#4cd964;font-size:25px;" class="fa fa-toggle-on fa-lg"></i>
+                    <i ng-hide="showTracks" style="color:#a0a0a0;font-size:25px;" class="fa fa-toggle-off fa-lg"></i>
+                </a>
+                <a ng-show="showTimeLine" class="btn btn-small " ng-click="removeUnInRange(frame)"> 过滤</a>
+                <a class="btn btn-small" disabled style="color:#3A3E40;padding-right:0px;">设置为主窗口：</a>
+                <a ng-click="setMainFrame(frame)" class="btn btn-small">
+                    <i ng-show="frame.isMain" style="color:#4cd964;font-size:25px;" class="fa fa-toggle-on fa-lg"></i>
+                    <i ng-hide="frame.isMain" style="color:#a0a0a0;font-size:25px;" class="fa fa-toggle-off fa-lg"></i>
+                </a>
+                <a ng-click="setActive(&quot;graph&quot;)" ng-class="{active: isActive(&quot;graph&quot;)}" class="btn btn-small">
+                    <i class="fa fa-code-fork"></i>
+                </a>
+                <a ng-click="setActive(&quot;table&quot;)" ng-class="{active: isActive(&quot;table&quot;)}" class="btn btn-small">
+                    <i class="fa fa-table"></i>
+                </a>
+            </div>
+            <span ng-show="frame.isLoading">
+                <div class="fa fa-spinner fa-spin"></div>Executing query...</span>
+        </div>
+
+    </div>
+</div>

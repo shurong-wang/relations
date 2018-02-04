@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="neo4jApp" ng-controller="MainCtrl" class="no-js">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title ng-bind-template="天眼查 v2.0">天眼查 v2.0</title>
+    <meta name="description" content="Neo4j Browser">
+    <meta name="author" content="Neo Technology">
+    <link rel="stylesheet" href="styles/3157d6a2.main.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/styles.css">
+</head>
+
+<body ng-class="{'connection-error': offline, 'show-drawer': isDrawerShown, 'modal-shown': isPopupShown, 'maximize-editor': editor.maximized}"
+    ng-controller="LayoutCtrl" keydown="globalKey($event)">
+    <!--[if lt IE 9]>
+<div id="incompatible">Sorry, you need to upgrade to the latest version of Internet Explorer<br>in order to use the
+    Neo4j browser
+</div><![endif]-->
+    <div loading></div>
+    <div id="page-container" class="ng-cloak">
+        <inspector show="isInspectorShown" ng-controller="InspectorCtrl" style="top: 72px; right: 24px">
+            <div class="header">
+                <span ng-style="{&quot;background-color&quot;: style.color }" class="preview"></span>{{item.type || item.labels.join(', ')}}&nbsp;
+                <span class="muted">[{{item.id}}]</span>
+                <a ng-click="toggleInspector()" class="close fa fa-remove"></a>
+            </div>
+            <tabset>
+                <tab>
+                    <tab-heading>
+                        <i class="fa fa-info-circle"></i>
+                        <span class="name">Properties</span>
+                    </tab-heading>
+                    <ul class="sections unstyled tight scrollable">
+                        <li ng-show="item.propertyList.length == 0" class="empty">No properties</li>
+                        <li ng-repeat="property in item.propertyList" ng-show="(property.key |PropertyNameFilter).length" class="pair">
+                            <div class="key">{{property.key|PropertyNameFilter}}</div>
+                            <div class="value">{{property.value}}</div>
+                        </li>
+                    </ul>
+                </tab>
+                <tab>
+                    <tab-heading>
+                        <i class="fa fa-eye"></i>
+                        <span class="name">Style</span>
+                    </tab-heading>
+                    <ul class="sections unstyled">
+                        <li>
+                            <span>Caption:</span>
+
+                            <div class="dropdown">
+                                <a data-toggle="dropdown" class="dropdown-toggle">{{selectedCaption}} &nbsp;
+                                    <i class="icon-caret-down"></i>
+                                </a>
+                                <ul role="menu" class="dropdown-menu pull-left">
+                                    <li>
+                                        <a ng-click="selectCaption(&quot;id&quot;)">ID</a>
+                                    </li>
+                                    <li ng-repeat="property in item.propertyList">
+                                        <a ng-click="selectCaption(property.key)">{{property.key|PropertyNameFilter}}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li ng-show="item.isNode" class="node-sizes">
+                            <ul class="inline">
+                                <li ng-repeat="size in sizes">
+                                    <a ng-style="{width: size.diameter, height: size.diameter}" ng-class="{active: size.diameter == style.diameter}"
+                                        ng-click="selectSize(size)"></a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li ng-show="item.isRelationship" class="arrow-widths">
+                            <ul class="inline">
+                                <li ng-repeat="arrowWidth in arrowWidths">
+                                    <a ng-style="{width: arrowWidth[&quot;shaft-width&quot;]}" ng-class="{active: arrowWidth[&quot;shaft-width&quot;] == style[&quot;shaft-width&quot;]}"
+                                        ng-click="selectArrowWidth(arrowWidth)"></a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="colors">
+                            <ul class="inline">
+                                <li ng-repeat="scheme in colors">
+                                    <a ng-style="{&quot;background-color&quot;: scheme.color}" ng-class="{active: scheme.color == style.color &amp;&amp; scheme[&quot;border-color&quot;] == style[&quot;border-color&quot;]}"
+                                        ng-click="selectScheme(scheme)"></a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <i class="icon-code"></i>
+                            <a ng-click="togglePopup(&quot;styling&quot;)">View stylesheet...</a>
+                        </li>
+                    </ul>
+                </tab>
+            </tabset>
+        </inspector>
+        <div id="error">Disconnected from Neo4j. {{motd.disconnected}}</div>
+        <div id="leftbar" ng-controller="SidebarCtrl">
+            <div id="nav" hidden="">
+                <ul class="nav nav-list">
+                    <li ng-class="{active: showingDrawer(&quot;database&quot;) }" class="nav-header">
+                        <div ng-click="toggleDrawer(&quot;database&quot;)" class="cover"></div>
+                        <a>Neo4j
+                            <div fancy-logo="" ng-class="{loading: currentFrame.isLoading}" class="logo">
+                                <div class="ball one"></div>
+                                <div class="ball two"></div>
+                                <div class="ball three"></div>
+                            </div>
+                        </a>
+                    </li>
+                    <li ng-class="{active: showingDrawer(&quot;scripts&quot;) }">
+                        <a ng-click="toggleDrawer(&quot;scripts&quot;)" class="icon-star"></a>
+                    </li>
+                    <li ng-class="{active: showingDrawer(&quot;info&quot;) }">
+                        <a ng-click="toggleDrawer(&quot;info&quot;)" class="icon-info-sign"></a>
+                    </li>
+                    <li ng-class="{active: showingDrawer(&quot;credits&quot;) }" class="bottom">
+                        <a ng-click="toggleDrawer(&quot;credits&quot;)">&copy;</a>
+                    </li>
+                </ul>
+            </div>
+            <div id="drawer" ng-switch="" on="whichDrawer" style="left: 0px;">
+                <!--<div ng-switch-when="database" class="pane animate-drawer">-->
+                <div ng-switch-when="database" class="pane animate-drawer ng-scope" style="    background-color: #0f1419;">
+                    <div style="text-align: center;">
+                        <img src="images/logo-grey.png" style="width: 150px;">
+                    </div>
+                    <!--<h4>Neo4j {{ neo4j.version }}</h4>-->
+
+                    <div class="inspector " style="position: initial; width: 100%;margin-bottom: 25px;">
+                        <ul style="width: 100%; border: 0px" class="nav nav-tabs" ng-init="activeTab = 'details'">
+                            <li ng-class="{ active: activeTab === 'details' }">
+                                <a ng-click="activeTab = 'details'" href="#">
+                                    <i class="fa fa-search icon-white"></i>
+                                    <span class="name">搜索</span>
+                                </a>
+                            </li>
+                            <li ng-show="settings.showDemo" ng-class="{ active: activeTab === 'options' }">
+                                <a ng-click="activeTab = 'options'" href="#">
+                                    <i class="fa fa-download icon-white"></i>
+                                    <span class="name">导入</span>
+                                </a>
+                            </li>
+                            <li ng-class="{ active: activeTab === 'other' }">
+                                <a ng-click="activeTab = 'other'" href="#">
+                                    <i class="fa fa-gear icon-white"></i>
+                                    <span class="name">设置</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <br/>
+
+                    <div class="inner" style="background-color:#0f1419;">
+                        <div ng-controller="SearchCtrl">
+
+                            <div style="border: 0px" class="tab-content">
+                                <div class="tab-pane" ng-class="{ active: activeTab === 'details' }">
+                                    <div>
+                                        <div class="input-group">
+                                            <live-search id="search1" type="text" live-search-callback="mySearchCallback" live-search-item-template="{{result.name}}"
+                                                live-search-select="name" live-search-max-result-size=10 ng-model="mySearch"
+                                                class="form-control" placeholder="请输入公司名" ng-keypress="enter($event)"></live-search>
+                                            <span class="input-group-btn">
+                                                <button ng-click="searchCompanyWithLucene()" class="btn btn-default" type="submit">
+                                                    <i class="fa fa-search "></i>
+                                                </button>
+                                            </span>
+                                        </div>
+                                        <!--
+									                        <live-search id="search1" type="text"
+									                                     live-search-callback="mySearchCallback"
+									                                     live-search-item-template="{{result.name}}"
+									                                     live-search-select="name"
+									                                     live-search-max-result-size=10
+									                                     ng-model="mySearch" class="form-control" placeholder="请输入公司名" ng-keypress="enter($event)" style="width: 186px; padding-left: 3px; padding-right: 3px; margin-right: -60px;"></live-search>
+									                        <button ng-click="searchCompanyWithLucene()" class="btn btn-default" type="submit" style="padding-left: 3px; padding-right: 3px;">搜索</button>
+									                        -->
+                                        <!--<input type="text" ng-model="searchCompanyName" name="search" class="form-control" placeholder="请输入公司名" style="height: 24px; width: 181px; margin-bottom: 0px;">
+									                        <button ng-click="searchCompanyWithLucene()" class="btn btn-default" type="submit" style="padding-left: 3px; padding-right: 3px; height: 24px; padding-top: 2px;">搜索</button>-->
+                                        <h5>搜索结果:</h5>
+                                        <ul>
+                                            <!--<li>-->
+                                            <!--<a ng-click="editor.execScript('MATCH n RETURN n LIMIT 25')" class="badge">随便看看</a>-->
+                                            <!--</li>-->
+                                            <div ng-show="shouldShowNoResult">没有搜到相关结果</div>
+                                            <div style="color: #ffffaa" ng-show="shouldShowTooManyResult">结果超{{maxResultNum}}条，请输入更精确关键字</div>
+                                            <li ng-repeat="company in companys" style="font-size: 12px">
+                                                <!--<a ng-click="editor.execScript('MATCH (n:Company)<-[r1]->(m) Where n.name=\''+company+'\' RETURN n,r1,m')" class="badge">{{company}}</a>-->
+                                                <table style="width: 100%">
+                                                    <tr>
+                                                        <td style="width: 80%">
+                                                            <a class="text" style="color: #bcc0c9" ng-click="editor.execScript('MATCH (n)<-[r1]->(m) Where id(n)='+company.id+' RETURN n,r1,m')">
+                                                                <u>
+                                                                    <strong>{{company.name}}</strong>
+                                                                </u>
+                                                            </a>
+                                                            <a class="btn btn-sm" ng-disabled="!findMainFrame()" style="margin-top: -2px;padding-right:5px;background-color: #bcc0c9;padding: 0;height: 12px;width: 12px;line-height: 0.85;"
+                                                                ng-click="execScriptInMainFrame('MATCH (n)<-[r1]->(m) Where id(n)='+company.id+' RETURN n,r1,m')">
+                                                                <i style="font-size:1em;" class="fa fa-plus fa-lg"></i>
+                                                            </a>
+                                                        </td>
+                                                        <td style="width: 20%; text-align: right; vertical-align: top">
+                                                            <span ng-show="company.type==1" class="text" style="font-size: 10px">{{company|CompanyBaseFilter}}</span>
+                                                            <span ng-show="company.type ==2" class="text" style="font-size:10px;">[自然人]</span>
+                                                            <br>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                <div ng-show="company.type==1">
+                                                    <span class="text">注册资本:&nbsp;{{company.regCapital?company.regCapital:"未知"}}</span>
+                                                    <br>
+                                                    <span class="text">法人:&nbsp;{{company.legalPersonName?company.legalPersonName:"未知"}}</span>
+                                                    <p class="text" style="border-bottom: 1px solid #424650; padding-bottom: 12px">注册时间:&nbsp;{{company.estiblishTime?company.estiblishTime:"未知"}}
+
+                                                    </p>
+                                                    <!--<a ng-click="editor.execScript('MATCH (n:Company) Where n.name=\''+company+'\' RETURN n ')" class="badge">{{company}}</a>-->
+                                                </div>
+                                                <p ng-show="company.type==2" class="text" style="border-bottom: 1px solid #424650; padding-bottom: 12px"></p>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" ng-class="{ active: activeTab === 'options' }">
+                                    <div style="border-bottom:1px solid #424650; padding-top:15px;" ng-repeat="db in dbs">
+                                        <div style="font-size:15px;">
+                                            <span>{{db.name}}</span>
+                                            <button style="float:right;" ng-disabled="db.progressing" ng-click="importDB(db)"
+                                                type="button" class="btn btn-primary btn-xs">导入</button>
+                                        </div>
+                                        <div ng-hide="db.progressing" style="padding-top: 10px;">
+                                            <p style="font-size:12px">{{db.info}}</p>
+                                        </div>
+                                        <div ng-show="db.progressing" progress-bar percent="db.percent"></div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" ng-class="{ active: activeTab === 'other' }">
+                                    <!-- <div style="margin-bottom:10px;" class="progress">
+									   <div class="progress-bar" role="progressbar" aria-valuenow="60"
+									      aria-valuemin="0" aria-valuemax="100" style="width: 80%;">
+									      <span class="sr-only">80% 完成</span>
+									   </div>
+									</div> -->
+
+
+                                    <div ng-controller="SidebarCtrl">
+
+                                        <h5>Node labels</h5>
+                                        <a ng-show="labels.length" ng-click="editor.execScript('MATCH n RETURN n LIMIT 25')" class="badge">*</a>
+                                        <span ng-repeat="node in labels">
+                                            <a ng-click="editor.execScript('MATCH (n:`'+node+'`) RETURN n LIMIT 25')" class="badge">{{node}}</a>
+                                        </span>
+                                        <h5>Relationship types</h5>
+                                        <a ng-show="relationships.length" ng-click="editor.execScript('MATCH (a)-[r]-(b) RETURN a,b LIMIT 25')" class="label relationship">*</a>
+                                        <span ng-repeat="relationship in relationships">
+                                            <a ng-click="editor.execScript('MATCH (a)-[:`'+relationship+'`]-&gt;(b) RETURN a,b LIMIT 25')"
+                                                class=" badge  relationship">{{relationship}}</a>
+                                        </span>
+                                        <span ng-show="propertyKeys">
+                                            <h5>Property keys</h5>
+                                            <span ng-repeat="propertyKey in propertyKeys">
+                                                <a ng-click="editor.execScript('MATCH (n) WHERE has(n.`'+propertyKey+'`) RETURN DISTINCT &quot;node&quot; as element, n.`'+propertyKey+'` AS `'+propertyKey+'` LIMIT 25 UNION ALL MATCH ()-[r]-() WHERE has(r.`'+propertyKey+'`) RETURN DISTINCT &quot;relationship&quot; AS element, r.`'+propertyKey+'` AS `'+propertyKey+'` LIMIT 25')"
+                                                    class="label property">{{propertyKey}}</a>
+                                            </span>
+                                        </span>
+                                        <h5 ng-show="settings.showDemo">操作</h5>
+                                        <a ng-show="settings.showDemo" class="badge" ng-click="demoFun()">demo</a>
+                                        <a ng-show="settings.showDemo" class="badge" ng-click="resetAll()">恢复数据库为初始状态</a>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <section ng-controller="SearchCtrl">
+				   		 <section style="width:100%"  class="panel-body">
+					        
+					        
+				    	</section>
+					</section> -->
+                        <div>
+
+                        </div>
+                    </div>
+                </div>
+                <!--<div ng-switch-when="scripts" class="pane animate-drawer">-->
+                <!--<h4>Saved scripts<a ng-click="folders.create()" tooltip-placement="bottom" tooltip="Create folder"-->
+                <!--class="create-folder">-->
+                <!--<div class="icon-plus-sign-alt"></div>-->
+                <!--</a></h4>-->
+                <!--<div class="inner">-->
+                <!--<div ng-repeat="folder in folders.all()" ui-sortable="sortableOptions" class="droppable">-->
+                <!--<h5 ng-click="folders.expand(folder)" class="folder"><i-->
+                <!--ng-class="{'icon-rotate-90': folder.expanded}" class="icon-caret-right"></i>-->
+
+                <!--<div edit-in-place="folder.name" on-blur="folders.save()"></div>-->
+                <!--<a ng-click="removeFolder(folder)" tooltip-placement="left" tooltip="Remove folder"-->
+                <!--class="icon-trash"></a>-->
+                <!--</h5>-->
+                <!--<ul ng-show="folder.expanded" class="starred indented">-->
+                <!--<li ng-repeat="document in documents.where({folder: folder.id})"-->
+                <!--ng-animate="{leave:'pop-out', enter:'pop-in'}">-->
+                <!--<div ng-click="editor.loadDocument(document.id)"-->
+                <!--ng-class="{loaded: editor.document.id == document.id}" class="list-item"><a-->
+                <!--ng-click="playDocument(document.content);$event.stopPropagation()"-->
+                <!--class="icon-long-arrow-right"></a><a-->
+                <!--ng-click="playDocument(document.content);$event.stopPropagation()"-->
+                <!--class="icon-play-sign"></a><a-->
+                <!--ng-click="removeDocument(document);$event.stopPropagation()"-->
+                <!--class="icon-trash"></a>-->
+
+                <!--<div class="contents"><a>{{document.content | autotitle}}</a></div>-->
+                <!--</div>-->
+                <!--</li>-->
+                <!--</ul>-->
+                <!--</div>-->
+                <!--<div ui-sortable="sortableOptions" class="droppable">-->
+                <!--<ul class="starred">-->
+                <!--<li ng-repeat="document in documents.where({folder: false})">-->
+                <!--<div ng-click="editor.loadDocument(document.id)"-->
+                <!--ng-class="{loaded: editor.document.id == document.id}" class="list-item"><a-->
+                <!--ng-click="playDocument(document.content);$event.stopPropagation()"-->
+                <!--class="icon-long-arrow-right"></a><a-->
+                <!--ng-click="playDocument(document.content);$event.stopPropagation()"-->
+                <!--class="icon-play-sign"></a><a-->
+                <!--ng-click="removeDocument(document);$event.stopPropagation()"-->
+                <!--class="icon-trash"></a>-->
+
+                <!--<div class="contents"><a>{{document.content | autotitle}}</a></div>-->
+                <!--</div>-->
+                <!--</li>-->
+                <!--</ul>-->
+                <!--</div>-->
+                <!--<file-upload upload="importDocument($content)" extension="cyp|cypher|cql|txt">&nbsp;</file-upload>-->
+                <!--</div>-->
+                <!--</div>-->
+            </div>
+        </div>
+        <div id="main" style="left: 300px;">
+            <div id="editor" style="display:none;">
+                <div ng-mousedown="focusEditor($event)" ng-controller="EditorCtrl" class="view-editor">
+                    <span ng-class="{'one-line': editorOneLine, 'disable-highlighting': disableHighlighting}">
+                        <div class="prompt code-style">$</div>
+                        <textarea ui-codemirror="{theme: 'neo', mode: 'cypher', autofocus: true, lineNumbers: true, lineWrapping: true, onLoad: codemirrorLoaded}"
+                            ng-model="editor.content" placeholder="{{motd.tip}}"></textarea>
+                    </span>
+                    <ul class="controls inline">
+                        <li tooltip-placement="bottom" tooltip="Save">
+                            <a ng-class="{active: editor.content, 'enabled': editor.document.id, 'changed': editor.hasChanged()}"
+                                ng-click="star()" class="balled golden">
+                                <i ng-class="{'icon-exclamation': editor.hasChanged()}" style="line-height:1.3em;" class="fa fa-star fa-lg"></i>
+                            </a>
+                        </li>
+                        <li tooltip-placement="bottom" tooltip="New">
+                            <a ng-click="editor.setContent(&quot;&quot;)" ng-class="{active: editor.content}" class="balled add">
+                                <i style="line-height:1.3em;" class="fa fa-plus fa-lg"></i>
+                            </a>
+                        </li>
+                        <li class="divider">&nbsp;</li>
+                        <li tooltip-placement="bottom" tooltip="Execute">
+                            <a ng-click="editor.execScript(editor.content)" ng-class="{active: editor.content}" class="balled success">
+                                <i class="fa fa-play fa-lg" style="line-height:1.3em;"></i>
+                            </a>
+                        </li>
+                    </ul>
+                    <!---->
+                    <!--<div ng-if="editor.showMessage" ng-class="editor.errorCode" class="message-bar error slide-down"><span-->
+                    <!--ng-bind-html-unsafe="editor.errorMessage"></span> Type <code-->
+                    <!--click-to-code="':help'">:help</code> for a list of available commands.-->
+                    <!--<div class="actions"><a ng-click="editor.showMessage = null" class="icon-remove"></a></div>-->
+                    <!--</div>-->
+                </div>
+            </div>
+            <div frame-stream=""></div>
+        </div>
+    </div>
+    <script id="template/popover/popover.html" type="text/ng-template">
+        <div ng-class="{ in: isOpen(), fade: animation()}" class="popover {{placement}}">
+            <div class="arrow"></div>
+            <div class="popover-inner">
+                <h3 ng-bind="title" ng-show="title" class="popover-title"></h3>
+
+                <div ng-bind-html-unsafe="content" class="popover-content"></div>
+            </div>
+        </div>
+    </script>
+    <script id="template/tooltip/tooltip-popup.html" type="text/ng-template">
+        <div class="tooltip {{placement}}" ng-class="{ in: isOpen(), fade: animation() }">
+            <div class="tooltip-arrow"></div>
+            <div class="tooltip-inner" ng-bind="content"></div>
+        </div>
+
+    </script>
+    <script id="template/tabs/tab.html" type="text/ng-template">
+        <li ng-class="{active: active, disabled: disabled}">
+            <a ng-click="select()" tab-heading-transclude>{{heading}}</a>
+        </li>
+
+    </script>
+    <script id="template/tabs/tabset.html" type="text/ng-template">
+        <div class="tabbable" ng-class="{'tabs-right': direction == 'right', 'tabs-left': direction == 'left', 'tabs-below': direction == 'below'}">
+            <div tabset-titles="tabsAbove"></div>
+            <div class="tab-content">
+                <div class="tab-pane" ng-repeat="tab in tabs" ng-class="{active: tab.active}" tab-content-transclude="tab">
+                </div>
+            </div>
+            <div tabset-titles="!tabsAbove"></div>
+        </div>
+
+    </script>
+    <script id="template/tabs/tabset-titles.html" type="text/ng-template">
+        <ul class="nav {{type && 'nav-' + type}}" ng-class="{'nav-stacked': vertical}">
+        </ul>
+
+    </script>
+    <script id="popup-styling" type="text/ng-template">
+        <div id="grass" ng-controller="StylePreviewCtrl">
+            <div class="modal-header">
+                <a ng-click="togglePopup()" class="close pull-right">&times;</a>
+                <ul class="inline">
+                    <li>
+                        <h3 style="display:inline;">Graph Style Sheet</h3>
+                    </li>
+                    <li>
+                        <a exportable ng-click="exportGraSS(code)" tooltip="Export to file" class="icon-download-alt"></a>
+                    </li>
+                    <li>
+                        <a exportable ng-click="reset()" tooltip="Reset to default style" class="icon-fire-extinguisher"></a>
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-body">
+                <textarea ui-codemirror="{theme: 'css', mode: 'css', readOnly: true}" ng-model="code"></textarea>
+                <file-upload upload="import($content)" message="Drop a grass-file here to import">&nbsp;</file-upload>
+            </div>
+        </div>
+    </script>
+    <!-- banner for going to webadmin, only if needed-->
+    <!--<div ng-hide="goodBrowser" class="ng-cloak">-->
+    <!--<div style="position: fixed; bottom: 0; right: 0; border: 0; z-index: 998"><a href="../webadmin"><img-->
+    <!--src="images/webadmin-banner.png" alt="Switch to Classic UI"></a></div>-->
+    <!--<div style="position: fixed; bottom: 0; right: 0; border: 0; z-index: 999"><a-->
+    <!--ng-click="hideWebadminBanner = true"><img src="images/dismiss.png" alt="Dismiss"></a></div>-->
+    <!--</div>-->
+
+    <script src="scripts/18384e55.components.js"></script>
+    <script src="scripts/liveSearch.js"></script>
+    <script src="scripts/7c135c5d.scripts.js"></script>
+</body>
+
+</html>

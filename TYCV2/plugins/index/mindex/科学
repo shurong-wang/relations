@@ -1,0 +1,23 @@
+[{
+    "base": "",
+    "estiblishTime": "0000-00-00 00:00:00",
+    "id": 304,
+    "legalPersonName": "",
+    "name": "中国科学技术信息研究所",
+    "orginalScore": "0",
+    "regCapital": "",
+    "regStatus": "",
+    "score": "0",
+    "type": 1
+}, {
+    "base": "bj",
+    "estiblishTime": "1998-07-07 00:00:00",
+    "id": 393,
+    "legalPersonName": "胡红亮",
+    "name": "科学技术文献出版社",
+    "orginalScore": "0",
+    "regCapital": "300 万",
+    "regStatus": "开业",
+    "score": "0",
+    "type": 1
+}]

@@ -1,0 +1,27 @@
+<!-- saved from url=(0055)http://123.57.173.60:7488/browser/views/frame-help.html -->
+
+<div fullscreen="fullscreen">
+  <div class="code-bar">
+    <div class="status">
+      <div class="label label-{{frame.type | lowercase}}">{{frame.type | uppercase}}</div>
+      <span click-to-code="frame.input" class="code">{{frame.input | uncomment}}</span>
+    </div>
+    <div class="actions">
+      <a exportable="" ng-click="exportJSON(frame.response)" tooltip-placement="bottom" tooltip="Export JSON" ng-show="frame.exportable"
+        class="icon-download-alt"></a>
+      <a ng-click="toggleFullscreen(true)" tooltip-placement="bottom" tooltip="Fullscreen" ng-show="frame.fullscreenable"
+        class="icon-fullscreen"></a>
+      <a ng-click="frames.remove(frame)" tooltip-placement="bottom" tooltip="Remove" class="icon-trash"></a>
+    </div>
+    <a ng-click="toggleFullscreen(false)" class="close-fullscreen icon-chevron-down"></a>
+  </div>
+  <div class="inner">
+    <div ng-hide="frame.hasErrors" ng-include="frame.response.page" class="view-result help"></div>
+    <div ng-show="frame.hasErrors" class="status-bar error">
+      <div>
+        <span>
+          <div class="icon-warning-sign"></div>{{frame.errorText}}</span>
+      </div>
+    </div>
+  </div>
+</div>

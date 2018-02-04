@@ -1,0 +1,13 @@
+<!-- saved from url=(0060)http://123.57.173.60:7488/browser/views/partials/stream.html -->
+
+<div>
+  <div ng-animate="{hide:'intro-out', show:'intro-in'}" ng-show="neo4j.version &amp;&amp; frames.items.length == 0" class="intro">
+    <footer>{{motd.quote.text}}
+      <br>&mdash; {{motd.quote.author}}</footer>
+  </div>
+  <div id="stream" scroll-top-when="frames.length">
+    <div ng-repeat="frame in frames.items | orderBy:&quot;startTime&quot;:true" style="width:100%;" class="frame frame-in">
+      <div ng-include="frame.templateUrl"></div>
+    </div>
+  </div>
+</div>

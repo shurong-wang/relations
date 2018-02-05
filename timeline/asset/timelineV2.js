@@ -60,12 +60,12 @@ function fetchTimeLine(companyId) {
     var height = d3.select('#relation').node().clientHeight;
 
     var xScale = d3.scale.linear()
-        .domain([0, 10])
+        .domain([0, width])
         .range([0, width]);
 
     var yScale = d3.scale.linear()
-        .domain([10, 0])
-        .range([0, height]);
+        .domain([height, 0])
+        .range([height, 0]);
 
     var d3brush = d3.svg.brush()
         .x(xScale)
@@ -74,8 +74,6 @@ function fetchTimeLine(companyId) {
             [0, 0],
             [0, 0]
         ]);
-
-    var brushRect;
 
     var force = d3.layout.force()
         .size([width, height])
@@ -100,14 +98,17 @@ function fetchTimeLine(companyId) {
         .on('dblclick.zoom', null);
 
     const zoomOverlay = svg.append('rect')
-        .attr('class', 'zoom-overlay');
+        .attr('class', 'zoom-overlay hidden');
 
     const container = svg.append('g')
         .attr('class', 'container')
         .attr('opacity', 0);
 
-    var link = container.selectAll('.link'),
-        node = container.selectAll('.node');
+    var brushRect = container.append('g')
+        .attr('class', 'brush-rect');
+
+    var link = container.selectAll('.link');
+    var node = container.selectAll('.node');
 
     var span = d3.select('body').append('span')
         .style('font-size', '12px')
@@ -231,10 +232,10 @@ function fetchTimeLine(companyId) {
         });
 
         force.on('end', function () {
-            // 固定所有节点
-            nodesList.forEach(node => {
-                node.fixed = true;
-            });
+            // // 固定所有节点
+            // nodesList.forEach(node => {
+            //     node.fixed = true;
+            // });
             // 显示关系图
             container.attr('opacity', 1);
             d3.select('.timeline-legend').style('opacity', 1);
@@ -277,6 +278,8 @@ function fetchTimeLine(companyId) {
         var s = span.node();
 
         node.each(function (d) {
+            d.selected = false;
+            d.previouslySelected = false;
             var node = d3.select(this).append('circle')
                 .call(circle);
             var text = d3.select(this).append('text')
@@ -303,9 +306,7 @@ function fetchTimeLine(companyId) {
             .on("brush", brushFn)
             .on("brushend", brushendFn)
 
-        brushRect = svg.append('g')
-            .attr('class', 'brush-rect')
-            .call(d3brush)
+        brushRect.call(d3brush)
             .selectAll('rect')
             .style('fill-opacity', 0.3);
 
@@ -316,12 +317,13 @@ function fetchTimeLine(companyId) {
             .style('fill', 'rgba(0,0,0,.0)')
             .style('stroke', 'rgb(0,209,218)')
             .style('stroke-width', 4)
-            .style('display', 'none');
+            .classed('hidden', true);
 
         // 框选刷
         function brushstartFn() {
             if (d3.event.sourceEvent.type !== 'brushend') {
-
+                node.each(function (d) { d.selected = false; });
+                selectedHalo.classed('hidden', true);
             }
         }
         function brushFn() {
@@ -337,27 +339,28 @@ function fetchTimeLine(companyId) {
                     var y0 = d.y - d.r;
                     var y1 = d.y + d.r;
                     //如果节点的坐标在选择框范围内，则被选中
-                    if (xmin <= x0 && xmax >= x1 && ymin <= y0 && ymax >= y1) {
-                        console.log(d.id);
-                    } else {
-
-                    }
+                    var selected = selection != null && (xmin <= x0 && xmax >= x1 && ymin <= y0 && ymax >= y1);
+                    d.selected = d.previouslySelected ^ selected;
                 });
             }
         }
         function brushendFn() {
             if (d3brush.extent() != null) {
-                d3brush.clear();
                 d3.select(this).select('rect.extent').attr('width', 0).attr('height', 0);
+                node.each(function (d) {
+                    if (d.selected) {
+                        console.log(d.id);
+                    }
+                });
             }
         }
 
         // 时间轴范围变化，图元素样式更新
         reStatus();
 
-        setTimeout(function () {
-            force.stop();
-        }, 3000);
+        // setTimeout(function () {
+        //     force.stop();
+        // }, 3000);
     }
 
     var newList, oldList;
@@ -559,9 +562,11 @@ function fetchTimeLine(companyId) {
             });
 
             dom.each(function (d) {
-                d.behavior = _dom.append('circle').attr('r', function (d, i) {
-                    return amoutIdentity(d.relation[i].amout) || 5
-                }).classed('behavior', true);
+                d.behavior = _dom.append('circle')
+                    .attr('r', function (d, i) {
+                        return amoutIdentity(d.relation[i].amout) || 5;
+                    })
+                    .classed('behavior', true);
             });
 
             ani.start(function () {
@@ -618,8 +623,8 @@ function fetchTimeLine(companyId) {
     // 切换拖动/选取
     d3.select('#offZoom').on('change', function () {
         var off = this.checked;
-        d3.select('.zoom-overlay').style('display', off ? 'none' : 'block');
-        d3.select('.brush-rect').style('display', off ? 'block' : 'none');
+        d3.select('.zoom-overlay').classed('hidden', off);
+        d3.select('.brush-rect').classed('hidden', !off);
     });
 }
 

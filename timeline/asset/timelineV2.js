@@ -343,7 +343,7 @@ function fetchTimeLine(companyId) {
             });
         }
 
-        svg.append("g")
+        container.append("g")
             .call(brush)
             .selectAll("rect")
             .style("fill-opacity", 0.3);

@@ -1,7 +1,9 @@
 var tl = new TimelineBar(d3.select('#timelineBox').node());
 
 function zoomChange(el) {
-    d3.select('.zoom-overlay').style('display', el.checked ? 'none' : 'block');
+    var off = el.checked;
+    d3.select('.zoom-overlay').style('display', off ? 'none' : 'block');
+    d3.select('.brush-rect').style('display', off ? 'block' : 'none');
 }
 
 function selectChange(el) {
@@ -331,23 +333,25 @@ function fetchTimeLine(companyId) {
                 var x1 = d.x + d.r;
                 var y0 = d.y - d.r;
                 var y1 = d.y + d.r;
-              
+
                 //如果节点的坐标在选择框范围内，则被选中
                 if (xmin <= x0 && xmax >= x1 && ymin <= y0 && ymax >= y1) {
                     console.log(d.id);
-                    
-                    // brushedHalo.style('display', 'block');
+
                 } else {
-                    // brushedHalo.style('display', 'none');
+
                 }
             });
         }
 
-        container.append("g")
+        container.append('g')
+            .attr('class', 'brush-rect')
             .call(brush)
-            .selectAll("rect")
-            .style("fill-opacity", 0.3);
+            .selectAll('rect')
+            .style('fill-opacity', 0.3);
 
+        var off = d3.select('#offZoom').property('checked');
+        d3.select('.brush-rect').style('display', off ? 'block' : 'none');
 
         // 时间轴范围变化，图元素样式更新
         reStatus();
@@ -383,60 +387,60 @@ function fetchTimeLine(companyId) {
 
     function tick() {
         link.each(function (link) {
-                var r = link.source.r;
-                var b1 = link.target.x - link.source.x;
-                var b2 = link.target.y - link.source.y;
-                var b3 = Math.sqrt(b1 * b1 + b2 * b2);
-                link.angle = 180 * Math.asin(b1 / b3) / Math.PI;
-                link.textAngle = b2 > 0 ? 90 - link.angle : link.angle - 90;
+            var r = link.source.r;
+            var b1 = link.target.x - link.source.x;
+            var b2 = link.target.y - link.source.y;
+            var b3 = Math.sqrt(b1 * b1 + b2 * b2);
+            link.angle = 180 * Math.asin(b1 / b3) / Math.PI;
+            link.textAngle = b2 > 0 ? 90 - link.angle : link.angle - 90;
 
-                var a = Math.cos(link.angle * Math.PI / 180) * r;
-                var b = Math.sin(link.angle * Math.PI / 180) * r;
-                link.sourceX = link.source.x + b;
-                link.targetX = link.target.x - b;
-                link.sourceY = b2 < 0 ? link.source.y - a : link.source.y + a;
-                link.targetY = b2 < 0 ? link.target.y + a : link.target.y - a;
+            var a = Math.cos(link.angle * Math.PI / 180) * r;
+            var b = Math.sin(link.angle * Math.PI / 180) * r;
+            link.sourceX = link.source.x + b;
+            link.targetX = link.target.x - b;
+            link.sourceY = b2 < 0 ? link.source.y - a : link.source.y + a;
+            link.targetY = b2 < 0 ? link.target.y + a : link.target.y - a;
 
-                var maxCount = 4; // 最大连线数
-                var count = link.relation.length; // 连线条数
-                var minStart = count === 1 ? 0 : -r / 2 + padding;
-                var start = minStart * (count / maxCount); // 连线线开始位置
-                var space = count === 1 ? 0 : Math.abs(minStart * 2 / (maxCount - 1)); // 连线间隔
+            var maxCount = 4; // 最大连线数
+            var count = link.relation.length; // 连线条数
+            var minStart = count === 1 ? 0 : -r / 2 + padding;
+            var start = minStart * (count / maxCount); // 连线线开始位置
+            var space = count === 1 ? 0 : Math.abs(minStart * 2 / (maxCount - 1)); // 连线间隔
 
-                var index = 0;
+            var index = 0;
 
-                d3.select(this).selectAll('line').each(function (d, i) {
+            d3.select(this).selectAll('line').each(function (d, i) {
 
-                    // 生成 20 0 -20 的 position 模式
-                    var position = start + space * index++;
+                // 生成 20 0 -20 的 position 模式
+                var position = start + space * index++;
 
-                    // 可以按间隔为 10 去生成 0 10 -10 20 -20 模式
-                    var position = setLinePath(
-                        d,
-                        link.sourceX,
-                        link.sourceY,
-                        link.targetX,
-                        link.targetY,
-                        link.angle,
-                        position,
-                        r,
-                        b2 < 0
-                    );
+                // 可以按间隔为 10 去生成 0 10 -10 20 -20 模式
+                var position = setLinePath(
+                    d,
+                    link.sourceX,
+                    link.sourceY,
+                    link.targetX,
+                    link.targetY,
+                    link.angle,
+                    position,
+                    r,
+                    b2 < 0
+                );
 
-                    d3.select(this).attr('x1', d.sourceX = position.source[0]);
-                    d3.select(this).attr('y1', d.sourceY = position.source[1]);
-                    d3.select(this).attr('x2', d.targetX = position.target[0]);
-                    d3.select(this).attr('y2', d.targetY = position.target[1]);
-                });
-                d3.select(this).selectAll('text').attr('transform', function (d) {
-                    var x = d.sourceX + (d.targetX - d.sourceX) / 2;
+                d3.select(this).attr('x1', d.sourceX = position.source[0]);
+                d3.select(this).attr('y1', d.sourceY = position.source[1]);
+                d3.select(this).attr('x2', d.targetX = position.target[0]);
+                d3.select(this).attr('y2', d.targetY = position.target[1]);
+            });
+            d3.select(this).selectAll('text').attr('transform', function (d) {
+                var x = d.sourceX + (d.targetX - d.sourceX) / 2;
 
-                    var y = d.sourceY + (d.targetY - d.sourceY) / 2;
-                    var textAngle = d.parent.textAngle;
-                    var textRotate = (textAngle > 90 || textAngle < -90) ? (180 + textAngle) : textAngle;
-                    return ['translate(' + [x, y] + ')', 'rotate(' + textRotate + ')'].join(' ');
-                });
-            })
+                var y = d.sourceY + (d.targetY - d.sourceY) / 2;
+                var textAngle = d.parent.textAngle;
+                var textRotate = (textAngle > 90 || textAngle < -90) ? (180 + textAngle) : textAngle;
+                return ['translate(' + [x, y] + ')', 'rotate(' + textRotate + ')'].join(' ');
+            });
+        })
             .attr('x1', function (d) {
                 return d.source.x;
             })

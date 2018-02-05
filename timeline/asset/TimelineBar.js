@@ -118,8 +118,9 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
                 that.options.event.onBrush.apply(that, that.brush.extent());
         });
 
-    if (extent)
+    if (extent) {
         this.brush.extent(extent);
+    }
 
     this._svg = this._svg || d3.select(this.element).append('svg');
     this._svg
@@ -134,7 +135,7 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
 
     brush.selectAll("rect")
         .attr('height', this.height);
-        
+
     brush.selectAll(".resize").append('path')
         .attr("class", "handle--custom")
         .attr("fill", "rgb(8, 147, 228)")
@@ -283,9 +284,12 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
             return 'translate(0, ' + that.groupHeight * i + ')';
         });
     this.yScale = this.yScale || d3.scale.linear();
-    this.yScale.domain([d3.max(data[0].data, function (d) {
-        return d.value;
-    }), 0]).range([0, this.groupHeight]);
+    this.yScale
+        .domain([
+            d3.max(data[0].data, function (d) { return d.value; }),
+            0
+        ])
+        .range([0, this.groupHeight]);
 
     this.yAxis = this.yAxis || d3.svg.axis();
     this.yAxis.scale(this.yScale).orient("left").ticks(2)

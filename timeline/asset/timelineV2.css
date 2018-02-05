@@ -221,6 +221,7 @@ circle {
     left: 50px;
     width: 100px;
     height: 100px;
+    user-select: none;
 }
 
 .timeline-legend>div>i {

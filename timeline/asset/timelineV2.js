@@ -1,11 +1,5 @@
 var tl = new TimelineBar(d3.select('#timelineBox').node());
 
-function zoomChange(el) {
-    var off = el.checked;
-    d3.select('.zoom-overlay').style('display', off ? 'none' : 'block');
-    d3.select('.brush-rect').style('display', off ? 'block' : 'none');
-}
-
 function selectChange(el) {
     el.checked ? tl.showSelect() : tl.hideSelect();
 }
@@ -64,6 +58,25 @@ function fetchTimeLine(companyId) {
 
     var width = d3.select('#relation').node().clientWidth;
     var height = d3.select('#relation').node().clientHeight;
+
+    var xScale = d3.scale.linear()
+        .domain([0, 10])
+        .range([0, width]);
+
+    var yScale = d3.scale.linear()
+        .domain([10, 0])
+        .range([0, height]);
+
+    var d3brush = d3.svg.brush()
+        .x(xScale)
+        .y(yScale)
+        .extent([
+            [0, 0],
+            [0, 0]
+        ]);
+
+    var brushRect;
+
     var force = d3.layout.force()
         .size([width, height])
         .charge(-400)
@@ -281,77 +294,63 @@ function fetchTimeLine(companyId) {
 
         node
             .on('dblclick', dblclick)
-            .on('mouseenter', function () {
-                isOnGraphElement = true;
-            })
-            .on('mouseleave', function () {
-                isOnGraphElement = false;
-            })
+            .on('mouseenter', function () { isOnGraphElement = true; })
+            .on('mouseleave', function () { isOnGraphElement = false; })
             .call(drag);
 
-        // 选中聚焦
-        var brushedHalo = node.append('circle')
-            .attr('r', function (d) {
-                return circleStyle[d.ntype].r + 6;
-            })
-            .attr('class', function (d) {
-                return 'halo-' + d.id;
-            })
+        d3brush
+            .on("brushstart", brushstartFn)
+            .on("brush", brushFn)
+            .on("brushend", brushendFn)
+
+        brushRect = svg.append('g')
+            .attr('class', 'brush-rect')
+            .call(d3brush)
+            .selectAll('rect')
+            .style('fill-opacity', 0.3);
+
+        // 选中聚焦环
+        var selectedHalo = node.append('circle')
+            .attr('r', function (d) { return circleStyle[d.ntype].r + 6; })
+            .attr('class', function (d) { return 'halo-' + d.id; })
             .style('fill', 'rgba(0,0,0,.0)')
             .style('stroke', 'rgb(0,209,218)')
             .style('stroke-width', 4)
             .style('display', 'none');
 
         // 框选刷
-        var xScale = d3.scale.linear()
-            .domain([0, width])
-            .range([0, width]);
+        function brushstartFn() {
+            if (d3.event.sourceEvent.type !== 'brushend') {
 
-        var yScale = d3.scale.linear()
-            .domain([0, height])
-            .range([0, height]);
-
-        var brush = d3.svg.brush()
-            .x(xScale)
-            .y(yScale)
-            .extent([
-                [0, 0],
-                [0, 0]
-            ])
-            .on("brush", brushed);
-
-        function brushed() {
-            var extent = brush.extent();
-            var xmin = extent[0][0];
-            var xmax = extent[1][0];
-            var ymin = extent[0][1];
-            var ymax = extent[1][1];
-
-            node.each(function (d) {
-
-                var x0 = d.x - d.r;
-                var x1 = d.x + d.r;
-                var y0 = d.y - d.r;
-                var y1 = d.y + d.r;
-
-                //如果节点的坐标在选择框范围内，则被选中
-                if (xmin <= x0 && xmax >= x1 && ymin <= y0 && ymax >= y1) {
-                    console.log(d.id);
-
-                } else {
-
-                }
-            });
+            }
         }
+        function brushFn() {
+            if (d3.event.sourceEvent.type !== 'brushend') {
+                var selection = d3brush.extent();
+                var xmin = selection[0][0];
+                var xmax = selection[1][0];
+                var ymin = selection[0][1];
+                var ymax = selection[1][1];
+                node.each(function (d) {
+                    var x0 = d.x - d.r;
+                    var x1 = d.x + d.r;
+                    var y0 = d.y - d.r;
+                    var y1 = d.y + d.r;
+                    //如果节点的坐标在选择框范围内，则被选中
+                    if (xmin <= x0 && xmax >= x1 && ymin <= y0 && ymax >= y1) {
+                        console.log(d.id);
+                    } else {
 
-        container.append('g')
-            .attr('class', 'brush-rect')
-            .call(brush)
-            .selectAll('rect')
-            .style('fill-opacity', 0.3);
-
-        var off = d3.select('#offZoom').property('checked');
-        d3.select('.brush-rect').style('display', off ? 'block' : 'none');
+                    }
+                });
+            }
+        }
+        function brushendFn() {
+            if (d3brush.extent() != null) {
+                d3brush.clear();
+                d3.select(this).select('rect.extent').attr('width', 0).attr('height', 0);
+            }
+        }
 
         // 时间轴范围变化，图元素样式更新
         reStatus();
@@ -616,6 +615,12 @@ function fetchTimeLine(companyId) {
         }
     }
 
+    // 切换拖动/选取
+    d3.select('#offZoom').on('change', function () {
+        var off = this.checked;
+        d3.select('.zoom-overlay').style('display', off ? 'none' : 'block');
+        d3.select('.brush-rect').style('display', off ? 'block' : 'none');
+    });
 }
 
 // 清理画布

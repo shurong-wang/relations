@@ -19,7 +19,7 @@ var brush = svg.append("g").attr("class", "brush");
 
 var node = svg.append("g").attr("class", "node").selectAll("circle");
 
-d3.json("asset/graph.json", function (error, graph) {
+d3.json("asset/brushPoint.json", function (error, graph) {
     if (error) throw error;
 
     graph.links.forEach(function (d) {
@@ -43,13 +43,12 @@ d3.json("asset/graph.json", function (error, graph) {
             return d.target.y;
         });
 
-    brush.call(d3.brush().extent([
-            [0, 0],
-            [width, height]
-        ])
-        .on("start", brushstarted)
-        .on("brush", brushed)
-        .on("end", brushended));
+    brush.call(
+        d3.brush().extent([[0, 0], [width, height]])
+            .on("start", brushstarted)
+            .on("brush", brushed)
+            .on("end", brushended)
+    );
 
     node = node.data(graph.nodes).enter()
         .append("circle").attr("r", 4)
@@ -59,8 +58,8 @@ d3.json("asset/graph.json", function (error, graph) {
         .attr("cy", function (d) {
             return d.y;
         })
-        // .on("mousedown", mousedowned)
-        // .call(d3.drag().on("drag", dragged));
+    // .on("mousedown", mousedowned)
+    // .call(d3.drag().on("drag", dragged));
 
     function brushstarted() {
         if (d3.event.sourceEvent.type !== "end") {

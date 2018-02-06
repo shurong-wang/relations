@@ -99,9 +99,6 @@ body {
    * ---------------------------------------------------------------------------------------------------------------------------------------
    */
 
-
-/* Hide for mobile, show later */
-
 .sidebar {
     width: 240px;
     top: 5px;
@@ -300,3 +297,100 @@ body {
     box-shadow: none;
     opacity: .65;
 }
+
+
+/*
+   * Circle Menu
+   * ---------------------------------------------------------------------------------------------------------------------------------------
+   */
+
+.menu-circle,
+.menu-ring {
+    height: 128px;
+    position: relative;
+    width: 128px;
+}
+
+.menu-circle a:hover,
+.menu-ring a:hover {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+.menu-ring {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    opacity: 0;
+    -webkit-transform-origin: 50% 50%;
+    -moz-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    -webkit-transform: scale(0.1) rotate(-270deg);
+    -moz-transform: scale(0.1) rotate(-270deg);
+    -transform: scale(0.1) rotate(-270deg);
+    -webkit-transition: all 0.2s ease-out;
+    -moz-transition: all 0.2s ease-out;
+    transition: all 0.2s ease-out;
+}
+
+.open .menu-ring {
+    opacity: 1;
+    -webkit-transform: scale(1) rotate(0);
+    -moz-transform: scale(1) rotate(0);
+    -transform: scale(1) rotate(0);
+}
+
+.center {
+    background-color: rgba(169, 158, 158, 0.3);
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    bottom: 0;
+    color: white;
+    height: 42px;
+    left: 0;
+    line-height: 40px;
+    margin: auto;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    top: 0;
+    width: 40px;
+    -webkit-transition: all 0.2s ease-out;
+    -moz-transition: all 0.2s ease-out;
+    transition: all 0.2s ease-out;
+}
+
+.open .center {
+    border-color: #aaaaaa;
+}
+
+.menuItem {
+    border-radius: 50%;
+    color: #eeeeee;
+    display: block;
+    height: 25px;
+    line-height: 20px;
+    margin-left: -10px;
+    margin-top: -10px;
+    position: absolute;
+    text-align: center;
+    width: 25px;
+}
+
+.single-menu .multiple-btn {
+    color: #a0a0a0;
+}
+
+.single-menu .multiple-btn:hover {
+    color: #a0a0a0;
+}
+
+.multiple-menu .single-btn {
+    color: #a0a0a0;
+}
+
+.multiple-menu .single-btn:hover {
+    color: #a0a0a0;
+}
+
+/*Circle Menu styles end*/

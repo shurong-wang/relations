@@ -1,4 +1,5 @@
 var tl = new TimelineBar(d3.select('#timelineBox').node());
+var timerId = null;
 
 function selectChange(el) {
     el.checked ? tl.showSelect() : tl.hideSelect();
@@ -62,7 +63,7 @@ function fetchTimeLine(companyId) {
     // 比例尺设置大于可见宽高，避免全屏后右边及下边选取不到
     var xScale = d3.scale.linear()
         .domain([0, width * 2])
-        .range([0, width* 2]);
+        .range([0, width * 2]);
 
     var yScale = d3.scale.linear()
         .domain([height * 2, 0])
@@ -346,19 +347,125 @@ function fetchTimeLine(companyId) {
             }
         }
         function brushendFn() {
+            var ids = [];
             if (d3brush.extent() != null) {
                 d3.select(this).select('rect.extent').attr({
                     width: 0,
                     height: 0,
                     x: 0,
-                    y:0
+                    y: 0
                 });
                 node.each(function (d) {
                     if (d.selected) {
-                        console.log(d.id);
+                        ids.push(d.id);
                     }
                     d3.select('.halo-' + d.id).classed('hidden', !d.selected);
                 });
+
+                // 圆形菜单
+                var isMultipleNodes = ids.length > 1;
+
+                console.log(ids, ids.length);
+
+                var mouse = d3.mouse(this);
+                if (ids.length > 0) {
+                    var hideMenuAndUnSelectNode = function () {
+                        svg.select("#circle_menu").remove();
+                        // scope.unSelectNode();
+                    }
+
+                    //控制显示菜单
+                    svg.select("#circle_menu").remove();
+                    d3.select('.container').append('foreignObject')
+                        .attr('id', 'circle_menu')
+                        .attr("width", 128)
+                        .attr("height", 128)
+                        .attr("x", mouse[0] - 64)
+                        .attr("y", mouse[1] - 64)
+                        .html(function () {
+                            var html = `` + `
+                            <div class='menu-circle'>
+                                <div class="menu-ring ${isMultipleNodes ? 'multiple-menu' : 'single-menu'}">
+                                    <!-- <a class='menuItem fa fa-share-alt icon-white'></a> -->
+                                    <!-- <a id='menu_btn_findRelations' class='menuItem fa fa-search icon-white multiple-btn'></a> -->
+                                    <!-- <a id='menu_btn_findDeepRelations' class='menuItem fa fa-search-plus icon-white multiple-btn'></a> -->
+                                    <a id='menu_btn_trash' class='menuItem fa fa-trash icon-white '></a>
+                                    <a id='menu_btn_toggleSelection' class='menuItem fa fa-th-list icon-white single-btn'></a>
+                                    <a id ='menu_btn_closeNodeRelations' class='menuItem fa fa-compress icon-white single-btn'></a>
+                                    <a id ='menu_btn_openNodeRelations' class='menuItem fa fa-expand icon-white single-btn'></a>
+                                    <a id='menu_btn_refresh' class='menuItem fa fa-refresh icon-white multiple-btn'></a>
+                                </div>
+                                <a href='#' class='center fa fa-remove icon-white'></a>
+                            </div>`;
+                            return html;
+                        });
+
+                    // scope.selectNode();
+
+                    var items = document.querySelectorAll('.menuItem');
+                    
+                    for (var i = 0, l = items.length; i < l; i++) {
+                        items[i].style.left = (50 - 35 * Math.cos(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%";
+                        items[i].style.top = (50 + 35 * Math.sin(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%";
+                    }
+                    window.clearTimeout(timerId);
+                    timerId = setTimeout(function () {
+                        document.querySelector('.menu-circle').classList.toggle('open');
+                    }, 20);
+
+                    //默认展开
+                    svg.select(".center").on('click', function () {
+                        hideMenuAndUnSelectNode();
+                    });
+
+                    svg.select('#menu_btn_trash').on('click', function () {
+                        // scope.removeNodesAndRelations();
+                        hideMenuAndUnSelectNode();
+                    });
+
+                    svg.select('#menu_btn_refresh').on('click', function () {
+                        if (isMulti) {
+                            // scope.refreshNodeRelations();
+                            hideMenuAndUnSelectNode();
+                        }
+                    });
+
+                    svg.select('#menu_btn_toggleSelection').on('click', function () {
+                        if (!isMulti) {
+                            // scope.toggleSelection();
+                            hideMenuAndUnSelectNode();
+                        }
+                    });
+
+                    svg.select("#menu_btn_openNodeRelations").on('click', function () {
+                        if (!isMulti) {
+                            // scope.open();
+                            hideMenuAndUnSelectNode();
+                        }
+                    });
+
+                    svg.select("#menu_btn_closeNodeRelations").on('click', function () {
+                        if (!isMulti) {
+                            // scope.close();
+                            hideMenuAndUnSelectNode();
+                        }
+                    });
+
+                    svg.select("#menu_btn_findRelations").on('click', function () {
+                        if (isMulti) {
+                            // scope.find();
+                            hideMenuAndUnSelectNode();
+                        }
+                    });
+
+                    svg.select("#menu_btn_findDeepRelations").on('click', function () {
+                        if (isMulti) {
+                            // scope.findDeep();
+                            hideMenuAndUnSelectNode();
+                        }
+                    });
+                }
+
             }
         }
 

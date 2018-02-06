@@ -5005,7 +5005,7 @@ a.thumbnail:focus {
     margin-top: 5px
 }
 
-@ -webkit-keyframes progress-bar-stripes {
+@-webkit-keyframes progress-bar-stripes {
     from {
         background-position: 40px 0
     }
@@ -5014,7 +5014,7 @@ a.thumbnail:focus {
     }
 }
 
-@ -moz-keyframes progress-bar-stripes {
+@-moz-keyframes progress-bar-stripes {
     from {
         background-position: 40px 0
     }
@@ -5023,7 +5023,7 @@ a.thumbnail:focus {
     }
 }
 
-@ -ms-keyframes progress-bar-stripes {
+@-ms-keyframes progress-bar-stripes {
     from {
         background-position: 40px 0
     }
@@ -5032,7 +5032,7 @@ a.thumbnail:focus {
     }
 }
 
-@ -o-keyframes progress-bar-stripes {
+@-o-keyframes progress-bar-stripes {
     from {
         background-position: 0 0
     }
@@ -5041,7 +5041,7 @@ a.thumbnail:focus {
     }
 }
 
-@ keyframes progress-bar-stripes {
+@keyframes progress-bar-stripes {
     from {
         background-position: 40px 0
     }
@@ -6156,7 +6156,7 @@ button.close {
     height: auto
 }
 
-@ -ms-viewport {
+@-ms-viewport {
     width: device-width
 }
 
@@ -12391,7 +12391,7 @@ a.label:hover {
     box-shadow: none
 }
 
-@ -moz-keyframes move-ball-one {
+@-moz-keyframes move-ball-one {
     0% {
         opacity: 1;
         -ms-filter: none;
@@ -12424,7 +12424,7 @@ a.label:hover {
     }
 }
 
-@ -webkit-keyframes move-ball-one {
+@-webkit-keyframes move-ball-one {
     0% {
         opacity: 1;
         -ms-filter: none;
@@ -12457,7 +12457,7 @@ a.label:hover {
     }
 }
 
-@ -o-keyframes move-ball-one {
+@-o-keyframes move-ball-one {
     0% {
         opacity: 1;
         -ms-filter: none;
@@ -12490,7 +12490,7 @@ a.label:hover {
     }
 }
 
-@ -ms-keyframes move-ball-one {
+@-ms-keyframes move-ball-one {
     0% {
         opacity: 1;
         -ms-filter: none;
@@ -12523,7 +12523,7 @@ a.label:hover {
     }
 }
 
-@ keyframes move-ball-one {
+@keyframes move-ball-one {
     0% {
         opacity: 1;
         -ms-filter: none;
@@ -12556,7 +12556,7 @@ a.label:hover {
     }
 }
 
-@ -moz-keyframes move-ball-two {
+@-moz-keyframes move-ball-two {
     0% {
         opacity: 1;
         -ms-filter: none;
@@ -12589,7 +12589,7 @@ a.label:hover {
     }
 }
 
-@ -webkit-keyframes move-ball-two {
+@-webkit-keyframes move-ball-two {
     0% {
         opacity: 1;
         -ms-filter: none;
@@ -12622,7 +12622,7 @@ a.label:hover {
     }
 }
 
-@ -o-keyframes move-ball-two {
+@-o-keyframes move-ball-two {
     0% {
         opacity: 1;
         -ms-filter: none;
@@ -12655,7 +12655,7 @@ a.label:hover {
     }
 }
 
-@ -ms-keyframes move-ball-two {
+@-ms-keyframes move-ball-two {
     0% {
         opacity: 1;
         -ms-filter: none;
@@ -12688,7 +12688,7 @@ a.label:hover {
     }
 }
 
-@ keyframes move-ball-two {
+@keyframes move-ball-two {
     0% {
         opacity: 1;
         -ms-filter: none;
@@ -12721,7 +12721,7 @@ a.label:hover {
     }
 }
 
-@ -moz-keyframes move-ball-three {
+@-moz-keyframes move-ball-three {
     0% {
         opacity: 1;
         -ms-filter: none;
@@ -12754,7 +12754,7 @@ a.label:hover {
     }
 }
 
-@ -webkit-keyframes move-ball-three {
+@-webkit-keyframes move-ball-three {
     0% {
         opacity: 1;
         -ms-filter: none;
@@ -12787,7 +12787,7 @@ a.label:hover {
     }
 }
 
-@ -o-keyframes move-ball-three {
+@-o-keyframes move-ball-three {
     0% {
         opacity: 1;
         -ms-filter: none;
@@ -12820,7 +12820,7 @@ a.label:hover {
     }
 }
 
-@ -ms-keyframes move-ball-three {
+@-ms-keyframes move-ball-three {
     0% {
         opacity: 1;
         -ms-filter: none;
@@ -12853,7 +12853,7 @@ a.label:hover {
     }
 }
 
-@ keyframes move-ball-three {
+@keyframes move-ball-three {
     0% {
         opacity: 1;
         -ms-filter: none;

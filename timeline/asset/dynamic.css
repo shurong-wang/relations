@@ -317,7 +317,6 @@ body {
     cursor: pointer;
 }
 
-
 .menu-ring {
     background-color: rgba(0, 0, 0, 0.5);
     border-radius: 50%;
@@ -328,6 +327,7 @@ body {
     -webkit-transform: scale(0.1) rotate(-270deg);
     -moz-transform: scale(0.1) rotate(-270deg);
     -transform: scale(0.1) rotate(-270deg);
+    transform: scale(0.1) rotate(-270deg);
     -webkit-transition: all 0.2s ease-out;
     -moz-transition: all 0.2s ease-out;
     transition: all 0.2s ease-out;
@@ -338,6 +338,7 @@ body {
     -webkit-transform: scale(1) rotate(0);
     -moz-transform: scale(1) rotate(0);
     -transform: scale(1) rotate(0);
+    transform: scale(1) rotate(0);
 }
 
 .center {

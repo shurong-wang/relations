@@ -59,13 +59,14 @@ function fetchTimeLine(companyId) {
     var width = d3.select('#relation').node().clientWidth;
     var height = d3.select('#relation').node().clientHeight;
 
+    // 比例尺设置大于可见宽高，避免全屏后右边及下边选取不到
     var xScale = d3.scale.linear()
-        .domain([0, width])
-        .range([0, width]);
+        .domain([0, width * 2])
+        .range([0, width* 2]);
 
     var yScale = d3.scale.linear()
-        .domain([height, 0])
-        .range([height, 0]);
+        .domain([height * 2, 0])
+        .range([height * 2, 0]);
 
     var d3brush = d3.svg.brush()
         .x(xScale)
@@ -97,8 +98,8 @@ function fetchTimeLine(companyId) {
         .call(zoom)
         .on('dblclick.zoom', null);
 
-    const zoomOverlay = svg.append('rect')
-        .attr('class', 'zoom-overlay hidden');
+    // const zoomOverlay = svg.append('rect')
+    //     .attr('class', 'zoom-overlay hidden');
 
     const container = svg.append('g')
         .attr('class', 'container')
@@ -316,7 +317,7 @@ function fetchTimeLine(companyId) {
             .attr('class', function (d) { return 'halo-' + d.id; })
             .style('fill', 'rgba(0,0,0,.0)')
             .style('stroke', 'rgb(0,209,218)')
-            .style('stroke-width', 4)
+            .style('stroke-width', 3)
             .classed('hidden', true);
 
         // 框选刷
@@ -346,11 +347,17 @@ function fetchTimeLine(companyId) {
         }
         function brushendFn() {
             if (d3brush.extent() != null) {
-                d3.select(this).select('rect.extent').attr('width', 0).attr('height', 0);
+                d3.select(this).select('rect.extent').attr({
+                    width: 0,
+                    height: 0,
+                    x: 0,
+                    y:0
+                });
                 node.each(function (d) {
                     if (d.selected) {
                         console.log(d.id);
                     }
+                    d3.select('.halo-' + d.id).classed('hidden', !d.selected);
                 });
             }
         }
@@ -620,12 +627,12 @@ function fetchTimeLine(companyId) {
         }
     }
 
-    // 切换拖动/选取
-    d3.select('#offZoom').on('change', function () {
-        var off = this.checked;
-        d3.select('.zoom-overlay').classed('hidden', off);
-        d3.select('.brush-rect').classed('hidden', !off);
-    });
+    // // 切换拖动/选取
+    // d3.select('#offZoom').on('change', function () {
+    //     var off = this.checked;
+    //     d3.select('.zoom-overlay').classed('hidden', off);
+    //     d3.select('.brush-rect').classed('hidden', !off);
+    // });
 }
 
 // 清理画布

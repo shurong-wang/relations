@@ -18,6 +18,7 @@ $(function () {
     var oriWidth = $('#relation').width();
     var oriHeight = $('#relation').height();
 
+    // 全屏切换
     screenfull.on('change', function () {
         var screenElem = screenfull.element;
         if (screenfull.isFullscreen) {
@@ -25,20 +26,18 @@ $(function () {
             $('#exitScreen').removeClass('hidden');
             var width = $('#relation').width();
             var height = $('#relation').height();
-            $('#relation').find('svg, rect')
+            $('#relation').find('svg.svgCanvas, rect.zoom-overlay, rect.background')
                 .attr("width", width)
                 .attr("height", height);
-            $('#timeline')
-                .css("width", width);
+            $('#timeline').css("width", width);
         }
         else {
             $('#fullScreen').removeClass('hidden');
             $('#exitScreen').addClass('hidden');
-            $('#relation').find('svg, rect')
+            $('#relation').find('svg.svgCanvas, rect.zoom-overlay, rect.background')
                 .attr("width", oriWidth)
                 .attr("height", oriHeight);
-            $('#timeline')
-                .css("width", oriWidth);
+            $('#timeline').css("width", oriWidth);
         }
     });
 

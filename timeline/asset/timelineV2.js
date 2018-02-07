@@ -321,11 +321,22 @@ function fetchTimeLine(companyId) {
             .style('stroke-width', 3)
             .classed('hidden', true);
 
+        // 关闭菜单
+        var hideCircleMenu = function () { 
+            svg.select("#circle_menu").remove(); 
+        }
+
+        // 隐藏选中聚焦环
+        var hideSelectedHalo = function () {
+            selectedHalo.classed('hidden', true);
+            node.each(function (d) { d.selected = false; });
+        }
+        
         // 框选刷
         function brushstartFn() {
+            hideCircleMenu();
             if (d3.event.sourceEvent.type !== 'brushend') {
-                node.each(function (d) { d.selected = false; });
-                selectedHalo.classed('hidden', true);
+                hideSelectedHalo();
             }
         }
         function brushFn() {
@@ -365,11 +376,13 @@ function fetchTimeLine(companyId) {
                 // 圆形菜单
                 var isMulti = ids.length > 1;
                 var mouse = d3.mouse(this);
+                var closeMenu = function () {
+                    hideCircleMenu();
+                    hideSelectedHalo();
+                }
+
                 if (ids.length > 0) {
-                    var closeMenu = function () {
-                        svg.select("#circle_menu").remove();
-                    }
-                    closeMenu();
+                    hideCircleMenu();
 
                     //控制显示菜单
                     var circleMenu = d3.select('.container').append('foreignObject')

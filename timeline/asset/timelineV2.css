@@ -21,6 +21,11 @@ div {
 circle {
     /* fill-opacity: 0.2; */
     transition: fill-opacity 250ms linear;
+    /* transition: fill-opacity 250ms linear, r 250ms ease; */
+}
+
+text {
+    white-space: normal;
 }
 
 .node {

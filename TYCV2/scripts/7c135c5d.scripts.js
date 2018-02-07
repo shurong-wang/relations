@@ -4270,7 +4270,7 @@
                             length = Math.sqrt(square(dx) + square(dy));
                             var target = {},
                                 source = {};
-                            if (offset != 0) { //更具圆心间的连线计算偏移量为offset的直线与两圆的不同交点（offset为0时同样适用）
+                            if (offset != 0) { //根据圆心间的连线，计算偏移量为offset的直线与两圆的不同交点（offset为0时同样适用）
                                 var trackAoS = 0,
                                     trackAoT = 0;
                                 if (Math.abs(offset) >= relationship.source.radius) {

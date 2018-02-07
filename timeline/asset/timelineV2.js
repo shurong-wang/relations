@@ -53,7 +53,9 @@ function fetchTimeLine(companyId) {
         companyId: companyId
     });
 
-    var isOnGraphElement = false;
+    var isHoverNode = false;
+    var isHoverLine = false;
+    var isBrushing = false;
     var padding = -10;
     var ani = new animation();
 
@@ -267,10 +269,10 @@ function fetchTimeLine(companyId) {
 
         link
             .on('mouseenter', function () {
-                isOnGraphElement = true;
+                isHoverLine = true;
             })
             .on('mouseleave', function () {
-                isOnGraphElement = false;
+        HoverNode= false;
             });
 
         node = node.data(nodesList)
@@ -298,9 +300,17 @@ function fetchTimeLine(companyId) {
         });
 
         node
-            .on('dblclick', dblclick)
-            .on('mouseenter', function () { isOnGraphElement = true; })
-            .on('mouseleave', function () { isOnGraphElement = false; })
+            .on('mouseenter', function (d) { 
+                isHoverNode = true; 
+                if (!isBrushing) {
+                    d3.select(this).select('circle').transition().attr('r', 8 + circleStyle[d.ntype].r);
+                }
+            })
+            .on('mouseleave', function (d) { 
+                isHoverNode = false; 
+                d3.select(this).select('circle').transition().attr('r', circleStyle[d.ntype].r);
+            })
+            .on('dblclick', function (d) { d3.select(this).classed('fixed', d.fixed = false); })
             .call(drag);
 
         d3brush
@@ -334,12 +344,14 @@ function fetchTimeLine(companyId) {
         
         // 框选刷
         function brushstartFn() {
+            isBrushing = true;
             hideCircleMenu();
             if (d3.event.sourceEvent.type !== 'brushend') {
                 hideSelectedHalo();
             }
         }
         function brushFn() {
+            isBrushing = true;
             if (d3.event.sourceEvent.type !== 'brushend') {
                 var selection = d3brush.extent();
                 var xmin = selection[0][0];
@@ -358,6 +370,7 @@ function fetchTimeLine(companyId) {
             }
         }
         function brushendFn() {
+            isBrushing = false;
             var ids = [];
             if (d3brush.extent() != null) {
                 d3.select(this).select('rect.extent').attr({
@@ -588,10 +601,6 @@ function fetchTimeLine(companyId) {
         });
     }
 
-    function dblclick(d) {
-        d3.select(this).classed('fixed', d.fixed = false);
-    }
-
     function dragstart(d) {
         d3.select(this).classed('fixed', d.fixed = true);
         d3.event.sourceEvent.stopPropagation();
@@ -659,10 +668,10 @@ function fetchTimeLine(companyId) {
 
     var circleStyle = {
         Human: {
-            r: 30
+            r: 25
         },
         Company: {
-            r: 50
+            r: 40
         }
     }
 

@@ -366,14 +366,13 @@ function fetchTimeLine(companyId) {
                 var isMulti = ids.length > 1;
                 var mouse = d3.mouse(this);
                 if (ids.length > 0) {
-                    var hideMenuAndUnSelectNode = function () {
+                    var closeMenu = function () {
                         svg.select("#circle_menu").remove();
-                        // scope.unSelectNode();
                     }
+                    closeMenu();
 
                     //控制显示菜单
-                    svg.select("#circle_menu").remove();
-                    d3.select('.container').append('foreignObject')
+                    var circleMenu = d3.select('.container').append('foreignObject')
                         .attr('id', 'circle_menu')
                         .attr("width", 128)
                         .attr("height", 128)
@@ -397,68 +396,73 @@ function fetchTimeLine(companyId) {
                             return html;
                         });
 
-                    // scope.selectNode();
-
                     var items = document.querySelectorAll('.menuItem');
-                    
                     for (var i = 0, l = items.length; i < l; i++) {
                         items[i].style.left = (50 - 35 * Math.cos(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%";
                         items[i].style.top = (50 + 35 * Math.sin(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%";
                     }
+
                     window.clearTimeout(timerId);
                     timerId = setTimeout(function () {
                         document.querySelector('.menu-circle').classList.toggle('open');
                     }, 20);
 
-                    //默认展开
-                    svg.select(".center").on('click', function () {
-                        hideMenuAndUnSelectNode();
+                    // 关闭菜单
+                    circleMenu.select(".center").on('click', function () {
+                        closeMenu();
                     });
 
-                    svg.select('#menu_btn_trash').on('click', function () {
+                    // 删除节点
+                    circleMenu.select('#menu_btn_trash').on('click', function () {
                         // scope.removeNodesAndRelations();
-                        hideMenuAndUnSelectNode();
+                        closeMenu();
                     });
 
-                    svg.select('#menu_btn_refresh').on('click', function () {
+                    // 刷新节点间关系
+                    circleMenu.select('#menu_btn_refresh').on('click', function () {
                         if (isMulti) {
                             // scope.refreshNodeRelations();
-                            hideMenuAndUnSelectNode();
+                            closeMenu();
                         }
                     });
 
-                    svg.select('#menu_btn_toggleSelection').on('click', function () {
+                    // 显示节点信息
+                    circleMenu.select('#menu_btn_toggleSelection').on('click', function () {
                         if (!isMulti) {
                             // scope.toggleSelection();
-                            hideMenuAndUnSelectNode();
+                            closeMenu();
                         }
                     });
 
-                    svg.select("#menu_btn_openNodeRelations").on('click', function () {
+                    // 展开子关系节点
+                    circleMenu.select("#menu_btn_openNodeRelations").on('click', function () {
                         if (!isMulti) {
                             // scope.open();
-                            hideMenuAndUnSelectNode();
+                            closeMenu();
                         }
                     });
 
-                    svg.select("#menu_btn_closeNodeRelations").on('click', function () {
+                     // 收起子关系节点
+                    circleMenu.select("#menu_btn_closeNodeRelations").on('click', function () {
                         if (!isMulti) {
                             // scope.close();
-                            hideMenuAndUnSelectNode();
+                            closeMenu();
                         }
                     });
 
-                    svg.select("#menu_btn_findRelations").on('click', function () {
+                    // 获取节点关系
+                    circleMenu.select("#menu_btn_findRelations").on('click', function () {
                         if (isMulti) {
                             // scope.find();
-                            hideMenuAndUnSelectNode();
+                            closeMenu();
                         }
                     });
 
-                    svg.select("#menu_btn_findDeepRelations").on('click', function () {
+                    // 获取深层节点关系
+                    circleMenu.select("#menu_btn_findDeepRelations").on('click', function () {
                         if (isMulti) {
                             // scope.findDeep();
-                            hideMenuAndUnSelectNode();
+                            closeMenu();
                         }
                     });
                 }

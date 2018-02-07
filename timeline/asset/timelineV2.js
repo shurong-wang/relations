@@ -363,10 +363,7 @@ function fetchTimeLine(companyId) {
                 });
 
                 // 圆形菜单
-                var isMultipleNodes = ids.length > 1;
-
-                console.log(ids, ids.length);
-
+                var isMulti = ids.length > 1;
                 var mouse = d3.mouse(this);
                 if (ids.length > 0) {
                     var hideMenuAndUnSelectNode = function () {
@@ -385,10 +382,10 @@ function fetchTimeLine(companyId) {
                         .html(function () {
                             var html = `` + `
                             <div class='menu-circle'>
-                                <div class="menu-ring ${isMultipleNodes ? 'multiple-menu' : 'single-menu'}">
-                                    <!-- <a class='menuItem fa fa-share-alt icon-white'></a> -->
-                                    <!-- <a id='menu_btn_findRelations' class='menuItem fa fa-search icon-white multiple-btn'></a> -->
-                                    <!-- <a id='menu_btn_findDeepRelations' class='menuItem fa fa-search-plus icon-white multiple-btn'></a> -->
+                                <div class="menu-ring ${isMulti ? 'multiple-menu' : 'single-menu'}">
+                                    <a class='menuItem fa fa-share-alt icon-white'></a>
+                                    <a id='menu_btn_findRelations' class='menuItem fa fa-search icon-white multiple-btn'></a>
+                                    <a id='menu_btn_findDeepRelations' class='menuItem fa fa-search-plus icon-white multiple-btn'></a>
                                     <a id='menu_btn_trash' class='menuItem fa fa-trash icon-white '></a>
                                     <a id='menu_btn_toggleSelection' class='menuItem fa fa-th-list icon-white single-btn'></a>
                                     <a id ='menu_btn_closeNodeRelations' class='menuItem fa fa-compress icon-white single-btn'></a>

@@ -51,13 +51,13 @@ text {
 .Company {
     fill: rgb(8, 147, 228);
     stroke: rgb(7, 117, 180);
-    stroke-width: .3px;
+    stroke-width: .6px;
 }
 
 .Human {
     fill: rgb(255, 150, 107);
     stroke: rgb(247, 115, 62);
-    stroke-width: .3px;
+    stroke-width: .6px;
 }
 
 .Company text {
@@ -121,7 +121,7 @@ text {
     fill: rgb(249, 225, 105);
 }
 
-.behavior {
+.flow {
     fill: rgb(141, 149, 250);
     stroke-width: 0;
 }

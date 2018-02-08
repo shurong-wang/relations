@@ -6,12 +6,13 @@ var TimelineBar = function (element) {
         bottom: 20,
         left: 30
     };
-    this.options = {
+    this.setting = {
         intervalMinWidth: 8, // px
         tip: undefined,
         textTruncateThreshold: 30,
         enableLiveTimer: false,
-        timerTickInterval: 1000
+        timerTickInterval: 1000,
+        fn: function () {}
     };
     this.element = element;
 
@@ -20,13 +21,13 @@ var TimelineBar = function (element) {
     return this;
 };
 
-TimelineBar.prototype.reDraw = function (data, opts, redraw) {
-    this.options = this.extendOptions(opts);
+// 绘制时间轴工具条
+TimelineBar.prototype.renderTimeLineBar = function (data, opts, callback) {
+    this.setting = this.extendSetting(opts);
     if (!data) data = this.data;
     if (!data) return;
     this.data = data;
     var that = this;
-
 
     this.allElements = data.reduce(function (agg, e) {
         return agg.concat(e.data);
@@ -35,9 +36,9 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
     this.minDt = d3.min(this.allElements, this.getPointMinDt) || this.minDt;
     this.maxDt = d3.max(this.allElements, this.getPointMaxDt) || this.maxDt;
 
-    this.elementWidth = this.options.width || this.element.clientWidth
+    this.elementWidth = this.setting.width || this.element.clientWidth
         || this.element.parentElement.parentElement.clientWidth;
-    this.elementHeight = this.options.height || this.element.clientHeight
+    this.elementHeight = this.setting.height || this.element.clientHeight
         || this.element.parentElement.parentElement.clientHeight;
 
     this.width = this.elementWidth - this.margin.left - this.margin.right;
@@ -50,7 +51,7 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
 
     var startDate = new Date(this.minDt.getTime() - 25920000000);
     var endDate = new Date(this.maxDt.getTime() + 25920000000);
-    var xDomain = this.x && !redraw ? this.x.domain() : [startDate, endDate];
+    var xDomain = this.x && !callback ? this.x.domain() : [startDate, endDate];
     var xRange = [this.groupWidth, this.width];
 
     // 创建一个时间比例尺
@@ -98,24 +99,25 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
     // 缩放/平移动作
     this.zoom = d3.behavior.zoom()
         .x(this.x)
-        .scaleExtent(this.options.zoom || [1.5, 1.5])
+        .scaleExtent(this.setting.zoom || [1.5, 1.5])
         .on('zoom', function () {
             that.zoomed()
         })
-        .scale(this.options.startZoom || 1.5);
+        .scale(this.setting.startZoom || 1.5);
 
     var extent = this.brush && this.brush.extent && this.brush.extent();
 
-    // 区域选择
+    // 拖动时间轴工具条-更新时间范围-更新关系图
     this.brush = d3.svg.brush()
         .x(this.x)
-        .on('brushend', function () {
-            if (that.options && that.options.event && that.options.event.onBrushEnd)
-                that.options.event.onBrushEnd.apply(that, that.brush.extent());
-        })
         .on('brush', function () {
-            if (that.options && that.options.event && that.options.event.onBrush)
-                that.options.event.onBrush.apply(that, that.brush.extent());
+            // 更新关系图
+            if (that.setting.fn.onBrush) {
+                var extent = that.brush.extent();
+                var startTime = extent[0].getTime();
+                var endTime = extent[1].getTime();
+                that.setting.fn.onBrush(startTime, endTime);
+            }
         });
 
     if (extent) {
@@ -165,7 +167,7 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
         .attr('transform', 'translate(0,' + this.height + ')');
     this.xDom.call(this.xAxis);
 
-    if (this.options.enableLiveTimer) {
+    if (this.setting.enableLiveTimer) {
         this.now = this.now || this.svg.append('line')
             .attr('clip-path', 'url(#chart-content)')
             .attr('class', 'vertical-marker now')
@@ -255,7 +257,7 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
         .attr('dx', 5)
         .attr('dy', 5)
         .attr('width', function (d) {
-            return Math.max(that.options.intervalMinWidth, that.x(d.to) - that.x(d.from));
+            return Math.max(that.setting.intervalMinWidth, that.x(d.to) - that.x(d.from));
         })
         .attr('height', intervalBarHeight)
         .attr('y', intervalBarMargin)
@@ -337,10 +339,10 @@ TimelineBar.prototype.reDraw = function (data, opts, redraw) {
 
     this.zoomed();
 
-    if (this.options.enableLiveTimer) {
+    if (this.setting.enableLiveTimer) {
         this.enableLiveTimerTime = setInterval(function () {
             that.updateNowMarker()
-        }, this.options.timerTickInterval);
+        }, this.setting.timerTickInterval);
     }
 
 }
@@ -367,7 +369,7 @@ TimelineBar.prototype.zoomed = function () {
         });
     }
 
-    if (this.options.enableLiveTimer) {
+    if (this.setting.enableLiveTimer) {
         this.updateNowMarker();
     }
 
@@ -396,7 +398,7 @@ TimelineBar.prototype.zoomed = function () {
         .attr('x', function (d) {
             return that.x(d.from);
         }).attr('width', function (d) {
-            return Math.max(that.options.intervalMinWidth, that.x(d.to) - that.x(d.from));
+            return Math.max(that.setting.intervalMinWidth, that.x(d.to) - that.x(d.from));
         });
 
     this.svg.selectAll('.interval-text')
@@ -425,9 +427,9 @@ TimelineBar.prototype.zoomed = function () {
         })
         .text(function (d) {
             var positionData = that.getTextPositionData(this, d);
-            var percent = (positionData.width - that.options.textTruncateThreshold) / positionData.textWidth;
+            var percent = (positionData.width - that.setting.textTruncateThreshold) / positionData.textWidth;
             if (percent < 1) {
-                if (positionData.width > that.options.textTruncateThreshold) {
+                if (positionData.width > that.setting.textTruncateThreshold) {
                     return d.label.substr(0, Math.floor(d.label.length * percent)) + '...';
                 } else {
                     return '';
@@ -440,11 +442,15 @@ TimelineBar.prototype.zoomed = function () {
     this.chart_brush.call(this.brush.extent(this.brush.extent()));
 }
 
-TimelineBar.prototype.extendOptions = function (ext) {
+TimelineBar.prototype.extendSetting = function (ext) {
     var ol = [];
-    for (var i in ext) ol.push(i);
-    for (var i in ol) this.options[ol[i]] = ext[ol[i]];
-    return this.options;
+    for (var i in ext) { 
+        ol.push(i);
+    }
+    for (var i in ol) {
+        this.setting[ol[i]] = ext[ol[i]];
+    }
+    return this.setting;
 }
 
 TimelineBar.prototype.getTextPositionData = function (t, d) {

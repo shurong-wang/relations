@@ -187,7 +187,7 @@ $(function () {
     // 获取数据 && 绘制时间轴
     function getTimeLine(event) {
         cleanUpCanvas();
-        fetchTimeLine(1);
+        drawTimeLine(1);
     }
 
     getTimeLine(event);

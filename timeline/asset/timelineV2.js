@@ -11,35 +11,40 @@ function clearChange() {
 
 var timeLineCache = new Map();
 
-function fetchTimeLine(companyId) {
+/**
+ * 绘制时间轴关系图
+ * @param {Number} companyId 
+ */
+function drawTimeLine(companyId) {
     toggleMask(true);
 
-    var nodesList, linksList;
+    var nodesList = [];
+    var linksList = [];
 
-    var tlOptions = {
-        event: {
-            onBrush: function (start, end) {
-                start = start.getTime();
-                end = end.getTime();
-                if (start == end) {
+    // 时间轴工具条配置
+    var barSetting = {
+        fn: {
+            // 拖动时间轴工具条笔刷，更新关系图数据
+            onBrush: function (startTime, endTime) {
+                if (startTime === endTime) {
                     linksList.forEach(function (link) {
-                        link.relation.forEach(function (l) {
-                            l.filter = false;
-                        })
+                        link.relation.forEach(function (ln) { ln.filter = false; });
                         link.source.filter = false;
-                    })
+                    });
                 } else {
-                    linksList.forEach(function (link, index) {
-                        link.relation.forEach(function (l, i) {
-                            var time = new Date(l.starDate).getTime();
-                            l.filter = !(time > start && time < end);
-                        })
+                    linksList.forEach(function (link) {
+                        link.relation.forEach(function (ln) {
+                            var time = new Date(ln.starDate).getTime();
+                            ln.filter = !(time > startTime && time < endTime);
+                        });
                         link.source.filter = !link.relation.filter(function (d) {
                             return !d.filter
-                        }).length
-                    })
+                        }).length;
+                    });
                 }
-                reStatus();
+
+                // 更新关系图样式
+                updateRelation();
             }
         },
         height: 80,
@@ -49,20 +54,21 @@ function fetchTimeLine(companyId) {
     };
 
     // var url = '../js/config/data/timeline.json';
-    var url = api('getTimeLine', {
-        companyId: companyId
-    });
+    // var url = api('getTimeLine', {
+    //     companyId: companyId
+    // });
+    var url = './asset/timelineV2.json';
 
     var isHoverNode = false;
     var isHoverLine = false;
     var isBrushing = false;
     var padding = -10;
-    var ani = new animation();
+    var flowAnim = new animation();
 
     var width = d3.select('#relation').node().clientWidth;
     var height = d3.select('#relation').node().clientHeight;
 
-    // 比例尺设置大于可见宽高，避免全屏后右边及下边选取不到
+    // 节点笔刷比例尺 - 设置大于可见宽高，避免全屏后右边及下边选取不到
     var xScale = d3.scale.linear()
         .domain([0, width * 2])
         .range([0, width * 2]);
@@ -71,6 +77,7 @@ function fetchTimeLine(companyId) {
         .domain([height * 2, 0])
         .range([height * 2, 0]);
 
+    // 节点笔刷
     var d3brush = d3.svg.brush()
         .x(xScale)
         .y(yScale)
@@ -114,9 +121,10 @@ function fetchTimeLine(companyId) {
     var link = container.selectAll('.link');
     var node = container.selectAll('.node');
 
-    var span = d3.select('body').append('span')
+    var textSpan = d3.select('body').append('span')
         .style('font-size', '12px')
-        .style('line-height', '12px');
+        .style('line-height', '12px')
+        .node();
 
     var markerList = [];
     var markerStyle = {
@@ -164,10 +172,11 @@ function fetchTimeLine(companyId) {
         });
     }
 
-    var amoutIdentity;
+    // 数据流小球比例尺
+    var flowScale;
 
     function renderTimeline(graph) {
-        // --> 绘制时间轴工具条
+        // --> 1. 绘制时间轴工具条
         var barData = [];
         var barMap = {};
         if (graph.relations) {
@@ -186,14 +195,12 @@ function fetchTimeLine(companyId) {
             label: 'bar',
             data: barData
         }];
-        tl.reDraw(d, tlOptions);
+        tl.renderTimeLineBar(d, barSetting);
         // tl.showSelect();
 
-
-        // --> 绘制关系图 
+        // --> 2. 绘制关系图 
         nodesList = JSON.parse(JSON.stringify(graph.nodes));
         var nodesObj = {};
-        linksList = [];
         var linksObj = {};
         var amoutList = [];
         nodesList.forEach(function (d) {
@@ -201,29 +208,29 @@ function fetchTimeLine(companyId) {
         });
 
         graph.relations.forEach(function (d) {
-            var l;
+            var ln;
             if (linksObj[[d.startNode, d.endNode]]) {
-                l = linksObj[[d.startNode, d.endNode]];
+                ln = linksObj[[d.startNode, d.endNode]];
             } else {
-                l = linksObj[[d.startNode, d.endNode]] = {
+                ln = linksObj[[d.startNode, d.endNode]] = {
                     relation: [],
                     startNode: d.startNode,
                     endNode: d.endNode
                 }
             }
-            l.relation.push({
+            ln.relation.push({
                 type: d.type,
                 id: d.id,
                 label: d.label,
-                parent: l,
+                parent: ln,
                 amout: d.amout,
                 starDate: d.starDate
             });
             if (d.amout) amoutList.push(d.amout);
         });
 
-        // 定义线性比例尺
-        amoutIdentity = d3.scale.linear()
+        // 数据流小球比例尺
+        flowScale = d3.scale.linear()
             .range([8, 15])
             .domain(d3.extent(amoutList));
 
@@ -272,14 +279,12 @@ function fetchTimeLine(companyId) {
                 isHoverLine = true;
             })
             .on('mouseleave', function () {
-        HoverNode= false;
+                HoverNode = false;
             });
 
         node = node.data(nodesList)
             .enter().append('g')
             .attr('class', 'node');
-
-        var s = span.node();
 
         node.each(function (d) {
             d.selected = false;
@@ -288,26 +293,28 @@ function fetchTimeLine(companyId) {
                 .call(circle);
             var text = d3.select(this).append('text')
                 .text(function (d) {
-                    var s = d.name
-                    if (s.length > 6) return s.substr(0, 6);
-                    return s;
+                    var nodeText = d.name;
+                    if (nodeText.length > 6) {
+                        return nodeText.substr(0, 6);
+                    }
+                    return nodeText;
                 })
                 .attr('transform', function () {
-                    s.innerText = d.name;
-                    return 'translate(' + [0, s.offsetHeight / 4] + ')';
+                    textSpan.innerText = d.name;
+                    return 'translate(' + [0, textSpan.offsetHeight / 4] + ')';
                 });
             d3.select(this).classed(d.ntype, true);
         });
 
         node
-            .on('mouseenter', function (d) { 
-                isHoverNode = true; 
+            .on('mouseenter', function (d) {
+                isHoverNode = true;
                 if (!isBrushing) {
                     d3.select(this).select('circle').transition().attr('r', 8 + circleStyle[d.ntype].r);
                 }
             })
-            .on('mouseleave', function (d) { 
-                isHoverNode = false; 
+            .on('mouseleave', function (d) {
+                isHoverNode = false;
                 d3.select(this).select('circle').transition().attr('r', circleStyle[d.ntype].r);
             })
             .on('dblclick', function (d) { d3.select(this).classed('fixed', d.fixed = false); })
@@ -332,8 +339,8 @@ function fetchTimeLine(companyId) {
             .classed('hidden', true);
 
         // 关闭菜单
-        var hideCircleMenu = function () { 
-            svg.select("#circle_menu").remove(); 
+        var hideCircleMenu = function () {
+            svg.select("#circle_menu").remove();
         }
 
         // 隐藏选中聚焦环
@@ -341,7 +348,7 @@ function fetchTimeLine(companyId) {
             selectedHalo.classed('hidden', true);
             node.each(function (d) { d.selected = false; });
         }
-        
+
         // 框选刷
         function brushstartFn() {
             isBrushing = true;
@@ -468,7 +475,7 @@ function fetchTimeLine(companyId) {
                         }
                     });
 
-                     // 收起子关系节点
+                    // 收起子关系节点
                     circleMenu.select("#menu_btn_closeNodeRelations").on('click', function () {
                         if (!isMulti) {
                             // scope.close();
@@ -497,7 +504,7 @@ function fetchTimeLine(companyId) {
         }
 
         // 时间轴范围变化，图元素样式更新
-        reStatus();
+        updateRelation();
 
         // setTimeout(function () {
         //     force.stop();
@@ -506,7 +513,8 @@ function fetchTimeLine(companyId) {
 
     var newList, oldList;
 
-    function reStatus() {
+    // 时间轴范围变化，图元素样式更新
+    function updateRelation() {
         newList = link.data().map(function (d) {
             return d.relation.filter(function (d) {
                 return d.filter
@@ -524,7 +532,9 @@ function fetchTimeLine(companyId) {
                 d3.select(this).classed('selected', d.selected);
             });
         });
-        if (oldList != newList) d3render(link);
+        if (oldList != newList) {
+            renderFlowBall(link);
+        }
         oldList = newList;
     }
 
@@ -577,13 +587,14 @@ function fetchTimeLine(companyId) {
             });
             d3.select(this).selectAll('text').attr('transform', function (d) {
                 var x = d.sourceX + (d.targetX - d.sourceX) / 2;
-
                 var y = d.sourceY + (d.targetY - d.sourceY) / 2;
                 var textAngle = d.parent.textAngle;
                 var textRotate = (textAngle > 90 || textAngle < -90) ? (180 + textAngle) : textAngle;
                 return ['translate(' + [x, y] + ')', 'rotate(' + textRotate + ')'].join(' ');
             });
-        })
+        });
+
+        link
             .attr('x1', function (d) {
                 return d.source.x;
             })
@@ -596,9 +607,11 @@ function fetchTimeLine(companyId) {
             .attr('y2', function (d) {
                 return d.target.y;
             });
-        node.attr('transform', function (d) {
-            return 'translate(' + [d.x, d.y] + ')'
-        });
+
+        node
+            .attr('transform', function (d) {
+                return 'translate(' + [d.x, d.y] + ')'
+            });
     }
 
     function dragstart(d) {
@@ -675,50 +688,52 @@ function fetchTimeLine(companyId) {
         }
     }
 
-    function clearAni() {
-        ani.stopAll();
-        d3.selectAll('.behavior').remove();
+    // 清除数据流动画
+    function clearFlowAnim() {
+        flowAnim.stopAll();
+        d3.selectAll('.flow').remove();
         link.each(function (d) {
             d.relation.forEach(function (d) {
-                delete d.behavior;
+                delete d.flow;
             });
         });
     }
 
-    function d3render(link) {
-        clearAni();
-
-        link.filter(function (d) {
-            return !d.filter;
-        }).each(function (link) {
+    // 渲染数据流动画
+    function renderFlowBall(link) {
+        clearFlowAnim();
+        var activeLink = link.filter(function (d) { 
+            return !d.filter; 
+        });
+        
+        activeLink.each(function (link) {
             var i = 0;
-            var _dom = d3.select(this);
+            var _flowBall = d3.select(this);
 
-            var dom = _dom.selectAll('line').filter(function (d) {
+            var flowBall = _flowBall.selectAll('line').filter(function (d) {
                 return (!d.filter) && (d.type == 'INVEST_C' || d.type == 'TELPHONE');
             });
 
-            dom.each(function (d) {
-                d.behavior = _dom.append('circle')
+            flowBall.each(function (d) {
+                d.flow = _flowBall.append('circle')
                     .attr('r', function (d, i) {
-                        return amoutIdentity(d.relation[i].amout) || 5;
+                        return flowScale(d.relation[i].amout) || 5;
                     })
-                    .classed('behavior', true);
+                    .classed('flow', true);
             });
 
-            ani.start(function () {
-                dom.each(function (d, index) {
-                    var dom = d3.select(this);
-                    var x1 = parseInt(dom.attr('x1'));
-                    var y1 = parseInt(dom.attr('y1'));
-                    var x2 = parseInt(dom.attr('x2'));
-                    var y2 = parseInt(dom.attr('y2'));
-
+            flowAnim.start(function () {
+                flowBall.each(function (d, index) {
+                    var flowBall = d3.select(this);
+                    var x1 = parseInt(flowBall.attr('x1'));
+                    var y1 = parseInt(flowBall.attr('y1'));
+                    var x2 = parseInt(flowBall.attr('x2'));
+                    var y2 = parseInt(flowBall.attr('y2'));
                     var x = x1 + ((i % 200) / 199) * (x2 - x1);
                     var y = y1 + ((i % 200) / 199) * (y2 - y1);
-
-                    if (x && y)
-                        d.behavior.attr('cx', x).attr('cy', y)
+                    if (x && y) {
+                        d.flow.attr('cx', x).attr('cy', y)
+                    }
                 });
                 i++;
             }, 90);

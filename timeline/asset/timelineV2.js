@@ -21,38 +21,6 @@ function initCanvas(companyId) {
     var nodes_data = [];
     var edges_data = [];
 
-    // 时间轴工具条配置
-    var barSetting = {
-        fn: {
-            // 拖动时间轴工具条笔刷，更新关系图数据
-            onBrush: function (startTime, endTime) {
-                if (startTime === endTime) {
-                    edges_data.forEach(function (link) {
-                        link.relation.forEach(function (ln) { ln.filter = false; });
-                        link.source.filter = false;
-                    });
-                } else {
-                    edges_data.forEach(function (link) {
-                        link.relation.forEach(function (ln) {
-                            var time = new Date(ln.starDate).getTime();
-                            ln.filter = !(time > startTime && time < endTime);
-                        });
-                        link.source.filter = !link.relation.filter(function (d) {
-                            return !d.filter
-                        }).length;
-                    });
-                }
-
-                // 根据时间轴范围变化，筛选关系（修改样式）
-                filterRelation();
-            }
-        },
-        height: 80,
-        zoom: [0.5, 0.5],
-        startZoom: 0.5
-        // ,enableLiveTimer:true
-    };
-
     // var url = '../js/config/data/timeline.json';
     // var url = api('getTimeLine', {
     //     companyId: companyId
@@ -173,7 +141,38 @@ function initCanvas(companyId) {
     }
 
     // 数据流小球比例尺
-    var flowScale;
+    var flowScale = d3.scale.linear().range([8, 15]);
+
+    // 时间轴工具条配置
+    var barSetting = {
+        fn: {
+            // 拖动时间轴工具条笔刷，更新关系图数据
+            onBrush: function (startTime, endTime) {
+                if (startTime === endTime) {
+                    edges_data.forEach(function (link) {
+                        link.relation.forEach(function (ln) { ln.filter = false; });
+                        link.source.filter = false;
+                    });
+                } else {
+                    edges_data.forEach(function (link) {
+                        link.relation.forEach(function (ln) {
+                            var time = new Date(ln.starDate).getTime();
+                            ln.filter = !(time > startTime && time < endTime);
+                        });
+                        link.source.filter = !link.relation.filter(function (d) {
+                            return !d.filter
+                        }).length;
+                    });
+                }
+                // 根据时间轴范围变化，筛选关系（修改样式）
+                filterRelation();
+            }
+        },
+        height: 80,
+        zoom: [0.5, 0.5],
+        startZoom: 0.5
+        // ,enableLiveTimer:true
+    };
 
     /**
      * 渲染 时间轴工具条 + 关系图
@@ -188,10 +187,10 @@ function initCanvas(companyId) {
                 barMap[d.starDate] = barMap[d.starDate] ? barMap[d.starDate] + 1 : 1;
             });
         }
-        for (var i in barMap) {
+        for (var k in barMap) {
             barData.push({
-                at: new Date(i),
-                value: barMap[i],
+                at: new Date(k),
+                value: barMap[k],
                 type: 'bar'
             });
         }
@@ -237,9 +236,7 @@ function initCanvas(companyId) {
         });
 
         // 数据流小球比例尺
-        flowScale = d3.scale.linear()
-            .range([8, 15])
-            .domain(d3.extent(amoutList));
+        flowScale = flowScale.domain(d3.extent(amoutList));
 
         for (var k in linksMap) {
             edges_data.push(linksMap[k]);
@@ -329,6 +326,15 @@ function initCanvas(companyId) {
             .on('dblclick', function (d) { d3.select(this).classed('fixed', d.fixed = false); })
             .call(drag);
 
+        // 选中画布范围
+        brushHandle();
+
+    } // renderTimeline end 
+
+    /**
+     * 选中画布范围
+     */
+    function brushHandle() {
         d3brush
             .on("brushstart", brushstartFn)
             .on("brush", brushFn)
@@ -385,6 +391,7 @@ function initCanvas(companyId) {
                 });
             }
         }
+
         function brushendFn() {
             isBrushing = false;
             var ids = [];
@@ -422,19 +429,19 @@ function initCanvas(companyId) {
                         .attr("y", mouse[1] - 64)
                         .html(function () {
                             var html = `` + `
-                            <div class='menu-circle'>
-                                <div class="menu-ring ${isMulti ? 'multiple-menu' : 'single-menu'}">
-                                    <a class='menuItem fa fa-share-alt icon-white'></a>
-                                    <a id='menu_btn_findRelations' class='menuItem fa fa-search icon-white multiple-btn'></a>
-                                    <a id='menu_btn_findDeepRelations' class='menuItem fa fa-search-plus icon-white multiple-btn'></a>
-                                    <a id='menu_btn_trash' class='menuItem fa fa-trash icon-white '></a>
-                                    <a id='menu_btn_toggleSelection' class='menuItem fa fa-th-list icon-white single-btn'></a>
-                                    <a id ='menu_btn_closeNodeRelations' class='menuItem fa fa-compress icon-white single-btn'></a>
-                                    <a id ='menu_btn_openNodeRelations' class='menuItem fa fa-expand icon-white single-btn'></a>
-                                    <a id='menu_btn_refresh' class='menuItem fa fa-refresh icon-white multiple-btn'></a>
-                                </div>
-                                <a href='#' class='center fa fa-remove icon-white'></a>
-                            </div>`;
+                        <div class='menu-circle'>
+                            <div class="menu-ring ${isMulti ? 'multiple-menu' : 'single-menu'}">
+                                <a class='menuItem fa fa-share-alt icon-white'></a>
+                                <a id='menu_btn_findRelations' class='menuItem fa fa-search icon-white multiple-btn'></a>
+                                <a id='menu_btn_findDeepRelations' class='menuItem fa fa-search-plus icon-white multiple-btn'></a>
+                                <a id='menu_btn_trash' class='menuItem fa fa-trash icon-white '></a>
+                                <a id='menu_btn_toggleSelection' class='menuItem fa fa-th-list icon-white single-btn'></a>
+                                <a id ='menu_btn_closeNodeRelations' class='menuItem fa fa-compress icon-white single-btn'></a>
+                                <a id ='menu_btn_openNodeRelations' class='menuItem fa fa-expand icon-white single-btn'></a>
+                                <a id='menu_btn_refresh' class='menuItem fa fa-refresh icon-white multiple-btn'></a>
+                            </div>
+                            <a href='#' class='center fa fa-remove icon-white'></a>
+                        </div>`;
                             return html;
                         });
 
@@ -519,9 +526,6 @@ function initCanvas(companyId) {
             }
         }
 
-        // 根据时间轴范围变化，筛选关系（修改样式）
-        filterRelation();
-
         // setTimeout(function () {
         //     force.stop();
         // }, 3000);
@@ -568,7 +572,9 @@ function initCanvas(companyId) {
             console.log('获取深层节点关系', ids);
 
         }
-
+        
+        // 时间轴筛选关系
+        filterRelation();
     }
 
     /**
@@ -580,7 +586,7 @@ function initCanvas(companyId) {
     }
 
 
-    // 根据时间轴范围变化，筛选关系（修改样式）
+    // 时间轴筛选关系（修改样式）
     var newRFlag, oldRFlag;
     function filterRelation() {
         newRFlag = links.data().map(function (d) {

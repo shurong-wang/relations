@@ -21,6 +21,10 @@ function initCanvas(companyId) {
     var nodes_data = [];
     var edges_data = [];
 
+    var nodesMap = {};
+    var linksMap = {};
+    var barMap = {};
+
     // var url = '../js/config/data/timeline.json';
     // var url = api('getTimeLine', {
     //     companyId: companyId
@@ -187,7 +191,6 @@ function initCanvas(companyId) {
     function render(graph) {
         // --> 1. 绘制时间轴工具条
         var barData = [];
-        var barMap = {};
         if (graph.relations) {
             graph.relations.forEach(function (d) {
                 barMap[d.starDate] = barMap[d.starDate] ? barMap[d.starDate] + 1 : 1;
@@ -209,8 +212,7 @@ function initCanvas(companyId) {
 
         // --> 2. 绘制关系图 
         nodes_data = JSON.parse(JSON.stringify(graph.nodes));
-        var nodesMap = {};
-        var linksMap = {};
+
         var amoutList = [];
         nodes_data.forEach(function (d) {
             nodesMap[d.id] = d;
@@ -333,24 +335,25 @@ function initCanvas(companyId) {
             .call(drag);
 
         // 选中画布范围
-        brushHandle();
+        brushHandle(graph);
 
     } // render end 
 
 
     /**
      * 更新关系图
-     * @param {Object} graph 
+     * @param {Object}  
      */
     function update(graph) {
-
+        console.log('Update Graph:', graph);
+        
     }
 
-    
+
     /**
      * 选中画布范围
      */
-    function brushHandle() {
+    function brushHandle(graph) {
         d3brush
             .on("brushstart", brushstartFn)
             .on("brush", brushFn)
@@ -480,7 +483,7 @@ function initCanvas(companyId) {
                     // 删除节点
                     circleMenu.select('#menu_btn_trash').on('click', function () {
                         // scope.removeNodesAndRelations();
-                        removeNR(ids);
+                        removeNR(ids, graph);
                         closeMenu();
                     });
 
@@ -488,7 +491,7 @@ function initCanvas(companyId) {
                     circleMenu.select('#menu_btn_refresh').on('click', function () {
                         if (isMulti) {
                             // scope.refreshNodeRelations();
-                            refreshNR(ids);
+                            refreshNR(ids, graph);
                             closeMenu();
                         }
                     });
@@ -506,7 +509,7 @@ function initCanvas(companyId) {
                     circleMenu.select("#menu_btn_openNodeRelations").on('click', function () {
                         if (!isMulti) {
                             // scope.open();
-                            openNR(ids);
+                            openNR(ids, graph);
                             closeMenu();
                         }
                     });
@@ -515,7 +518,7 @@ function initCanvas(companyId) {
                     circleMenu.select("#menu_btn_closeNodeRelations").on('click', function () {
                         if (!isMulti) {
                             // scope.close();
-                            closeNR(ids);
+                            closeNR(ids, graph);
                             closeMenu();
                         }
                     });
@@ -524,7 +527,7 @@ function initCanvas(companyId) {
                     circleMenu.select("#menu_btn_findRelations").on('click', function () {
                         if (isMulti) {
                             // scope.find();
-                            findNR(ids);
+                            findNR(ids, graph);
                             closeMenu();
                         }
                     });
@@ -533,7 +536,7 @@ function initCanvas(companyId) {
                     circleMenu.select("#menu_btn_findDeepRelations").on('click', function () {
                         if (isMulti) {
                             // scope.findDeep();
-                            findDeepNR(ids);
+                            findDeepNR(ids, graph);
                             closeMenu();
                         }
                     });
@@ -545,19 +548,29 @@ function initCanvas(companyId) {
         // setTimeout(function () {
         //     force.stop();
         // }, 3000);
-        
+
         // 时间轴筛选关系
         filterRelation();
     }
 
+
     // 删除节点及关系
-    function removeNR(ids) {
+    function removeNR(ids, graph) {
         console.log('删除节点及关系', ids);
 
+        graph.nodes = graph.nodes.filter(function (d) {
+            return !ids.includes(d.id);
+        });
+        graph.relations = graph.relations.filter(function (d) {
+            return !(ids.includes(d.startNode) || ids.includes(d.endNode));
+        });
+
+        // 更新画图数据
+        update(graph);
     }
 
     // 刷新节点间关系
-    function refreshNR(ids) {
+    function refreshNR(ids, graph) {
         console.log('刷新节点间关系', ids);
 
     }
@@ -569,29 +582,29 @@ function initCanvas(companyId) {
     }
 
     // 展开子关系节点
-    function openNR(ids) {
+    function openNR(ids, graph) {
         console.log('展开子关系节点', ids);
 
     }
 
     // 收起子关系节点
-    function closeNR(ids) {
+    function closeNR(ids, graph) {
         console.log('收起子关系节点', ids);
 
     }
 
-    // 获取节点关系
-    function findNR(ids) {
+    // 获取节点间关系
+    function findNR(ids, graph) {
         console.log('获取节点关系', ids);
 
     }
 
     // 获取深层节点关系
-    function findDeepNR(ids) {
+    function findDeepNR(ids, graph) {
         console.log('获取深层节点关系', ids);
 
     }
-    
+
     // 时间轴筛选关系（修改样式）
     var newRFlag, oldRFlag;
     function filterRelation() {

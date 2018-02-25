@@ -241,8 +241,8 @@ function initCanvas(companyId) {
             .range([8, 15])
             .domain(d3.extent(amoutList));
 
-        for (var i in linksMap) {
-            edges_data.push(linksMap[i]);
+        for (var k in linksMap) {
+            edges_data.push(linksMap[k]);
         }
         edges_data.forEach(function (d) {
             d.source = nodesMap[d.startNode]

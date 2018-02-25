@@ -15,11 +15,11 @@ var timeLineCache = new Map();
  * 绘制时间轴关系图
  * @param {Number} companyId 
  */
-function drawTimeLine(companyId) {
+function initCanvas(companyId) {
     toggleMask(true);
 
-    var nodesList = [];
-    var linksList = [];
+    var nodes_data = [];
+    var edges_data = [];
 
     // 时间轴工具条配置
     var barSetting = {
@@ -27,12 +27,12 @@ function drawTimeLine(companyId) {
             // 拖动时间轴工具条笔刷，更新关系图数据
             onBrush: function (startTime, endTime) {
                 if (startTime === endTime) {
-                    linksList.forEach(function (link) {
+                    edges_data.forEach(function (link) {
                         link.relation.forEach(function (ln) { ln.filter = false; });
                         link.source.filter = false;
                     });
                 } else {
-                    linksList.forEach(function (link) {
+                    edges_data.forEach(function (link) {
                         link.relation.forEach(function (ln) {
                             var time = new Date(ln.starDate).getTime();
                             ln.filter = !(time > startTime && time < endTime);
@@ -43,8 +43,8 @@ function drawTimeLine(companyId) {
                     });
                 }
 
-                // 更新关系图样式
-                updateRelation();
+                // 根据时间轴范围变化，筛选关系（修改样式）
+                filterRelation();
             }
         },
         height: 80,
@@ -118,8 +118,8 @@ function drawTimeLine(companyId) {
     var brushRect = container.append('g')
         .attr('class', 'brush-rect');
 
-    var link = container.selectAll('.link');
-    var node = container.selectAll('.node');
+    var links = container.selectAll('.link');
+    var nodes = container.selectAll('.node');
 
     var textSpan = d3.select('body').append('span')
         .style('font-size', '12px')
@@ -175,6 +175,10 @@ function drawTimeLine(companyId) {
     // 数据流小球比例尺
     var flowScale;
 
+    /**
+     * 渲染 时间轴工具条 + 关系图
+     * @param {Object} graph 
+     */
     function renderTimeline(graph) {
         // --> 1. 绘制时间轴工具条
         var barData = [];
@@ -182,43 +186,43 @@ function drawTimeLine(companyId) {
         if (graph.relations) {
             graph.relations.forEach(function (d) {
                 barMap[d.starDate] = barMap[d.starDate] ? barMap[d.starDate] + 1 : 1;
-            })
+            });
         }
         for (var i in barMap) {
             barData.push({
                 at: new Date(i),
                 value: barMap[i],
                 type: 'bar'
-            })
+            });
         }
         var d = [{
             label: 'bar',
             data: barData
         }];
-        tl.renderTimeLineBar(d, barSetting);
+        tl.renderTimeBar(d, barSetting);
         // tl.showSelect();
 
         // --> 2. 绘制关系图 
-        nodesList = JSON.parse(JSON.stringify(graph.nodes));
-        var nodesObj = {};
-        var linksObj = {};
+        nodes_data = JSON.parse(JSON.stringify(graph.nodes));
+        var nodesMap = {};
+        var linksMap = {};
         var amoutList = [];
-        nodesList.forEach(function (d) {
-            nodesObj[d.id] = d;
+        nodes_data.forEach(function (d) {
+            nodesMap[d.id] = d;
         });
 
         graph.relations.forEach(function (d) {
-            var ln;
-            if (linksObj[[d.startNode, d.endNode]]) {
-                ln = linksObj[[d.startNode, d.endNode]];
-            } else {
-                ln = linksObj[[d.startNode, d.endNode]] = {
+            var k = [d.startNode, d.endNode];
+            if (!linksMap[k]) {
+                linksMap[k] = {
                     relation: [],
                     startNode: d.startNode,
                     endNode: d.endNode
-                }
+                };
             }
-            ln.relation.push({
+            var ln = linksMap[k];
+
+            linksMap[k].relation.push({
                 type: d.type,
                 id: d.id,
                 label: d.label,
@@ -226,7 +230,10 @@ function drawTimeLine(companyId) {
                 amout: d.amout,
                 starDate: d.starDate
             });
-            if (d.amout) amoutList.push(d.amout);
+
+            if (d.amout) {
+                amoutList.push(d.amout);
+            }
         });
 
         // 数据流小球比例尺
@@ -234,47 +241,48 @@ function drawTimeLine(companyId) {
             .range([8, 15])
             .domain(d3.extent(amoutList));
 
-        for (var i in linksObj) {
-            linksList.push(linksObj[i]);
+        for (var i in linksMap) {
+            edges_data.push(linksMap[i]);
         }
-        linksList.forEach(function (d) {
-            d.source = nodesObj[d.startNode]
-            d.target = nodesObj[d.endNode]
+        edges_data.forEach(function (d) {
+            d.source = nodesMap[d.startNode]
+            d.target = nodesMap[d.endNode]
         });
 
         force.on('end', function () {
-            // // 固定所有节点
-            // nodesList.forEach(node => {
-            //     node.fixed = true;
-            // });
-            // 显示关系图
+            // // 固定所有节点 
+            // nodes_data.forEach(node => { 
+            //     node.fixed = true; 
+            // }); 
+            // 显示关系图 
             container.attr('opacity', 1);
             d3.select('.timeline-legend').style('opacity', 1);
-            // 显示时间轴
+            // 显示时间轴 
             d3.select('#timeline').style('opacity', 1);
             toggleMask(false);
         });
 
         force
-            .nodes(nodesList)
-            .links(linksList)
+            .nodes(nodes_data)
+            .links(edges_data)
             .start();
 
-        link = link.data(linksList)
+        links = links
+            .data(edges_data)
             .enter().append('g')
             .attr('class', 'link')
             .each(function (link) {
                 var g = d3.select(this);
                 var lineEnter = g.selectAll('.line').data(link.relation).enter();
                 lineEnter.append('line').each(function (d) {
-                    d3.select(this).classed(d.type, true).attr('marker-end', 'url(#' + d.type + ')');;
+                    d3.select(this).classed(d.type, true).attr('marker-end', 'url(#' + d.type + ')');
                 });
                 lineEnter.append('text').text(function (d) {
                     return d.label
                 });
             });
 
-        link
+        links
             .on('mouseenter', function () {
                 isHoverLine = true;
             })
@@ -282,11 +290,12 @@ function drawTimeLine(companyId) {
                 HoverNode = false;
             });
 
-        node = node.data(nodesList)
+        nodes = nodes
+            .data(nodes_data)
             .enter().append('g')
             .attr('class', 'node');
 
-        node.each(function (d) {
+        nodes.each(function (d) {
             d.selected = false;
             d.previouslySelected = false;
             var node = d3.select(this).append('circle')
@@ -306,7 +315,7 @@ function drawTimeLine(companyId) {
             d3.select(this).classed(d.ntype, true);
         });
 
-        node
+        nodes
             .on('mouseenter', function (d) {
                 isHoverNode = true;
                 if (!isBrushing) {
@@ -330,7 +339,7 @@ function drawTimeLine(companyId) {
             .style('fill-opacity', 0.3);
 
         // 选中聚焦环
-        var selectedHalo = node.append('circle')
+        var selectedHalo = nodes.append('circle')
             .attr('r', function (d) { return circleStyle[d.ntype].r + 6; })
             .attr('class', function (d) { return 'halo-' + d.id; })
             .style('fill', 'rgba(0,0,0,.0)')
@@ -346,7 +355,7 @@ function drawTimeLine(companyId) {
         // 隐藏选中聚焦环
         var hideSelectedHalo = function () {
             selectedHalo.classed('hidden', true);
-            node.each(function (d) { d.selected = false; });
+            nodes.each(function (d) { d.selected = false; });
         }
 
         // 框选刷
@@ -365,7 +374,7 @@ function drawTimeLine(companyId) {
                 var xmax = selection[1][0];
                 var ymin = selection[0][1];
                 var ymax = selection[1][1];
-                node.each(function (d) {
+                nodes.each(function (d) {
                     var x0 = d.x - d.r;
                     var x1 = d.x + d.r;
                     var y0 = d.y - d.r;
@@ -386,7 +395,7 @@ function drawTimeLine(companyId) {
                     x: 0,
                     y: 0
                 });
-                node.each(function (d) {
+                nodes.each(function (d) {
                     if (d.selected) {
                         ids.push(d.id);
                     }
@@ -448,6 +457,7 @@ function drawTimeLine(companyId) {
                     // 删除节点
                     circleMenu.select('#menu_btn_trash').on('click', function () {
                         // scope.removeNodesAndRelations();
+                        removeNR(ids);
                         closeMenu();
                     });
 
@@ -455,6 +465,7 @@ function drawTimeLine(companyId) {
                     circleMenu.select('#menu_btn_refresh').on('click', function () {
                         if (isMulti) {
                             // scope.refreshNodeRelations();
+                            refreshNR(ids);
                             closeMenu();
                         }
                     });
@@ -463,6 +474,7 @@ function drawTimeLine(companyId) {
                     circleMenu.select('#menu_btn_toggleSelection').on('click', function () {
                         if (!isMulti) {
                             // scope.toggleSelection();
+                            toggleSelection(ids);
                             closeMenu();
                         }
                     });
@@ -471,6 +483,7 @@ function drawTimeLine(companyId) {
                     circleMenu.select("#menu_btn_openNodeRelations").on('click', function () {
                         if (!isMulti) {
                             // scope.open();
+                            openNR(ids);
                             closeMenu();
                         }
                     });
@@ -479,6 +492,7 @@ function drawTimeLine(companyId) {
                     circleMenu.select("#menu_btn_closeNodeRelations").on('click', function () {
                         if (!isMulti) {
                             // scope.close();
+                            closeNR(ids);
                             closeMenu();
                         }
                     });
@@ -487,6 +501,7 @@ function drawTimeLine(companyId) {
                     circleMenu.select("#menu_btn_findRelations").on('click', function () {
                         if (isMulti) {
                             // scope.find();
+                            findNR(ids);
                             closeMenu();
                         }
                     });
@@ -495,6 +510,7 @@ function drawTimeLine(companyId) {
                     circleMenu.select("#menu_btn_findDeepRelations").on('click', function () {
                         if (isMulti) {
                             // scope.findDeep();
+                            findDeepNR(ids);
                             closeMenu();
                         }
                     });
@@ -503,43 +519,97 @@ function drawTimeLine(companyId) {
             }
         }
 
-        // 时间轴范围变化，图元素样式更新
-        updateRelation();
+        // 根据时间轴范围变化，筛选关系（修改样式）
+        filterRelation();
 
         // setTimeout(function () {
         //     force.stop();
         // }, 3000);
+
+
+        // 删除节点及关系
+        function removeNR(ids) {
+            console.log('删除节点及关系', ids);
+
+        }
+
+        // 刷新节点间关系
+        function refreshNR(ids) {
+            console.log('刷新节点间关系', ids);
+
+        }
+
+        // 显示节点信息
+        function toggleSelection(ids) {
+            console.log('显示节点信息', ids);
+
+        }
+
+        // 展开子关系节点
+        function openNR(ids) {
+            console.log('展开子关系节点', ids);
+
+        }
+
+        // 收起子关系节点
+        function closeNR(ids) {
+            console.log('收起子关系节点', ids);
+
+        }
+
+        // 获取节点关系
+        function findNR(ids) {
+            console.log('获取节点关系', ids);
+
+        }
+
+        // 获取深层节点关系
+        function findDeepNR(ids) {
+            console.log('获取深层节点关系', ids);
+
+        }
+
     }
 
-    var newList, oldList;
+    /**
+     * 更新关系图
+     * @param {Object} graph 
+     */
+    function update(graph) {
 
-    // 时间轴范围变化，图元素样式更新
-    function updateRelation() {
-        newList = link.data().map(function (d) {
+    }
+
+
+    // 根据时间轴范围变化，筛选关系（修改样式）
+    var newRFlag, oldRFlag;
+    function filterRelation() {
+        newRFlag = links.data().map(function (d) {
             return d.relation.filter(function (d) {
-                return d.filter
-            }).map(function (d) {
-                return d;
+                return d.filter;
             }).join();
         }).sort().join();
-        node.each(function (d) {
+
+        nodes.each(function (d) {
             d3.select(this).classed('filter', d.filter);
             d3.select(this).classed('selected', d.selected);
         });
-        link.each(function (d) {
+
+        links.each(function (d) {
             d3.select(this).selectAll('line').each(function (d) {
                 d3.select(this).classed('filter', d.filter);
                 d3.select(this).classed('selected', d.selected);
             });
         });
-        if (oldList != newList) {
-            renderFlowBall(link);
+
+        if (oldRFlag != newRFlag) {
+            renderFlowBall(links);
         }
-        oldList = newList;
+
+        oldRFlag = newRFlag;
     }
 
     function tick() {
-        link.each(function (link) {
+        links.each(function (link) {
             var r = link.source.r;
             var b1 = link.target.x - link.source.x;
             var b2 = link.target.y - link.source.y;
@@ -594,7 +664,7 @@ function drawTimeLine(companyId) {
             });
         });
 
-        link
+        links
             .attr('x1', function (d) {
                 return d.source.x;
             })
@@ -608,7 +678,7 @@ function drawTimeLine(companyId) {
                 return d.target.y;
             });
 
-        node
+        nodes
             .attr('transform', function (d) {
                 return 'translate(' + [d.x, d.y] + ')'
             });
@@ -692,7 +762,7 @@ function drawTimeLine(companyId) {
     function clearFlowAnim() {
         flowAnim.stopAll();
         d3.selectAll('.flow').remove();
-        link.each(function (d) {
+        links.each(function (d) {
             d.relation.forEach(function (d) {
                 delete d.flow;
             });
@@ -702,10 +772,10 @@ function drawTimeLine(companyId) {
     // 渲染数据流动画
     function renderFlowBall(link) {
         clearFlowAnim();
-        var activeLink = link.filter(function (d) { 
-            return !d.filter; 
+        var activeLink = link.filter(function (d) {
+            return !d.filter;
         });
-        
+
         activeLink.each(function (link) {
             var i = 0;
             var _flowBall = d3.select(this);

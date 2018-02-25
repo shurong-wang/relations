@@ -22,7 +22,7 @@ var TimelineBar = function (element) {
 };
 
 // 绘制时间轴工具条
-TimelineBar.prototype.renderTimeLineBar = function (data, opts, callback) {
+TimelineBar.prototype.renderTimeBar = function (data, opts, callback) {
     this.setting = this.extendSetting(opts);
     if (!data) data = this.data;
     if (!data) return;

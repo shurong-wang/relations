@@ -185,10 +185,10 @@ $(function () {
      * 渲染图形
     */
     // 获取数据 && 绘制时间轴
-    function getTimeLine(event) {
+    function drawTimeLine() {
         cleanUpCanvas();
-        drawTimeLine(1);
+        initCanvas(100);
     }
 
-    getTimeLine(event);
+    drawTimeLine();
 });

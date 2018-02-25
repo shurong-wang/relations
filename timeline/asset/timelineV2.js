@@ -115,10 +115,14 @@ function initCanvas(companyId) {
         .append('path')
         .attr('d', 'M2,2 L10,6 L2,10 L6,6 L2,2');
 
+    /** 
+     * 获取画图数据
+    */
     var graph = timeLineCache.get(url);
     if (graph) {
         setTimeout(function () {
-            renderTimeline(graph);
+            // 执行画图
+            render(graph);
         }, 10);
     } else {
         d3.json(url, function (error, graph) {
@@ -136,9 +140,11 @@ function initCanvas(companyId) {
                 }
             }
             timeLineCache.set(url, graph);
-            renderTimeline(graph);
+            // 执行画图
+            render(graph);
         });
     }
+
 
     // 数据流小球比例尺
     var flowScale = d3.scale.linear().range([8, 15]);
@@ -171,14 +177,14 @@ function initCanvas(companyId) {
         height: 80,
         zoom: [0.5, 0.5],
         startZoom: 0.5
-        // ,enableLiveTimer:true
+        // ,enableLiveTimer: true
     };
 
     /**
-     * 渲染 时间轴工具条 + 关系图
+     * 渲染图像：时间轴工具条 + 关系图
      * @param {Object} graph 
      */
-    function renderTimeline(graph) {
+    function render(graph) {
         // --> 1. 绘制时间轴工具条
         var barData = [];
         var barMap = {};
@@ -329,8 +335,18 @@ function initCanvas(companyId) {
         // 选中画布范围
         brushHandle();
 
-    } // renderTimeline end 
+    } // render end 
 
+
+    /**
+     * 更新关系图
+     * @param {Object} graph 
+     */
+    function update(graph) {
+
+    }
+
+    
     /**
      * 选中画布范围
      */
@@ -529,63 +545,53 @@ function initCanvas(companyId) {
         // setTimeout(function () {
         //     force.stop();
         // }, 3000);
-
-
-        // 删除节点及关系
-        function removeNR(ids) {
-            console.log('删除节点及关系', ids);
-
-        }
-
-        // 刷新节点间关系
-        function refreshNR(ids) {
-            console.log('刷新节点间关系', ids);
-
-        }
-
-        // 显示节点信息
-        function toggleSelection(ids) {
-            console.log('显示节点信息', ids);
-
-        }
-
-        // 展开子关系节点
-        function openNR(ids) {
-            console.log('展开子关系节点', ids);
-
-        }
-
-        // 收起子关系节点
-        function closeNR(ids) {
-            console.log('收起子关系节点', ids);
-
-        }
-
-        // 获取节点关系
-        function findNR(ids) {
-            console.log('获取节点关系', ids);
-
-        }
-
-        // 获取深层节点关系
-        function findDeepNR(ids) {
-            console.log('获取深层节点关系', ids);
-
-        }
         
         // 时间轴筛选关系
         filterRelation();
     }
 
-    /**
-     * 更新关系图
-     * @param {Object} graph 
-     */
-    function update(graph) {
+    // 删除节点及关系
+    function removeNR(ids) {
+        console.log('删除节点及关系', ids);
 
     }
 
+    // 刷新节点间关系
+    function refreshNR(ids) {
+        console.log('刷新节点间关系', ids);
 
+    }
+
+    // 显示节点信息
+    function toggleSelection(ids) {
+        console.log('显示节点信息', ids);
+
+    }
+
+    // 展开子关系节点
+    function openNR(ids) {
+        console.log('展开子关系节点', ids);
+
+    }
+
+    // 收起子关系节点
+    function closeNR(ids) {
+        console.log('收起子关系节点', ids);
+
+    }
+
+    // 获取节点关系
+    function findNR(ids) {
+        console.log('获取节点关系', ids);
+
+    }
+
+    // 获取深层节点关系
+    function findDeepNR(ids) {
+        console.log('获取深层节点关系', ids);
+
+    }
+    
     // 时间轴筛选关系（修改样式）
     var newRFlag, oldRFlag;
     function filterRelation() {

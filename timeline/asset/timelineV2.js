@@ -193,47 +193,15 @@ function initCanvas(companyId) {
      * @param {Object} graph 
      */
     function renderFroce(graph) {
+        
+        // 生成力学图数据
+        var {nodes_data, edges_data} = genForeData(graph);
 
-        // nodes_data = JSON.parse(JSON.stringify(graph.nodes));
-        nodes_data = graph.nodes;
-
-        var nodesMap = {};
-        nodes_data.forEach(function (d) {
-            nodesMap[d.id] = d;
-        });
-
-        var linksMap = {};
-        graph.relations.forEach(function (d) {
-            var k = [d.startNode, d.endNode];
-            if (!linksMap[k]) {
-                linksMap[k] = {
-                    relation: [],
-                    startNode: d.startNode,
-                    endNode: d.endNode
-                };
-            }
-            var ln = linksMap[k];
-
-            linksMap[k].relation.push({
-                type: d.type,
-                id: d.id,
-                label: d.label,
-                parent: ln,
-                amout: d.amout,
-                starDate: d.starDate
-            });
-        });
-
-        // 数据流小球比例尺
-        flowScale = setFlowScale(graph);
-
-        for (var k in linksMap) {
-            edges_data.push(linksMap[k]);
-        }
-        edges_data.forEach(function (d) {
-            d.source = nodesMap[d.startNode]
-            d.target = nodesMap[d.endNode]
-        });
+        // 绑定力学图数据
+        force
+            .nodes(nodes_data)
+            .links(edges_data)
+            .start();
 
         force.on('end', function () {
             // // 固定所有节点 
@@ -247,11 +215,6 @@ function initCanvas(companyId) {
             d3.select('#timeline').style('opacity', 1);
             toggleMask(false);
         });
-
-        force
-            .nodes(nodes_data)
-            .links(edges_data)
-            .start();
 
         links = links
             .data(edges_data)
@@ -326,6 +289,9 @@ function initCanvas(companyId) {
             })
             .call(drag);
 
+        // 数据流小球比例尺
+        flowScale = setFlowScale(graph);
+
         // 选中画布范围
         brushHandle(graph);
 
@@ -342,6 +308,54 @@ function initCanvas(companyId) {
         // --> 1. 绘制时间轴工具条
         renderBar(graph);
 
+    }
+
+    /**
+     * 生成力学图数据
+     * @param {Object} graph 
+     */
+    function genForeData(graph) {
+        var nodesMap = {};
+        var linksMap = {};
+
+        nodes_data = graph.nodes;
+        // nodes_data = JSON.parse(JSON.stringify(graph.nodes));
+
+        nodes_data.forEach(function (d) {
+            nodesMap[d.id] = d;
+        });
+
+        graph.relations.forEach(function (d) {
+            var k = [d.startNode, d.endNode];
+            if (!linksMap[k]) {
+                linksMap[k] = {
+                    relation: [],
+                    startNode: d.startNode,
+                    endNode: d.endNode
+                };
+            }
+            var ln = linksMap[k];
+
+            linksMap[k].relation.push({
+                type: d.type,
+                id: d.id,
+                label: d.label,
+                parent: ln,
+                amout: d.amout,
+                starDate: d.starDate
+            });
+        });
+
+        for (var k in linksMap) {
+            edges_data.push(linksMap[k]);
+        }
+
+        edges_data.forEach(function (d) {
+            d.source = nodesMap[d.startNode];
+            d.target = nodesMap[d.endNode];
+        });
+
+        return {nodes_data, edges_data};
     }
 
     /**

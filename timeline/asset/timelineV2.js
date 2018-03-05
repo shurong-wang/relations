@@ -21,16 +21,13 @@ function initCanvas(companyId) {
     var nodes_data = [];
     var edges_data = [];
 
-    var nodesMap = {};
-    var linksMap = {};
-    var barMap = {};
-
     // var url = '../js/config/data/timeline.json';
     // var url = api('getTimeLine', {
     //     companyId: companyId
     // });
     var url = './asset/timelineV2.json';
 
+    var isDraging = false;
     var isHoverNode = false;
     var isHoverLine = false;
     var isBrushing = false;
@@ -66,7 +63,9 @@ function initCanvas(companyId) {
         .on('tick', tick);
 
     var drag = force.drag()
-        .on('dragstart', dragstart);
+        .on('dragstart', dragstart)
+        .on('drag', draging)
+        .on('dragend', dragend);
 
     var zoom = d3.behavior.zoom()
         .scaleExtent([0.25, 2])
@@ -119,37 +118,6 @@ function initCanvas(companyId) {
         .append('path')
         .attr('d', 'M2,2 L10,6 L2,10 L6,6 L2,2');
 
-    /** 
-     * 获取画图数据
-    */
-    var graph = timeLineCache.get(url);
-    if (graph) {
-        setTimeout(function () {
-            // 执行画图
-            render(graph);
-        }, 10);
-    } else {
-        d3.json(url, function (error, graph) {
-            if (error) {
-                toggleMask(false);
-                return console.error(error);
-            }
-            if (typeof graph === 'string') {
-                try {
-                    graph = JSON.parse(graph);
-                } catch (error) {
-                    toggleMask(false);
-                    console.error('无法解析 JOSN 格式！', url);
-                    return;
-                }
-            }
-            timeLineCache.set(url, graph);
-            // 执行画图
-            render(graph);
-        });
-    }
-
-
     // 数据流小球比例尺
     var flowScale = d3.scale.linear().range([8, 15]);
 
@@ -184,40 +152,57 @@ function initCanvas(companyId) {
         // ,enableLiveTimer: true
     };
 
+
+    /** 
+  * 获取画图数据
+ */
+    var graph = timeLineCache.get(url);
+    if (graph) {
+        setTimeout(function () {
+            // 执行画图
+            renderFroce(graph);
+        }, 10);
+    } else {
+        d3.json(url, function (error, graph) {
+            if (error) {
+                toggleMask(false);
+                return console.error(error);
+            }
+            if (typeof graph === 'string') {
+                try {
+                    graph = JSON.parse(graph);
+                } catch (error) {
+                    toggleMask(false);
+                    console.error('无法解析 JOSN 格式！', url);
+                    return;
+                }
+            }
+            timeLineCache.set(url, graph);
+
+            // --> 1. 绘制时间轴工具条
+            renderBar(graph);
+
+            // --> 2. 绘制关系图 
+            renderFroce(graph);
+        });
+    }
+
+
     /**
      * 渲染图像：时间轴工具条 + 关系图
      * @param {Object} graph 
      */
-    function render(graph) {
-        // --> 1. 绘制时间轴工具条
-        var barData = [];
-        if (graph.relations) {
-            graph.relations.forEach(function (d) {
-                barMap[d.starDate] = barMap[d.starDate] ? barMap[d.starDate] + 1 : 1;
-            });
-        }
-        for (var k in barMap) {
-            barData.push({
-                at: new Date(k),
-                value: barMap[k],
-                type: 'bar'
-            });
-        }
-        var d = [{
-            label: 'bar',
-            data: barData
-        }];
-        tl.renderTimeBar(d, barSetting);
-        // tl.showSelect();
+    function renderFroce(graph) {
 
-        // --> 2. 绘制关系图 
-        nodes_data = JSON.parse(JSON.stringify(graph.nodes));
+        // nodes_data = JSON.parse(JSON.stringify(graph.nodes));
+        nodes_data = graph.nodes;
 
-        var amoutList = [];
+        var nodesMap = {};
         nodes_data.forEach(function (d) {
             nodesMap[d.id] = d;
         });
 
+        var linksMap = {};
         graph.relations.forEach(function (d) {
             var k = [d.startNode, d.endNode];
             if (!linksMap[k]) {
@@ -237,14 +222,10 @@ function initCanvas(companyId) {
                 amout: d.amout,
                 starDate: d.starDate
             });
-
-            if (d.amout) {
-                amoutList.push(d.amout);
-            }
         });
 
         // 数据流小球比例尺
-        flowScale = flowScale.domain(d3.extent(amoutList));
+        flowScale = setFlowScale(graph);
 
         for (var k in linksMap) {
             edges_data.push(linksMap[k]);
@@ -292,7 +273,7 @@ function initCanvas(companyId) {
                 isHoverLine = true;
             })
             .on('mouseleave', function () {
-                HoverNode = false;
+                isHoverLine = false;
             });
 
         nodes = nodes
@@ -322,34 +303,89 @@ function initCanvas(companyId) {
 
         nodes
             .on('mouseenter', function (d) {
+                if (isDraging) {
+                    return;
+                }
                 isHoverNode = true;
                 if (!isBrushing) {
                     d3.select(this).select('circle').transition().attr('r', 8 + circleStyle[d.ntype].r);
                 }
             })
             .on('mouseleave', function (d) {
+                if (isDraging) {
+                    return;
+                }
                 isHoverNode = false;
                 d3.select(this).select('circle').transition().attr('r', circleStyle[d.ntype].r);
             })
-            .on('dblclick', function (d) { d3.select(this).classed('fixed', d.fixed = false); })
+            .on('dblclick', function (d) {
+                if (isDraging) {
+                    return;
+                }
+                d3.select(this).classed('fixed', d.fixed = false);
+            })
             .call(drag);
 
         // 选中画布范围
         brushHandle(graph);
 
-    } // render end 
+    } // renderFroce end 
 
 
     /**
      * 更新关系图
-     * @param {Object}  
+     * @param {Object} graph   
      */
     function update(graph) {
         console.log('Update Graph:', graph);
-        
+
+        // --> 1. 绘制时间轴工具条
+        renderBar(graph);
+
     }
 
+    /**
+     * 绘制时间轴工具条
+     * @param {Object} graph 
+     */
+    function renderBar(graph) {
+        // --> 1. 绘制时间轴工具条
+        var barMap = {};
+        if (graph.relations) {
+            graph.relations.forEach(function (d) {
+                barMap[d.starDate] = barMap[d.starDate] ? barMap[d.starDate] + 1 : 1;
+            });
+        }
 
+        var barData = [];
+        for (var k in barMap) {
+            barData.push({
+                at: new Date(k),
+                value: barMap[k],
+                type: 'bar'
+            });
+        }
+        var d = [{
+            label: 'bar',
+            data: barData
+        }];
+        tl.renderTimeBar(d, barSetting);
+        // tl.showSelect();
+    }
+
+    /**
+     * 设置数据流小球比例尺
+     * @param {Object} graph 
+     */
+    function setFlowScale(graph) {
+        var amoutList = [];
+        graph.relations.forEach(function (d) {
+            if (d.amout) {
+                amoutList.push(d.amout);
+            }
+        });
+        return flowScale.domain(d3.extent(amoutList));
+    }
     /**
      * 选中画布范围
      */
@@ -710,8 +746,22 @@ function initCanvas(companyId) {
     }
 
     function dragstart(d) {
+        isDraging = true;
         d3.select(this).classed('fixed', d.fixed = true);
         d3.event.sourceEvent.stopPropagation();
+    }
+
+    function draging(d) {
+        isDraging = true;
+        d3.select(this).classed('fixed', d.fixed = true);
+        d3.event.sourceEvent.stopPropagation();
+    }
+
+    function dragend(d) {
+        isDraging = false;
+        setTimeout(function () {
+            force.stop();
+        }, 700);
     }
 
     function zoomFn() {

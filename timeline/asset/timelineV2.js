@@ -25,7 +25,8 @@ function initCanvas(companyId) {
     // var url = api('getTimeLine', {
     //     companyId: companyId
     // });
-    var url = './asset/timelineV2.json';
+    // var url = './asset/timelineV2.json';
+    var url = './asset/timelineV2.sample.json';
 
     var isDraging = false;
     var isHoverNode = false;
@@ -90,76 +91,44 @@ function initCanvas(companyId) {
         .attr('class', 'brush-rect');
 
     var links = container.selectAll('.link');
+    var rLine = links.selectAll('.r-line');
+    var rText = links.selectAll('.r-text');
+
     var nodes = container.selectAll('.node');
+    var nCircle = nodes.selectAll('.n-circle');
+    var nText = nodes.selectAll('.n-text');
+    var selectedHalo = nodes.selectAll('.n-halo');
 
-    var textSpan = d3.select('body').append('span')
-        .style('font-size', '12px')
-        .style('line-height', '12px')
-        .node();
-
-    var markerList = [];
-    var markerStyle = {
-        markerUnits: 'strokeWidth',
-        markerWidth: '12',
-        markerHeight: '12',
-        viewBox: '0 0 12 12',
-        refX: '10',
-        refY: '6',
-        orient: 'auto'
-    };
-
-    container.selectAll('.marker').data(['SERVE', 'INVEST_C', 'OWN', 'TELPHONE']).enter()
+    var markers = container.selectAll('.marker')
+        .data(['SERVE', 'INVEST_C', 'OWN', 'TELPHONE'])
+        .enter()
         .append('marker')
         .attr('id', function (d) {
-            var dom = d3.select(this);
-            for (var i in markerStyle) dom.attr(i, markerStyle[i])
-            return d
+            return d;
         })
+        .attr({
+            markerUnits: 'strokeWidth',
+            markerWidth: '12',
+            markerHeight: '12',
+            viewBox: '0 0 12 12',
+            refX: '10',
+            refY: '6',
+            orient: 'auto'
+        })
+        .attr('class', 'marker')
         .append('path')
         .attr('d', 'M2,2 L10,6 L2,10 L6,6 L2,2');
 
     // 数据流小球比例尺
     var flowScale = d3.scale.linear().range([8, 15]);
 
-    // 时间轴工具条配置
-    var barSetting = {
-        fn: {
-            // 拖动时间轴工具条笔刷，更新关系图数据
-            onBrush: function (startTime, endTime) {
-                if (startTime === endTime) {
-                    edges_data.forEach(function (link) {
-                        link.relation.forEach(function (ln) { ln.filter = false; });
-                        link.source.filter = false;
-                    });
-                } else {
-                    edges_data.forEach(function (link) {
-                        link.relation.forEach(function (ln) {
-                            var time = new Date(ln.starDate).getTime();
-                            ln.filter = !(time > startTime && time < endTime);
-                        });
-                        link.source.filter = !link.relation.filter(function (d) {
-                            return !d.filter
-                        }).length;
-                    });
-                }
-                // 根据时间轴范围变化，筛选关系（修改样式）
-                filterRelation();
-            }
-        },
-        height: 80,
-        zoom: [0.5, 0.5],
-        startZoom: 0.5
-        // ,enableLiveTimer: true
-    };
-
-
     /** 
-  * 获取画图数据
- */
+     * 获取画图数据 && 绘图
+     */
     var graph = timeLineCache.get(url);
     if (graph) {
         setTimeout(function () {
-            // 执行画图
+            // --> 渲染力学图
             renderFroce(graph);
         }, 10);
     } else {
@@ -193,9 +162,9 @@ function initCanvas(companyId) {
      * @param {Object} graph 
      */
     function renderFroce(graph) {
-        
+
         // 生成力学图数据
-        var {nodes_data, edges_data} = genForeData(graph);
+        var { nodes_data, edges_data } = genForeData(graph);
 
         // 绑定力学图数据
         force
@@ -207,7 +176,7 @@ function initCanvas(companyId) {
             // // 固定所有节点 
             // nodes_data.forEach(node => { 
             //     node.fixed = true; 
-            // }); 
+            // });
             // 显示关系图 
             container.attr('opacity', 1);
             d3.select('.timeline-legend').style('opacity', 1);
@@ -216,19 +185,30 @@ function initCanvas(companyId) {
             toggleMask(false);
         });
 
+        // 关系分组
         links = links
             .data(edges_data)
             .enter().append('g')
             .attr('class', 'link')
             .each(function (link) {
-                var g = d3.select(this);
-                var lineEnter = g.selectAll('.line').data(link.relation).enter();
-                lineEnter.append('line').each(function (d) {
-                    d3.select(this).classed(d.type, true).attr('marker-end', 'url(#' + d.type + ')');
-                });
-                lineEnter.append('text').text(function (d) {
-                    return d.label
-                });
+                var lineG = d3.select(this);
+                var lineEnter = lineG.selectAll('line').data(link.relation).enter();
+
+                // 关系连线
+                rLine = lineEnter.append('line')
+                    .attr('class', 'r-line')
+                    .each(function (d) {
+                        d3.select(this)
+                            .classed(d.type, true)
+                            .attr('marker-end', 'url(#' + d.type + ')');
+                    });
+
+                // 关系文字
+                rText = lineEnter.append('text')
+                    .attr('class', 'r-text')
+                    .text(function (d) {
+                        return d.label;
+                    });
             });
 
         links
@@ -239,30 +219,42 @@ function initCanvas(companyId) {
                 isHoverLine = false;
             });
 
+        // 节点分组
         nodes = nodes
             .data(nodes_data)
             .enter().append('g')
-            .attr('class', 'node');
+            .attr('class', 'node')
+            .each(function (d) {
+                var nodesG = d3.select(this);
+                nodesG.classed(d.ntype, true);
+                d.selected = false;
+                d.previouslySelected = false;
+                d.r = circleStyle[d.ntype].r;
 
-        nodes.each(function (d) {
-            d.selected = false;
-            d.previouslySelected = false;
-            var node = d3.select(this).append('circle')
-                .call(circle);
-            var text = d3.select(this).append('text')
-                .text(function (d) {
-                    var nodeText = d.name;
-                    if (nodeText.length > 6) {
-                        return nodeText.substr(0, 6);
-                    }
-                    return nodeText;
-                })
-                .attr('transform', function () {
-                    textSpan.innerText = d.name;
-                    return 'translate(' + [0, textSpan.offsetHeight / 4] + ')';
-                });
-            d3.select(this).classed(d.ntype, true);
-        });
+                // nCircle = nodesG.append('circle')
+                //     .call(function () {
+                //         this.each(function (d) {
+                //             d3.select(this).attr(circleStyle[d.ntype]);
+                //             d.r = circleStyle[d.ntype].r;
+                //         });
+                //     });
+
+                // 节点圆形
+                nCircle = nodesG.append('circle')
+                    .attr('class', 'n-circle')
+                    .attr(circleStyle[d.ntype]);
+
+                // 节点文字
+                nText = nodesG.append('text')
+                    .attr('class', 'n-text')
+                    .text(function (d) {
+                        var nodeText = d.name;
+                        return (nodeText.length > 6) ? nodeText.substr(0, 6) : nodeText;
+                    })
+                    .attr('transform', function () {
+                        return 'translate(' + [0, 3.5] + ')';
+                    });
+            });
 
         nodes
             .on('mouseenter', function (d) {
@@ -297,17 +289,30 @@ function initCanvas(companyId) {
 
     } // renderFroce end 
 
-
     /**
      * 更新关系图
      * @param {Object} graph   
      */
     function update(graph) {
-        console.log('Update Graph:', graph);
 
         // --> 1. 绘制时间轴工具条
-        renderBar(graph);
+        // renderBar(graph);
 
+        // 更新力学图数据
+        genForeData(graph);
+
+        // 更新关系（连线）
+        links = links.data(edges_data);
+        // todo ...
+        links.exit().remove();
+
+        // 更新主体（节点）
+        nodes = nodes.data(nodes_data);
+        // todo ...
+        nodes.exit().remove();
+
+        // 开启力学计算
+        force.start();
     }
 
     /**
@@ -315,39 +320,42 @@ function initCanvas(companyId) {
      * @param {Object} graph 
      */
     function genForeData(graph) {
+
+        // console.log(nodes_data, edges_data);
+
         var nodesMap = {};
-        var linksMap = {};
+        var relsMap = {};
+
+        nodes_data = [];
+        edges_data = [];
 
         nodes_data = graph.nodes;
-        // nodes_data = JSON.parse(JSON.stringify(graph.nodes));
 
-        nodes_data.forEach(function (d) {
-            nodesMap[d.id] = d;
+        nodes_data.forEach(function (node) {
+            nodesMap[node.id] = node;
         });
 
-        graph.relations.forEach(function (d) {
-            var k = [d.startNode, d.endNode];
-            if (!linksMap[k]) {
-                linksMap[k] = {
+        graph.relations.forEach(function (rel) {
+            var k = [rel.startNode, rel.endNode];
+            if (!relsMap[k]) {
+                relsMap[k] = {
                     relation: [],
-                    startNode: d.startNode,
-                    endNode: d.endNode
+                    startNode: rel.startNode,
+                    endNode: rel.endNode
                 };
             }
-            var ln = linksMap[k];
-
-            linksMap[k].relation.push({
-                type: d.type,
-                id: d.id,
-                label: d.label,
-                parent: ln,
-                amout: d.amout,
-                starDate: d.starDate
+            relsMap[k].relation.push({
+                type: rel.type,
+                id: rel.id,
+                label: rel.label,
+                parent: relsMap[k],
+                amout: rel.amout,
+                starDate: rel.starDate
             });
         });
 
-        for (var k in linksMap) {
-            edges_data.push(linksMap[k]);
+        for (var k in relsMap) {
+            edges_data.push(relsMap[k]);
         }
 
         edges_data.forEach(function (d) {
@@ -355,7 +363,9 @@ function initCanvas(companyId) {
             d.target = nodesMap[d.endNode];
         });
 
-        return {nodes_data, edges_data};
+        // console.log(nodes_data, edges_data);
+
+        return { nodes_data, edges_data };
     }
 
     /**
@@ -379,11 +389,42 @@ function initCanvas(companyId) {
                 type: 'bar'
             });
         }
-        var d = [{
+   
+        // 时间轴工具条配置
+        var barSetting = {
+            fn: {
+                // 拖动时间轴工具条笔刷，更新关系图数据
+                onBrush: function (startTime, endTime) {
+                    if (startTime === endTime) {
+                        edges_data.forEach(function (link) {
+                            link.relation.forEach(function (ln) { ln.filter = false; });
+                            link.source.filter = false;
+                        });
+                    } else {
+                        edges_data.forEach(function (link) {
+                            link.relation.forEach(function (ln) {
+                                var time = new Date(ln.starDate).getTime();
+                                ln.filter = !(time > startTime && time < endTime);
+                            });
+                            link.source.filter = !link.relation.filter(function (d) {
+                                return !d.filter
+                            }).length;
+                        });
+                    }
+                    // 根据时间轴范围变化，筛选关系（修改样式）
+                    filterRelation();
+                }
+            },
+            height: 80,
+            zoom: [0.5, 0.5],
+            startZoom: 0.5
+            // ,enableLiveTimer: true
+        };
+
+        tl.renderTimeBar([{
             label: 'bar',
             data: barData
-        }];
-        tl.renderTimeBar(d, barSetting);
+        }], barSetting);
         // tl.showSelect();
     }
 
@@ -414,23 +455,24 @@ function initCanvas(companyId) {
             .style('fill-opacity', 0.3);
 
         // 选中聚焦环
-        var selectedHalo = nodes.append('circle')
+        selectedHalo = nodes.append('circle')
             .attr('r', function (d) { return circleStyle[d.ntype].r + 6; })
-            .attr('class', function (d) { return 'halo-' + d.id; })
+            .attr('class', 'n-halo')
+            .attr('id', function (d) { return 'halo-' + d.id; })
             .style('fill', 'rgba(0,0,0,.0)')
             .style('stroke', 'rgb(0,209,218)')
             .style('stroke-width', 3)
             .classed('hidden', true);
 
-        // 关闭菜单
-        var hideCircleMenu = function () {
-            svg.select("#circle_menu").remove();
-        }
-
         // 隐藏选中聚焦环
         var hideSelectedHalo = function () {
             selectedHalo.classed('hidden', true);
             nodes.each(function (d) { d.selected = false; });
+        }
+
+        // 关闭菜单
+        var hideCircleMenu = function () {
+            svg.select("#circle_menu").remove();
         }
 
         // 框选刷
@@ -441,6 +483,7 @@ function initCanvas(companyId) {
                 hideSelectedHalo();
             }
         }
+
         function brushFn() {
             isBrushing = true;
             if (d3.event.sourceEvent.type !== 'brushend') {
@@ -475,7 +518,7 @@ function initCanvas(companyId) {
                     if (d.selected) {
                         ids.push(d.id);
                     }
-                    d3.select('.halo-' + d.id).classed('hidden', !d.selected);
+                    d3.select('#halo-' + d.id).classed('hidden', !d.selected);
                 });
 
                 // 圆形菜单
@@ -615,6 +658,13 @@ function initCanvas(companyId) {
             return !(ids.includes(d.startNode) || ids.includes(d.endNode));
         });
 
+        // nodes_data = nodes_data.filter(function (d) {
+        //     return !ids.includes(d.id);
+        // });
+        // edges_data = edges_data.filter(function (d) {
+        //     return !(ids.includes(d.source.id) || ids.includes(d.target.id));
+        // });
+
         // 更新画图数据
         update(graph);
     }
@@ -730,6 +780,7 @@ function initCanvas(companyId) {
                 d3.select(this).attr('x2', d.targetX = position.target[0]);
                 d3.select(this).attr('y2', d.targetY = position.target[1]);
             });
+
             d3.select(this).selectAll('text').attr('transform', function (d) {
                 var x = d.sourceX + (d.targetX - d.sourceX) / 2;
                 var y = d.sourceY + (d.targetY - d.sourceY) / 2;
@@ -792,17 +843,6 @@ function initCanvas(companyId) {
 
     function keyflip() {
         shiftKey = d3.event.shiftKey || d3.event.metaKey;
-    }
-
-    function circle() {
-        this.each(function (d, i) {
-            var style = circleStyle[d.ntype];
-            var dom = d3.select(this);
-            for (var i in style) {
-                dom.attr(i, style[i]);
-            }
-            d.r = dom.attr('r');
-        });
     }
 
     function setLinePath(
@@ -911,14 +951,14 @@ function initCanvas(companyId) {
             const mask = `` +
                 `<div class="loader">
                     <div class="loading-anim">
-                    <i></i>
-                    <i></i>
-                    <i></i>
-                    <i></i>
-                    <i></i>
-                    <i></i>
-                    <i></i>
-                    <i></i>
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                        <i></i>
                     </div>
                 </div>`;
             loadingMask.innerHTML = mask;

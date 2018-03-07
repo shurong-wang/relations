@@ -1,8 +1,8 @@
 var tl = new TimelineBar(d3.select('#timelineBox').node());
 var timerId = null;
 
-function selectChange(el) {
-    el.checked ? tl.showSelect() : tl.hideSelect();
+function switchScope(flag) {
+    flag ? tl.showSelect() : tl.hideSelect();
 }
 
 function clearChange() {
@@ -25,15 +25,15 @@ function initCanvas(companyId) {
     // var url = api('getTimeLine', {
     //     companyId: companyId
     // });
-    // var url = './asset/timelineV2.json';
-    var url = './asset/timelineV2.sample.json';
+    // var url = './data/timelineV2.json';
+    var url = './data/timelineV2.sample.json';
 
     var isDraging = false;
     var isHoverNode = false;
     var isHoverLine = false;
     var isBrushing = false;
     var padding = -10;
-    var flowAnim = new animation();
+    var flowAnim = new FlowAnim();
 
     var width = d3.select('#relation').node().clientWidth;
     var height = d3.select('#relation').node().clientHeight;
@@ -299,17 +299,30 @@ function initCanvas(companyId) {
         // renderBar(graph);
 
         // 更新力学图数据
-        genForeData(graph);
+        var { nodes_data, edges_data } = genForeData(graph);
+
+        // rLine
+        // rText
+
+        // nCircle
+        // nText
+        // selectedHalo
+
 
         // 更新关系（连线）
-        links = links.data(edges_data);
-        // todo ...
-        links.exit().remove();
+        var updateLinks = links.data(edges_data);
+        var enterLinks = updateLinks.enter();
+        var exitTLinks = updateLinks.exit();
+
+        exitTLinks.remove();
 
         // 更新主体（节点）
-        nodes = nodes.data(nodes_data);
-        // todo ...
-        nodes.exit().remove();
+        var updateNodes = nodes.data(nodes_data);
+        var enterNodes = updateNodes.enter();
+        var exitTNodes = updateNodes.exit();
+
+        exitTNodes.remove();
+
 
         // 开启力学计算
         force.start();
@@ -389,7 +402,7 @@ function initCanvas(companyId) {
                 type: 'bar'
             });
         }
-   
+
         // 时间轴工具条配置
         var barSetting = {
             fn: {
@@ -425,7 +438,9 @@ function initCanvas(companyId) {
             label: 'bar',
             data: barData
         }], barSetting);
-        // tl.showSelect();
+
+        switchScope(true);
+        document.querySelector('#scope').querySelector('input').checked = true;
     }
 
     /**

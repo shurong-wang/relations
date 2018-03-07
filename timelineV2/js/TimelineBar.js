@@ -46,8 +46,9 @@ TimelineBar.prototype.renderTimeBar = function (data, opts, callback) {
 
     this.groupWidth = 0;
 
-    if (!this.minDt)
+    if (!this.minDt) {
         return;
+    }
 
     var startDate = new Date(this.minDt.getTime() - 25920000000);
     var endDate = new Date(this.maxDt.getTime() + 25920000000);

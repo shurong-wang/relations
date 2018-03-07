@@ -1,0 +1,712 @@
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>公司详情</title>
+  <script src="http://cdn.bootcss.com/jquery/3.1.0/jquery.min.js"></script>
+  <div id="relation" style="width:100%;height:100%;"></div>
+  <div id="timeline">
+    <div id="timelineBox"></div>
+    <input type="checkbox" onchange="selectChange(this)">选择范围
+    <button onclick="clearChange()">清除选择</button>
+  </div>
+  <script src="asset/d3.v3.min.js"></script>
+  <script src="asset/timeline.js"></script>
+  <style>
+    circle {
+      /* fill-opacity: 0.2; */
+      transition: fill-opacity 250ms linear;
+    }
+
+    circle.active {
+      stroke: #f00;
+    }
+  </style>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    div {
+      box-sizing: border-box
+    }
+
+    #timeline {
+      height: 120px;
+      padding-top: 6px;
+      border-top: 1px solid #ccc;
+      position: absolute;
+      width: 100%;
+      bottom: 0;
+      background-color: #fff;
+    }
+
+    #relation {
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 100%;
+      width: 100%;
+      padding-bottom: 84px;
+    }
+
+    .timeline-chart .axis path {
+      fill: none;
+      stroke: none;
+    }
+
+    .timeline-chart line {
+      stroke: black;
+    }
+
+    .timeline-chart .vertical-marker {
+      stroke-width: 1;
+    }
+
+    .timeline-chart rect,
+    .timeline-chart rect.chart-bounds {
+      fill: transparent;
+    }
+
+    .timeline-chart rect.chart-bounds:hover,
+    .timeline-chart rect.interval:hover {
+      cursor: -webkit-grab;
+      cursor: grab;
+    }
+
+    .timeline-chart rect.chart-bounds:active,
+    .timeline-chart rect.interval:active {
+      cursor: -webkit-grabbing;
+      cursor: grabbing;
+    }
+
+    .timeline-chart .dot:hover {
+      cursor: pointer;
+    }
+
+    .timeline-chart .interval-text {
+      pointer-events: none;
+    }
+
+    .timeline-chart rect.interval {
+      ry: 5;
+      rx: 5;
+      fill: black;
+      stroke: #2b2b2b;
+    }
+
+    .timeline-chart .extent {
+      fill: #000;
+      stroke: #929292;
+      fill-opacity: .125;
+      shape-rendering: crispEdges;
+    }
+
+    .timeline-chart i.active {
+      background-color: #ccc;
+    }
+  </style>
+  <script src="asset/animation.js"></script>
+  <script>
+    var tl = new TimelineChart(d3.select('#timelineBox').node())
+    function selectChange(element) {
+      element.checked ? tl.showSelect() : tl.hideSelect();
+    }
+    function clearChange() {
+      tl.clearBrush()
+    }
+    var nodesList, linksList;
+    (function (window) {
+
+
+      var tlOptions = {
+        event: {
+          onBrush: function (start, end) {
+            start = start.getTime();
+            end = end.getTime();
+            if (start == end) {
+              linksList.forEach(function (link) {
+                link.relation.forEach(function (l) {
+                  l.filter = false;
+                })
+                link.source.filter = false;
+              })
+            } else {
+              linksList.forEach(function (link, index) {
+                link.relation.forEach(function (l, i) {
+                  var time = new Date(l.starDate).getTime();
+                  l.filter = !(time > start && time < end);
+                })
+                link.source.filter = !link.relation.filter(function (d) {
+                  return !d.filter
+                }).length
+              })
+            }
+            reStatus()
+          }
+        },
+        height: 80,
+        zoom: [0.5, 0.5],
+        startZoom: 0.5
+        // ,enableLiveTimer:true
+      }
+
+
+      d3.json('asset/data.json', function (error, graph) {
+        var data = [],
+          obj = {}
+        if (typeof graph === 'string') {
+          graph = JSON.parse(graph);
+        }
+
+        if (graph.relations) graph.relations.forEach(function (d) {
+          obj[d.starDate] = obj[d.starDate] ? obj[d.starDate] + 1 : 1;
+        })
+
+        for (var i in obj) {
+
+          data.push({
+            at: new Date(i),
+            value: obj[i],
+            type: 'bar'
+          })
+        }
+        var d = [
+          // {
+          //   label: 'Name',
+          //   data:[{
+          //     at: new Date(),
+          //     type: 'point',
+          //     key: '123'
+          //   }]
+          // },
+          {
+            label: 'bar',
+            data: data
+          }]
+        tl.reDraw(d, tlOptions);
+        // tl.showSelect()
+      })
+
+
+      var padding = -10;
+      var ani = new animation();
+
+      var width = d3.select('#relation').node().clientWidth;
+      var height = d3.select('#relation').node().clientHeight;
+      var force = d3.layout.force()
+        .size([width, height])
+        .charge(-400)
+        .linkDistance(200)
+        .charge(-800)
+        .on("tick", tick);
+
+      var drag = force.drag()
+        .on("dragstart", dragstart);
+
+      var svg = d3.select("#relation").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      var link = svg.selectAll(".link"),
+        node = svg.selectAll(".node");
+
+      var span = d3.select('body').append('span').style('font-size', '12px').style('line-height', '12px');
+
+      var markerList = [];
+      var markerStyle = {
+        markerUnits: "strokeWidth",
+        markerWidth: "12",
+        markerHeight: "12",
+        viewBox: "0 0 12 12",
+        refX: "10",
+        refY: "6",
+        orient: "auto"
+      }
+      svg.selectAll('.marker').data(['SERVE', 'INVEST_C', 'OWN', 'TELPHONE']).enter()
+        .append('marker')
+        .attr('id', function (d) {
+          var dom = d3.select(this);
+          for (var i in markerStyle) dom.attr(i, markerStyle[i])
+          return d
+        })
+        .append('path')
+        .attr('d', 'M2,2 L10,6 L2,10 L6,6 L2,2');
+
+      var amoutIdentity
+      d3.json('asset/data.json', function (error, graph) {
+        if (typeof graph === 'string') {
+          graph = JSON.parse(graph);
+        }
+        nodesList = JSON.parse(JSON.stringify(graph.nodes));
+        var nodesObj = {};
+        linksList = [];
+        var linksObj = {};
+        var amoutList = [];
+        nodesList.forEach(function (d) {
+          nodesObj[d.id] = d;
+        })
+
+        graph.relations.forEach(function (d) {
+          var l;
+          if (linksObj[[d.startNode, d.endNode]]) {
+            l = linksObj[[d.startNode, d.endNode]];
+          } else {
+            l = linksObj[[d.startNode, d.endNode]] = {
+              relation: [],
+              startNode: d.startNode,
+              endNode: d.endNode
+            }
+          }
+          l.relation.push({
+            type: d.type,
+            id: d.id,
+            label: d.label,
+            parent: l,
+            amout: d.amout,
+            starDate: d.starDate
+          });
+          if (d.amout) amoutList.push(d.amout);
+        });
+        amoutIdentity = d3.scale.linear().range([8, 15]).domain(d3.extent(amoutList))
+        for (var i in linksObj) {
+          linksList.push(linksObj[i]);
+        }
+        linksList.forEach(function (d) {
+          d.source = nodesObj[d.startNode]
+          d.target = nodesObj[d.endNode]
+        })
+
+        force
+          .nodes(nodesList)
+          .links(linksList)
+
+          .start();
+
+        link = link.data(linksList)
+          .enter().append("g")
+          .attr("class", "link")
+          .each(function (link) {
+            var g = d3.select(this);
+            var lineEnter = g.selectAll('.line').data(link.relation).enter();
+            lineEnter.append('line').each(function (d) {
+              d3.select(this).classed(d.type, true).attr("marker-end", "url(#" + d.type + ")");;
+            })
+            lineEnter.append('text').text(function (d) {
+              return d.label
+            })
+          });
+
+        node = node.data(nodesList)
+          .enter().append("g")
+          .attr("class", "node");
+        var s = span.node();
+        node.each(function (d) {
+          var node = d3.select(this).append('circle').call(circle);
+          var text = d3.select(this).append('text').text(function (d) {
+            var s = d.name
+            if (s.length > 6) return s.substr(0, 6);
+            return s;
+          }).attr('transform', function () {
+            s.innerText = d.name;
+            return 'translate(' + [0, s.offsetHeight / 4] + ')'
+          })
+          d3.select(this).classed(d.ntype, true)
+        })
+          .on("dblclick", dblclick)
+          .call(drag);
+        reStatus();
+        setTimeout(function () {
+          force.stop();
+        }, 3000)
+      })
+
+
+
+      var newList, oldList;
+      function reStatus() {
+        newList = link.data().map(function (d) {
+          return d.relation.filter(function (d) {
+            return d.filter
+          }).map(function (d) {
+            return d
+          }).join();
+        }).sort().join();
+        node.each(function (d) {
+          d3.select(this).classed('filter', d.filter);
+          d3.select(this).classed('selected', d.selected);
+        });
+        link.each(function (d) {
+          d3.select(this).selectAll('line').each(function (d) {
+            d3.select(this).classed('filter', d.filter);
+            d3.select(this).classed('selected', d.selected);
+          })
+        });
+        if (oldList != newList) d3render(link);
+        oldList = newList
+      }
+
+      function tick() {
+        link.each(function (link) {
+          var r = link.source.r;
+          var b1 = link.target.x - link.source.x;
+          var b2 = link.target.y - link.source.y;
+          var b3 = Math.sqrt(b1 * b1 + b2 * b2);
+          link.angle = 180 * Math.asin(b1 / b3) / Math.PI;
+          link.textAngle = b2 > 0 ? 90 - link.angle : link.angle - 90;
+
+          var a = Math.cos(link.angle * Math.PI / 180) * r;
+          var b = Math.sin(link.angle * Math.PI / 180) * r;
+          link.sourceX = link.source.x + b;
+          link.targetX = link.target.x - b;
+          link.sourceY = b2 < 0 ? link.source.y - a : link.source.y + a;
+          link.targetY = b2 < 0 ? link.target.y + a : link.target.y - a;
+
+
+          var maxCount = 4; // 最大连线数
+          var count = link.relation.length; // 连线条数
+          var minStart = count === 1 ? 0 : -r / 2 + padding;
+          var start = minStart * (count / maxCount); // 连线线开始位置
+          var space = count === 1 ? 0 : Math.abs(minStart * 2 / (maxCount - 1)); // 连线间隔
+
+
+          var index = 0;
+
+          d3.select(this).selectAll('line').each(function (d, i) {
+
+
+            // 生成 20 0 -20 的 position 模式
+            var position = start + space * index++;
+            // 可以按间隔为 10 去生成 0 10 -10 20 -20 模式
+
+            var position = setLinePath(
+              d,
+              link.sourceX,
+              link.sourceY,
+              link.targetX,
+              link.targetY,
+              link.angle,
+              position,
+              r,
+              b2 < 0
+            );
+
+            d3.select(this).attr('x1', d.sourceX = position.source[0]);
+            d3.select(this).attr('y1', d.sourceY = position.source[1]);
+            d3.select(this).attr('x2', d.targetX = position.target[0]);
+            d3.select(this).attr('y2', d.targetY = position.target[1]);
+          })
+
+          d3.select(this).selectAll('text').attr('transform', function (d) {
+            var x = d.sourceX + (d.targetX - d.sourceX) / 2;
+
+            var y = d.sourceY + (d.targetY - d.sourceY) / 2;
+            var textAngle = d.parent.textAngle;
+            return ['translate(' + [x, y] + ')', 'rotate(' + ((textAngle > 90 || textAngle < -90) ? (180 + textAngle) : textAngle) + ')'].join(' ');
+          })
+
+        })
+          .attr("x1", function (d) { return d.source.x; })
+          .attr("y1", function (d) { return d.source.y; })
+          .attr("x2", function (d) { return d.target.x; })
+          .attr("y2", function (d) { return d.target.y; });
+        node.attr("transform", function (d) { return "translate(" + [d.x, d.y] + ")" })
+      }
+
+      function dblclick(d) {
+        d3.select(this).classed("fixed", d.fixed = false);
+      }
+
+      function dragstart(d) {
+        d3.select(this).classed("fixed", d.fixed = true);
+      }
+
+      function keyflip() {
+        shiftKey = d3.event.shiftKey || d3.event.metaKey;
+      }
+      function circle() {
+        this.each(function (d, i) {
+          var style = circleStyle[d.ntype];
+          var dom = d3.select(this)
+          for (var i in style) {
+            dom.attr(i, style[i])
+          }
+          d.r = dom.attr('r')
+        })
+      }
+
+      function setLinePath(
+        link,
+        sourceX,
+        sourceY,
+        targetX,
+        targetY,
+        angle,
+        position,
+        r,
+        isY
+      ) {
+        if (position > r) {
+          return;
+        }
+        // s 两次三角函数计算的值 -- 参考 doc/两次三角函数计算的值.jpg 标识的红色部分
+        var s = r - Math.sin(180 * Math.acos(position / r) / Math.PI * Math.PI / 180) * r;
+
+        // _a 和 _b 是拿到 ang 角度的基准值
+        var _a = Math.cos(angle * Math.PI / 180);
+        var _b = Math.sin(angle * Math.PI / 180);
+
+        // a 和 b 是得到垂直于原点平行 position 长度的偏移量。 两个偏移量按照下面的逻辑相加就是平行线的位置了
+        var a = _a * position;
+        var b = _b * position;
+        var rx = _b * s;
+        var ry = _a * s;
+
+        return {
+          source: [(isY ? sourceX + a : sourceX - a) - rx, (isY ? sourceY + ry : sourceY - ry) + b],
+          target: [(isY ? targetX + a : targetX - a) + rx, (isY ? targetY - ry : targetY + ry) + b]
+        }
+      }
+
+      var circleStyle = {
+        Human: {
+          r: 30
+        },
+        Company: {
+          r: 50
+        }
+      }
+
+      function clearAni() {
+        ani.stopAll();
+        d3.selectAll('.behavior').remove();
+        link.each(function (d) {
+          d.relation.forEach(function (d) {
+            delete d.behavior;
+          })
+        })
+      }
+      function d3render(link) {
+        clearAni();
+        link.filter(function (d) {
+          return !d.filter;
+        }).each(function (link) {
+          var i = 0;
+          var _dom = d3.select(this);
+          var dom = _dom.selectAll('line').filter(function (d) {
+            return (!d.filter) && (d.type == 'INVEST_C' || d.type == 'TELPHONE');
+          });
+          dom.each(function (d) {
+            d.behavior = _dom.append('circle').attr('r', function (d, i) {
+              return amoutIdentity(d.relation[i].amout) || 5
+            }).classed('behavior', true);
+          })
+          ani.start(function () {
+
+
+            dom.each(function (d, index) {
+
+              var dom = d3.select(this);
+              var x1 = parseInt(dom.attr('x1'));
+              var y1 = parseInt(dom.attr('y1'));
+              var x2 = parseInt(dom.attr('x2'));
+              var y2 = parseInt(dom.attr('y2'));
+
+              var x = x1 + ((i % 200) / 199) * (x2 - x1);
+              var y = y1 + ((i % 200) / 199) * (y2 - y1);
+
+              if (x && y) d.behavior.attr('cx', x).attr('cy', y)
+            })
+
+            i++
+          }, 90)
+        })
+      }
+
+    })(window)
+
+  </script>
+  <style>
+    .node {
+      stroke: #fff;
+      stroke-width: 1.5px;
+    }
+
+    .node .selected {
+      stroke: red;
+    }
+
+    .link {
+      stroke: #999;
+    }
+
+    .brush .extent {
+      fill-opacity: .1;
+      stroke: #fff;
+      shape-rendering: crispEdges;
+    }
+
+    .Company {
+      fill: #018cff;
+      stroke: #00559a;
+      stroke-width: 3px;
+    }
+
+    .Human {
+      fill: #d04e06;
+      stroke: #883000;
+      stroke-width: 3px;
+    }
+
+    .Company text {
+      font-size: 12px;
+      fill: #fff;
+      stroke-width: 0;
+      text-anchor: middle
+    }
+
+    .Human text {
+      font-size: 12px;
+      fill: #fff;
+      stroke-width: 0;
+      text-anchor: middle
+    }
+
+    .link .SERVE {
+      fill: red;
+      stroke: red;
+      stroke-width: 2px;
+    }
+
+    .link .INVEST_C {
+      fill: #ffa406;
+      stroke: #ffa406;
+      stroke-width: 2px;
+    }
+
+    .link .OWN {
+      fill: #036ae4;
+      stroke: #036ae4;
+      stroke-width: 2px;
+    }
+
+    .link .TELPHONE {
+      fill: green;
+      stroke: green;
+      stroke-width: 2px;
+    }
+
+    #TELPHONE {
+      fill: green;
+    }
+
+    #SERVE {
+      fill: red;
+    }
+
+    #INVEST_C {
+      fill: #ffa406;
+    }
+
+    #OWN {
+      fill: #036ae4;
+    }
+
+    .behavior {
+      fill: #ffa406;
+      stroke-width: 0;
+    }
+
+    .link .filter {
+      fill: #ccc;
+      stroke: #ccc
+    }
+
+    .node.filter circle {
+      fill: #ccc;
+      stroke: #ccc;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bc_search">
+    <div class="bc_search_main">
+      <div class="right-title">
+        <span>
+          <span class="right-title-img1"></span>企业搜索
+        </span>
+        <span>
+          <span class="right-title-img2"></span>
+          <a class="tab-rel-found" href="found.html">幕后关系</a>
+        </span>
+        <span>
+          <span class="right-title-img2"></span>
+          <a class="tab-rel-found" href="shortpath.html">最短路径</a>
+        </span>
+        <span>
+          <span class="right-title-img3"></span>风险管理
+        </span>
+        <span>
+          <span class="right-title-img4"></span>增值应用
+        </span>
+      </div>
+    </div>
+  </div>
+  <!--detail-->
+  <div class="detail_main">
+    <!--title-->
+  </div>
+
+  <ul id="myTab" class="nav nav-tabs" style="width: 85%;margin: 20px auto;">
+    <li class="active">
+      <a href="#home" onclick="redirect(this)" data-toggle="tab">工商信息</a>
+    </li>
+    <li>
+      <a href="#ios" onclick="redirect(this)" data-toggle="tab" id="alltax">风险信息</a>
+    </li>
+    <li>
+      <a href="#busines" onclick="redirect(this)" data-toggle="tab" id="allbusinessinf">经营信息</a>
+    </li>
+    <li>
+      <a href="#intellectual" onclick="redirect(this)" data-toggle="tab">知识产权</a>
+    </li>
+    <li>
+      <a href="#dev" onclick="redirect(this)" data-toggle="tab">企业发展</a>
+    </li>
+    <li>
+      <a href="#employ" onclick="redirect(this)" data-toggle="tab" id="allemployinf">员工概览</a>
+    </li>
+    <li>
+      <a href="#analysis" onclick="redirect(this)" data-toggle="tab">舆情分析</a>
+    </li>
+
+    <li>
+      <a href="#genealogy" onclick="redirect(this)" data-toggle="tab">企业族谱</a>
+    </li>
+
+    <li>
+      <a href="#investment" onclick="redirect(this)" data-toggle="tab">投资族谱</a>
+    </li>
+
+    <!--   <li><a href="#structure" onclick="redirect(this)" data-toggle="tab">股权结构</a></li> -->
+    <li>
+      <a href="#reigon" onclick="redirect(this)" data-toggle="tab" id="regionmap">地域版图</a>
+    </li>
+    <li>
+      <a href="#dustry" onclick="redirect(this)" data-toggle="tab">行业版图</a>
+    </li>
+  </ul>
+
+
+
+  <script src="asset/d3.v3.min.js"></script>
+
+</body>
+
+</html>

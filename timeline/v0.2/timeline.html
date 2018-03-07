@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://47.93.45.8:8080/jstx/build/html/timeline.html -->
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <title>时间轴</title>
+
+    <link rel="shortcut icon" href="http://47.93.45.8:8080/favicon.ico">
+    <link href="./asset/bootstrap.css" rel="stylesheet">
+    <link href="./asset/bootstrap-tagsinput.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="./asset/1.css">
+    <link rel="stylesheet" href="./asset/iconfont.css">
+    <link rel="stylesheet" href="./asset/tagsinput.css">
+    <link rel="stylesheet" href="./asset/timeline.css">
+    <link rel="stylesheet" href="./asset/found.css">
+
+    <script src="./asset/api.js"></script>
+</head>
+
+<body>
+    <div class="bc_search">
+        <div class="bc_search_main">
+            <a href="http://47.93.45.8:8080/jstx/build/html/newindex.html">
+                <img src="./asset/indexlogo.png" class="fl search_logo" alt="">
+            </a>
+            <div class="right-title">
+                <span>
+                    <span class="right-title-img1"></span>
+                    <a class="tab-rel-found" href="http://47.93.45.8:8080/jstx/build/html/newindex.html">企业</a>
+                </span>
+                <span>
+                    <span class="right-title-img2"></span>
+                    <a class="tab-rel-found" href="http://47.93.45.8:8080/jstx/build/html/found.html">企业关联</a>
+                </span>
+                <span>
+                    <span class="right-title-img2"></span>
+                    <a class="tab-rel-found" href="http://47.93.45.8:8080/jstx/build/html/shortpath.html">企业路径</a>
+                </span>
+                <span>
+                    <span class="right-title-img3"></span>
+                    <a class="tab-rel-found" href="http://47.93.45.8:8080/jstx/build/html/relation-suggest.html">关系族谱</a>
+                </span>
+                <span>
+                    <span class="right-title-img4"></span>
+                    <a class="tab-rel-found" href="http://47.93.45.8:8080/jstx/build/html/timeline.html">时间轴</a>
+                </span>
+            </div>
+        </div>
+    </div>
+    <!--标注-->
+    <div class="timeline-legend">
+        <div class="timeline-legend-company">
+            <span>公司</span>
+            <i></i>
+        </div>
+        <div class="timeline-legend-investor">
+            <span>投资人</span>
+            <i></i>
+        </div>
+        <div class="timeline-legend-flows">
+            <span>数据流向</span>
+            <i></i>
+        </div>
+    </div>
+
+    <div id="relation"></div>
+
+    <div id="timeline">
+        <div id="timelineBox" class="timeline-bar"></div>
+        <div id="timelineHandle">
+            <label class="switch">
+                <input type="checkbox" onchange="selectChange(this)">
+                <span data-on="选择范围" data-off="固定范围"></span>
+            </label>
+            <a href="javascript:void(0);" onclick="clearChange()" class="button-clear green-clear">
+                清除范围
+                <i class="icon iconfont icon-clear"></i>
+            </a>
+        </div>
+    </div>
+
+    <script src="./asset/jquery.min.js"></script>
+    <script src="./asset/bootstrap.min.js"></script>
+    <script src="./asset/d3.v3.min.js"></script>
+    <script src="./asset/animation.js"></script>
+    <script src="./asset/TimelineBar.js"></script>
+    <script src="./asset/timeline.js"></script>
+
+</body>
+
+</html>

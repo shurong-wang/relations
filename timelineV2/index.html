@@ -13,10 +13,10 @@
 
     <!-- Bootstrap core CSS -->
     <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="./asset/font-awesome/font-awesome.css">
-    <link rel="stylesheet" href="./asset/iconfont/iconfont.css">
-    <link rel="stylesheet" href="./asset/timelineV2.css">
-    <link rel="stylesheet" href="./asset/dynamic.css">
+    <link rel="stylesheet" href="./css/font-awesome/font-awesome.css">
+    <link rel="stylesheet" href="./css/iconfont/iconfont.css">
+    <link rel="stylesheet" href="./css/timelineV2.css">
+    <link rel="stylesheet" href="./css/index.css">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -24,7 +24,7 @@
       <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-    <script src="./asset/api.js"></script>
+    <script src="./js/api.js"></script>
 </head>
 
 <body>
@@ -191,12 +191,12 @@
                     <div id="timeline">
                         <div id="timelineBox"></div>
                         <div id="timelineHandle">
-                            <label class="switch hidden">
+                            <label id="zoom" class="switch hidden">
                                 <input id="offZoom" type="checkbox" checked>
                                 <span data-on="选取节点" data-off="平移缩放"></span>
                             </label>
-                            <label class="switch">
-                                <input type="checkbox" onchange="selectChange(this)">
+                            <label id="scope" class="switch">
+                                <input type="checkbox" onchange="switchScope(this.checked)">
                                 <span data-on="选取范围" data-off="滑动刻度"></span>
                             </label>
                             <a href="javascript:void(0);" onclick="clearChange()" class="button-clear green-clear">
@@ -216,12 +216,12 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="asset/screenfull.js"></script>
-    <script src="asset/animation.js"></script>
-    <script src="asset/d3.v3.min.js"></script>
-    <script src="asset/TimelineBar.js"></script>
-    <script src="asset/timelineV2.js"></script>
-    <script src="asset/dynamic.js"></script>
+    <script src="js/screenfull.js"></script>
+    <script src="js/FlowAnim.js"></script>
+    <script src="js/d3.v3.min.js"></script>
+    <script src="js/TimelineBar.js"></script>
+    <script src="js/timelineV2.js"></script>
+    <script src="js/index.js"></script>
 </body>
 
 </html>

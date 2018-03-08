@@ -1,7 +1,7 @@
 var TimelineBar = function (element) {
     var that = this;
     this.margin = {
-        top: 0,
+        top: 10,
         right: 10,
         bottom: 20,
         left: 30

@@ -162,7 +162,6 @@ function initCanvas(companyId) {
      * @param {Object} graph 
      */
     function renderFroce(graph) {
-
         // 生成力学图数据
         var { nodes_data, edges_data } = genForeData(graph);
 
@@ -314,29 +313,20 @@ function initCanvas(companyId) {
      */
     function genForeData(graph) {
 
-        // console.log(nodes_data, edges_data);
+        // console.log('old:', nodes_data, edges_data);
 
-        var nodesMap = {};
-        var relsMap = {};
+        var nodesMap = graph.nodes.reduce(function (map, node) {
+            map[node.id] = node;
+            return map;
+        }, {});
 
-        nodes_data = [];
-        edges_data = [];
-
-        nodes_data = graph.nodes;
-
-        nodes_data.forEach(function (node) {
-            nodesMap[node.id] = node;
-        });
-
-        graph.relations.forEach(function (rel) {
+        var relsMap = graph.relations.reduce(function (map, rel) {
             var k = [rel.startNode, rel.endNode];
-            if (!relsMap[k]) {
-                relsMap[k] = {
-                    startNode: rel.startNode,
-                    endNode: rel.endNode,
+            if (!map[k]) {
+                map[k] = {
                     relation: []
                 };
-                relsMap[k].relation.push({
+                map[k].relation.push({
                     type: rel.type,
                     id: rel.id,
                     label: rel.label,
@@ -344,18 +334,20 @@ function initCanvas(companyId) {
                     starDate: rel.starDate
                 });
             }
+            return map;
+        }, {});
+
+        nodes_data = graph.nodes;
+        edges_data = Object.keys(relsMap).map(function (k) {
+            var [startNode, endNode] = k.split(',');
+            return {
+                source: nodesMap[startNode],
+                target: nodesMap[endNode],
+                relation: relsMap[k].relation
+            }
         });
 
-        for (var k in relsMap) {
-            edges_data.push(relsMap[k]);
-        }
-
-        edges_data.forEach(function (d) {
-            d.source = nodesMap[d.startNode];
-            d.target = nodesMap[d.endNode];
-        });
-
-        // console.log(nodes_data, edges_data);
+        // console.log('new:', nodes_data, edges_data);
 
         return { nodes_data, edges_data };
     }
@@ -645,11 +637,11 @@ function initCanvas(companyId) {
     function removeNR(ids, graph) {
         console.log('删除节点及关系', ids);
 
-        graph.nodes = graph.nodes.filter(function (d) {
-            return !ids.includes(d.id);
+        graph.nodes = graph.nodes.filter(function (node) {
+            return !ids.includes(node.id);
         });
-        graph.relations = graph.relations.filter(function (d) {
-            return !(ids.includes(d.startNode) || ids.includes(d.endNode));
+        graph.relations = graph.relations.filter(function (rel) {
+            return !(ids.includes(rel.startNode) || ids.includes(rel.endNode));
         });
 
         // nodes_data = nodes_data.filter(function (d) {
@@ -731,57 +723,30 @@ function initCanvas(companyId) {
         links.each(function (link) {
             var lineG = d3.select(this);
 
-            var b1 = link.target.x - link.source.x; // 邻边
-            var b2 = link.target.y - link.source.y; // 对边
-            var b3 = Math.sqrt(b1 * b1 + b2 * b2);  // 斜边
-            link.angle = 180 * Math.asin(b1 / b3) / Math.PI;
-
-            var r = link.source.r;
-            var a = Math.cos(link.angle * Math.PI / 180) * r;
-            var b = Math.sin(link.angle * Math.PI / 180) * r;
-            link.sourceX = link.source.x + b;
-            link.targetX = link.target.x - b;
-            link.sourceY = b2 < 0 ? link.source.y - a : link.source.y + a;
-            link.targetY = b2 < 0 ? link.target.y + a : link.target.y - a;
-
-            var maxCount = 4; // 最大连线数
-            var count = link.relation.length; // 连线条数
-            var minStart = count === 1 ? 0 : -r / 2 + padding;
-            var start = minStart * (count / maxCount); // 连线线开始位置
-            var space = count === 1 ? 0 : Math.abs(minStart * 2 / (maxCount - 1)); // 连线间隔
+            var {
+                source: { x: sx, y: sy, r: sr },
+                target: { x: tx, y: ty, r: tr },
+                relation,
+            } = link;
+            var count = relation.length; // 连线条数
 
             var index = 0;
+            var path = {};
 
-            // 关系连线
-            lineG.selectAll('line').each(function (d, i) {
-                
-                // 生成 20 0 -20 的 position 模式
-                var position = start + space * index++;
-
-                // 可以按间隔为 10 去生成 0 10 -10 20 -20 模式
-                var pos = setLinePath(
-                    d,
-                    link.sourceX,
-                    link.sourceY,
-                    link.targetX,
-                    link.targetY,
-                    link.angle,
-                    position,
-                    r,
-                    b2 < 0
-                );
-                
-                d3.select(this).attr('x1', d.sourceX = pos.source[0]);
-                d3.select(this).attr('y1', d.sourceY = pos.source[1]);
-                d3.select(this).attr('x2', d.targetX = pos.target[0]);
-                d3.select(this).attr('y2', d.targetY = pos.target[1]);
+            //关系连线
+            lineG.selectAll('line').each(function () {
+                index++;
+                path = getLinePath(sx, sy, tx, ty, sr, index, count);
+                // 设置连线路径 x1, y1, x2, y2
+                d3.select(this).attr(path);
             });
 
-            // 关系连线
+            // 关系文字
             lineG.selectAll('text').attr('transform', function (d) {
-                var textX = d.sourceX + (d.targetX - d.sourceX) / 2;
-                var textY = d.sourceY + (d.targetY - d.sourceY) / 2;
-                var textAngle = getAngle(d.sourceX, d.sourceY, d.targetX , d.targetY) ;
+                var { x1, y1, x2, y2 } = path;
+                var textX = x1 + (x2 - x1) / 2;
+                var textY = y1 + (y2 - y1) / 2;
+                var textAngle = getAngle(x1, y1, x2, y2);
                 var textRotate = (textAngle > 90 || textAngle < -90) ? (180 + textAngle) : textAngle;
                 return ['translate(' + [textX, textY] + ')', 'rotate(' + textRotate + ')'].join(' ');
             });
@@ -844,20 +809,41 @@ function initCanvas(companyId) {
         shiftKey = d3.event.shiftKey || d3.event.metaKey;
     }
 
-    function setLinePath(
-        link,
-        sourceX,
-        sourceY,
-        targetX,
-        targetY,
-        angle,
-        position,
-        r,
-        isY
-    ) {
+    /**
+     * 获取关系连线的路径
+     * @param {number} sx 
+     * @param {number} sy 
+     * @param {number} tx 
+     * @param {number} ty 
+     * @param {number} r 节点半径
+     * @param {number} index 连线索引
+     * @param {number} count 连线条数
+     */
+    function getLinePath(sx, sy, tx, ty, r, index, count) {
+
+        var b1 = tx - sx; // 邻边
+        var b2 = ty - sy; // 对边
+        var b3 = Math.sqrt(b1 * b1 + b2 * b2);  // 斜边
+        var angle = 180 * Math.asin(b1 / b3) / Math.PI;
+        var isY = b2 < 0;
+
+        var a = Math.cos(angle * Math.PI / 180) * r;
+        var b = Math.sin(angle * Math.PI / 180) * r;
+        var sourceX = sx + b;
+        var targetX = tx - b;
+        var sourceY = isY ? sy - a : sy + a;
+        var targetY = isY ? ty + a : ty - a;
+
+        var maxCount = 4; // 最大连线数
+        var minStart = count === 1 ? 0 : -r / 2 + padding;
+        var start = minStart * (count / maxCount); // 连线线开始位置
+        var space = count === 1 ? 0 : Math.abs(minStart * 2 / (maxCount - 1)); // 连线间隔
+        var position = start + space * index; // 生成 20 0 -20 的 position 模式
+
         if (position > r) {
             return;
         }
+
         // s 两次三角函数计算的值
         var s = r - Math.sin(180 * Math.acos(position / r) / Math.PI * Math.PI / 180) * r;
 
@@ -871,10 +857,12 @@ function initCanvas(companyId) {
         var rx = _b * s;
         var ry = _a * s;
 
-        return {
-            source: [(isY ? sourceX + a : sourceX - a) - rx, (isY ? sourceY + ry : sourceY - ry) + b],
-            target: [(isY ? targetX + a : targetX - a) + rx, (isY ? targetY - ry : targetY + ry) + b]
-        };
+        var x1 = (isY ? sourceX + a : sourceX - a) - rx;
+        var y1 = (isY ? sourceY + ry : sourceY - ry) + b;
+        var x2 = (isY ? targetX + a : targetX - a) + rx;
+        var y2 = (isY ? targetY - ry : targetY + ry) + b;
+
+        return { x1, y1, x2, y2 };
     }
 
     var circleStyle = {

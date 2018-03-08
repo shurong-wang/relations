@@ -231,14 +231,6 @@ function initCanvas(companyId) {
                 d.previouslySelected = false;
                 d.r = circleStyle[d.ntype].r;
 
-                // nCircle = nodesG.append('circle')
-                //     .call(function () {
-                //         this.each(function (d) {
-                //             d3.select(this).attr(circleStyle[d.ntype]);
-                //             d.r = circleStyle[d.ntype].r;
-                //         });
-                //     });
-
                 // 节点圆形
                 nCircle = nodesG.append('circle')
                     .attr('class', 'n-circle')
@@ -274,9 +266,6 @@ function initCanvas(companyId) {
                 d3.select(this).select('circle').transition().attr('r', circleStyle[d.ntype].r);
             })
             .on('dblclick', function (d) {
-                if (isDraging) {
-                    return;
-                }
                 d3.select(this).classed('fixed', d.fixed = false);
             })
             .call(drag);
@@ -301,28 +290,19 @@ function initCanvas(companyId) {
         // 更新力学图数据
         var { nodes_data, edges_data } = genForeData(graph);
 
-        // rLine
-        // rText
-
-        // nCircle
-        // nText
-        // selectedHalo
-
-
         // 更新关系（连线）
-        var updateLinks = links.data(edges_data);
-        var enterLinks = updateLinks.enter();
-        var exitTLinks = updateLinks.exit();
+        links = links.data(edges_data);
+        var enterLinks = links.enter();
+        var exitTLinks = links.exit();
 
         exitTLinks.remove();
 
         // 更新主体（节点）
-        var updateNodes = nodes.data(nodes_data);
-        var enterNodes = updateNodes.enter();
-        var exitTNodes = updateNodes.exit();
+        nodes = nodes.data(nodes_data);
+        var enterNodes = nodes.enter();
+        var exitTNodes = nodes.exit();
 
         exitTNodes.remove();
-
 
         // 开启力学计算
         force.start();
@@ -352,19 +332,18 @@ function initCanvas(companyId) {
             var k = [rel.startNode, rel.endNode];
             if (!relsMap[k]) {
                 relsMap[k] = {
-                    relation: [],
                     startNode: rel.startNode,
-                    endNode: rel.endNode
+                    endNode: rel.endNode,
+                    relation: []
                 };
+                relsMap[k].relation.push({
+                    type: rel.type,
+                    id: rel.id,
+                    label: rel.label,
+                    amout: rel.amout,
+                    starDate: rel.starDate
+                });
             }
-            relsMap[k].relation.push({
-                type: rel.type,
-                id: rel.id,
-                label: rel.label,
-                parent: relsMap[k],
-                amout: rel.amout,
-                starDate: rel.starDate
-            });
         });
 
         for (var k in relsMap) {
@@ -750,13 +729,14 @@ function initCanvas(companyId) {
 
     function tick() {
         links.each(function (link) {
-            var r = link.source.r;
-            var b1 = link.target.x - link.source.x;
-            var b2 = link.target.y - link.source.y;
-            var b3 = Math.sqrt(b1 * b1 + b2 * b2);
-            link.angle = 180 * Math.asin(b1 / b3) / Math.PI;
-            link.textAngle = b2 > 0 ? 90 - link.angle : link.angle - 90;
+            var lineG = d3.select(this);
 
+            var b1 = link.target.x - link.source.x; // 邻边
+            var b2 = link.target.y - link.source.y; // 对边
+            var b3 = Math.sqrt(b1 * b1 + b2 * b2);  // 斜边
+            link.angle = 180 * Math.asin(b1 / b3) / Math.PI;
+
+            var r = link.source.r;
             var a = Math.cos(link.angle * Math.PI / 180) * r;
             var b = Math.sin(link.angle * Math.PI / 180) * r;
             link.sourceX = link.source.x + b;
@@ -772,13 +752,14 @@ function initCanvas(companyId) {
 
             var index = 0;
 
-            d3.select(this).selectAll('line').each(function (d, i) {
-
+            // 关系连线
+            lineG.selectAll('line').each(function (d, i) {
+                
                 // 生成 20 0 -20 的 position 模式
                 var position = start + space * index++;
 
                 // 可以按间隔为 10 去生成 0 10 -10 20 -20 模式
-                var position = setLinePath(
+                var pos = setLinePath(
                     d,
                     link.sourceX,
                     link.sourceY,
@@ -789,40 +770,43 @@ function initCanvas(companyId) {
                     r,
                     b2 < 0
                 );
-
-                d3.select(this).attr('x1', d.sourceX = position.source[0]);
-                d3.select(this).attr('y1', d.sourceY = position.source[1]);
-                d3.select(this).attr('x2', d.targetX = position.target[0]);
-                d3.select(this).attr('y2', d.targetY = position.target[1]);
+                
+                d3.select(this).attr('x1', d.sourceX = pos.source[0]);
+                d3.select(this).attr('y1', d.sourceY = pos.source[1]);
+                d3.select(this).attr('x2', d.targetX = pos.target[0]);
+                d3.select(this).attr('y2', d.targetY = pos.target[1]);
             });
 
-            d3.select(this).selectAll('text').attr('transform', function (d) {
-                var x = d.sourceX + (d.targetX - d.sourceX) / 2;
-                var y = d.sourceY + (d.targetY - d.sourceY) / 2;
-                var textAngle = d.parent.textAngle;
+            // 关系连线
+            lineG.selectAll('text').attr('transform', function (d) {
+                var textX = d.sourceX + (d.targetX - d.sourceX) / 2;
+                var textY = d.sourceY + (d.targetY - d.sourceY) / 2;
+                var textAngle = getAngle(d.sourceX, d.sourceY, d.targetX , d.targetY) ;
                 var textRotate = (textAngle > 90 || textAngle < -90) ? (180 + textAngle) : textAngle;
-                return ['translate(' + [x, y] + ')', 'rotate(' + textRotate + ')'].join(' ');
+                return ['translate(' + [textX, textY] + ')', 'rotate(' + textRotate + ')'].join(' ');
             });
         });
-
-        links
-            .attr('x1', function (d) {
-                return d.source.x;
-            })
-            .attr('y1', function (d) {
-                return d.source.y;
-            })
-            .attr('x2', function (d) {
-                return d.target.x;
-            })
-            .attr('y2', function (d) {
-                return d.target.y;
-            });
 
         nodes
             .attr('transform', function (d) {
                 return 'translate(' + [d.x, d.y] + ')'
             });
+    }
+
+    function getAngle(sx, sy, tx, ty) {
+        const a = ty - sy; // 对边长度
+        const b = tx - sx; // 临边长度
+        const c = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2)); // 斜边长度
+        // 求出弧度
+        const radian = Math.acos(b / c);
+        // 用弧度算出角度   
+        let angle = 180 / (Math.PI / radian);
+        if (a < 0) {
+            angle *= -1;
+        } else if ((a == 0) && (b < 0)) {
+            angle = 180;
+        }
+        return angle;
     }
 
     function dragstart(d) {

@@ -84,8 +84,7 @@ function initCanvas(companyId) {
     //     .attr('class', 'zoom-overlay hidden');
 
     const container = svg.append('g')
-        .attr('class', 'container')
-        .attr('opacity', 0);
+        .attr('class', 'container');
 
     var brushRect = container.append('g')
         .attr('class', 'brush-rect');
@@ -127,10 +126,10 @@ function initCanvas(companyId) {
      */
     var graph = timeLineCache.get(url);
     if (graph) {
-        setTimeout(function () {
-            // --> 渲染力学图
+        // --> 渲染力学图
+        requestAnimationFrame(function () {
             renderFroce(graph);
-        }, 10);
+        });
     } else {
         d3.json(url, function (error, graph) {
             if (error) {
@@ -168,20 +167,19 @@ function initCanvas(companyId) {
         // 绑定力学图数据
         force
             .nodes(nodes_data)
-            .links(edges_data)
-            .start();
+            .links(edges_data);
+        // 开启力学布局
+        force.start();
+        // 强制停止力学布局
+        setTimeout(function () {
+            force.stop();
+        }, 3000);
 
         force.on('end', function () {
             // // 固定所有节点 
             // nodes_data.forEach(node => { 
             //     node.fixed = true; 
             // });
-            // 显示关系图 
-            container.attr('opacity', 1);
-            d3.select('.timeline-legend').style('opacity', 1);
-            // 显示时间轴 
-            d3.select('#timeline').style('opacity', 1);
-            toggleMask(false);
         });
 
         // 关系分组
@@ -274,6 +272,11 @@ function initCanvas(companyId) {
 
         // 选中画布范围
         brushHandle(graph);
+
+        // 关闭 loading 动画
+        requestAnimationFrame(function () {
+            toggleMask(false);
+        });
 
     } // renderFroce end 
 
@@ -623,10 +626,6 @@ function initCanvas(companyId) {
 
             }
         }
-
-        // setTimeout(function () {
-        //     force.stop();
-        // }, 3000);
 
         // 时间轴筛选关系
         filterRelation();

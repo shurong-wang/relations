@@ -143,14 +143,13 @@ text {
     bottom: 0;
     height: 100%;
     width: 100%;
-    padding-bottom: 84px;
     user-select: none;
-    background-color: #ecf0f1;
+    padding-bottom: 0;
+    background-color: transparent;
 }
 
 #timeline {
     display: flex;
-    opacity: 0;
     width: 100%;
     flex-direction: column;
     justify-content: center;
@@ -159,9 +158,10 @@ text {
     padding-top: 6px;
     border-top: 1px solid #ccc;
     position: absolute;
-    bottom: 0;
+    bottom: 41px;
     user-select: none;
-    background-color:rgba(237, 240, 239, .7);
+    /* background-color:rgba(237, 240, 239, .7); */
+    background-color:#fff;
 }
 
 .timeline-bar .axis path {
@@ -219,9 +219,8 @@ text {
 }
 
 .timeline-legend {
-    opacity: 0;
     position: absolute;
-    bottom: 100px;
+    bottom: 141px;
     left: 50px;
     width: 100px;
     height: 100px;
@@ -413,10 +412,6 @@ text {
     background-color: rgba(180, 180, 180, .2);
     z-index: 999;
     filter: alpha(opacity=60);
-}
-
-#timeline-mask {
-    top: 68px;
 }
 
 .loader {

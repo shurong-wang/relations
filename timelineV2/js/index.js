@@ -17,6 +17,7 @@ $(function () {
 
     var oriWidth = $('#relation').width();
     var oriHeight = $('#relation').height();
+    $('#timeline').css("width", oriWidth);
 
     // 全屏切换
     screenfull.on('change', function () {

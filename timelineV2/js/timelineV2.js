@@ -18,9 +18,6 @@ var timeLineCache = new Map();
 function initCanvas(companyId) {
     toggleMask(true);
 
-    var nodes_data = [];
-    var edges_data = [];
-
     // var url = '../js/config/data/timeline.json';
     // var url = api('getTimeLine', {
     //     companyId: companyId
@@ -147,8 +144,8 @@ function initCanvas(companyId) {
             }
             timeLineCache.set(url, graph);
 
-            // --> 1. 绘制时间轴工具条
-            renderBar(graph);
+            // // --> 1. 绘制时间轴工具条
+            // renderBar(graph);
 
             // --> 2. 绘制关系图 
             renderFroce(graph);
@@ -162,7 +159,8 @@ function initCanvas(companyId) {
      */
     function renderFroce(graph) {
         // 生成力学图数据
-        var { nodes_data, edges_data } = genForeData(graph);
+        var {nodes_data, edges_data} = genForeData(graph);
+        console.log('更新前：', nodes_data);
 
         // 绑定力学图数据
         force
@@ -174,13 +172,6 @@ function initCanvas(companyId) {
         setTimeout(function () {
             force.stop();
         }, 3000);
-
-        force.on('end', function () {
-            // // 固定所有节点 
-            // nodes_data.forEach(node => { 
-            //     node.fixed = true; 
-            // });
-        });
 
         // 关系分组
         links = links
@@ -286,25 +277,21 @@ function initCanvas(companyId) {
      */
     function update(graph) {
 
-        // --> 1. 绘制时间轴工具条
+        // // --> 1. 更新时间轴工具条
         // renderBar(graph);
 
+        // --> 2. 更新时间关系图
         // 更新力学图数据
-        var { nodes_data, edges_data } = genForeData(graph);
-
+        var {nodes_data, edges_data} = genForeData(graph);
+        console.log('更新后：', nodes_data);
+        
         // 更新关系（连线）
         links = links.data(edges_data);
-        var enterLinks = links.enter();
-        var exitTLinks = links.exit();
-
-        exitTLinks.remove();
+        links.exit().remove();
 
         // 更新主体（节点）
         nodes = nodes.data(nodes_data);
-        var enterNodes = nodes.enter();
-        var exitTNodes = nodes.exit();
-
-        exitTNodes.remove();
+        nodes.exit().remove();
 
         // 开启力学计算
         force.start();
@@ -315,9 +302,6 @@ function initCanvas(companyId) {
      * @param {Object} graph 
      */
     function genForeData(graph) {
-
-        // console.log('old:', nodes_data, edges_data);
-
         var nodesMap = graph.nodes.reduce(function (map, node) {
             map[node.id] = node;
             return map;
@@ -349,8 +333,6 @@ function initCanvas(companyId) {
                 relation: relsMap[k].relation
             }
         });
-
-        // console.log('new:', nodes_data, edges_data);
 
         return { nodes_data, edges_data };
     }
